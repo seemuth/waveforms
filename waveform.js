@@ -1,5 +1,5 @@
 var rows = 0;
-var cols = 10;
+var cols = 0;
 var table;
 var edit_border = "thin dotted lightgrey";
 
@@ -17,6 +17,7 @@ function init()
 {
     table = document.getElementById("wftable");
     addRows(4);
+    addCols(10);
 }
 
 function addRows(numrows)
