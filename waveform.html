@@ -12,10 +12,6 @@
 
     <body onload="init()">
 	<div style="overflow: auto;">
-	    <table id="wftable" cellspacing="0" summary="Functional waveform"
-		style="border: none; border-collapse: collapse;">
-	    </table>
-
 	    <form action="">
 		<p>
 		<input type="button" onclick="addRows(1)" value="Add row" />
@@ -28,6 +24,10 @@
 		<input type="button" onclick="borderize()" value="Borderize" />
 		</p>
 	    </form>
+
+	    <table id="wftable" cellspacing="0" summary="Functional waveform"
+		style="border: none; border-collapse: collapse;">
+	    </table>
 	</div>
     </body>
 </html>
