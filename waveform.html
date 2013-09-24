@@ -11,19 +11,21 @@
     </head>
 
     <body onload="init()">
-	<table id="wftable" cellspacing="0" summary="Functional waveform"
-	    style="border: none; border-collapse: collapse;">
-	</table>
+	<div style="overflow: auto;">
+	    <table id="wftable" cellspacing="0" summary="Functional waveform"
+		style="border: none; border-collapse: collapse;">
+	    </table>
 
-	<form action="">
-	    <p>
-	    <input type="button" onclick="addRows(1)" value="Add row" />
-	    <input type="button" onclick="addCols(1)" value="Add col" />
-	    </p>
+	    <form action="">
+		<p>
+		<input type="button" onclick="addRows(1)" value="Add row" />
+		<input type="button" onclick="addCols(1)" value="Add col" />
+		</p>
 
-	    <p>
-	    <input type="button" onclick="borderize()" value="Borderize" />
-	    </p>
-	</form>
+		<p>
+		<input type="button" onclick="borderize()" value="Borderize" />
+		</p>
+	    </form>
+	</div>
     </body>
 </html>
