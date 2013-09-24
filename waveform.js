@@ -8,6 +8,11 @@ function text(str)
     return document.createTextNode(str);
 }
 
+function cellContents(rowindex, colindex)
+{
+    return "&nbsp;";
+}
+
 function init()
 {
     table = document.getElementById("wftable");
@@ -29,7 +34,7 @@ function addRows(numrows)
 
 	for (c = 0; c < cols; c++) {
 	    var cell = row.insertCell(-1);
-	    cell.innerHTML = rows.toString().concat(",", c.toString());
+	    cell.innerHTML = cellContents(rows, c);
 	    cell.style.border = edit_border;
 	    row.appendChild(text("\n"));
 	}
@@ -45,7 +50,7 @@ function addCols(numcols)
 
 	for (c = row.cells.length; c < cols; c++) {
 	    var cell = row.insertCell(-1);
-	    cell.innerHTML = r.toString().concat(",", c.toString());
+	    cell.innerHTML = cellContents(r, c);
 	    cell.style.border = edit_border;
 	    row.appendChild(text("\n"));
 	}
