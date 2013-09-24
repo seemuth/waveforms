@@ -1,7 +1,6 @@
 var rows = 0;
 var cols = 0;
 var table;
-var edit_border = "thin dotted lightgrey";
 
 function text(str)
 {
@@ -36,7 +35,6 @@ function addRows(numrows)
 	for (c = 0; c < cols; c++) {
 	    var cell = row.insertCell(-1);
 	    cell.innerHTML = cellContents(rows, c);
-	    cell.style.border = edit_border;
 	    row.appendChild(text("\n"));
 	}
     }
@@ -65,7 +63,6 @@ function addCols(numcols)
 	for (c = row.cells.length; c < cols; c++) {
 	    var cell = row.insertCell(-1);
 	    cell.innerHTML = cellContents(r, c);
-	    cell.style.border = edit_border;
 	    row.appendChild(text("\n"));
 	}
     }
