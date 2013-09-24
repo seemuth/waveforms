@@ -42,6 +42,19 @@ function addRows(numrows)
     }
 }
 
+function delRows(numrows)
+{
+    numrows = rows - numrows;
+    if (numrows < 1) {
+	numrows = 1;
+    }
+
+    while (rows > numrows) {
+	table.deleteRow(-1);
+	rows--;
+    }
+}
+
 function addCols(numcols)
 {
     cols += numcols;
@@ -54,6 +67,22 @@ function addCols(numcols)
 	    cell.innerHTML = cellContents(r, c);
 	    cell.style.border = edit_border;
 	    row.appendChild(text("\n"));
+	}
+    }
+}
+
+function delCols(numcols)
+{
+    cols = cols - numcols;
+    if (cols < 1) {
+	cols = 1;
+    }
+
+    for (r = 0; r < rows; r++) {
+	var row = table.rows[r];
+
+	while (row.cells.length > cols) {
+	    row.deleteCell(-1);
 	}
     }
 }
