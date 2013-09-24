@@ -1,7 +1,7 @@
 var rows = 0;
 var cols = 10;
 var table;
-var edit_border = "thin dotted grey";
+var edit_border = "thin dotted lightgrey";
 
 function text(str)
 {
