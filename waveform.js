@@ -106,3 +106,11 @@ function delCols(numcols)
 	}
     }
 }
+
+
+
+function exportHTML()
+{
+    var io = document.getElementById("io");
+    io.value = table.innerHTML.trim();
+}
