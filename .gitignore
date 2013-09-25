@@ -14,5 +14,5 @@ __pycache__
 *.pyc
 
 
-*.out.html
+*.out.*
 *.out_files
