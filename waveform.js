@@ -35,13 +35,6 @@ function cellContents(rowindex, colindex)
     return "&nbsp;";
 }
 
-function init()
-{
-    table = document.getElementById("wftable");
-    addRows(4);
-    addCols(10);
-}
-
 function addRows(numrows)
 {
     numrows += rows;
@@ -108,6 +101,13 @@ function delCols(numcols)
 }
 
 
+
+function init()
+{
+    table = document.getElementById("wftable");
+    addRows(4);
+    addCols(10);
+}
 
 function exportHTML()
 {
