@@ -1,5 +1,5 @@
 /**
- * waveform.js: Functions for facilitating the creation of waveforms using the
+ * @fileoverview Functions for facilitating the creation of waveforms using the
  *	accompanying waveform.html file.
  *
  * Copyright (c) 2013 Daniel P. Seemuth
@@ -20,62 +20,93 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @author Daniel P. Seemuth
+ * @version 0.1.0
  **/
 
-var PROJNAME = "Waveform Editor";
-var VERSION = "v0.1.0";
+var PROJ_NAME = 'Waveform Editor';
+var VERSION = 'v0.1.0';
 
 var rows = 0;
 var cols = 0;
 var table;
 
+
+/**
+ * Create a TextNode with the given string.
+ * @param {string} str Text contents for new node.
+ * @return {TextNode} Node containing str.
+ */
 function text(str)
 {
     return document.createTextNode(str);
 }
 
-function cellContents(rowindex, colindex)
+
+/**
+ * Generate the default contents for a new cell.
+ * @param {number} rowIndex Zero-based row index of the cell.
+ * @param {number} colIndex Zero-based col index of the cell.
+ * @return {string} Text contents for the cell.
+ */
+function cellContents(rowIndex, colIndex)
 {
-    return "&nbsp;";
+    return '&nbsp;';
 }
 
-function addRows(numrows)
+
+/**
+ * Add rows at the bottom of the waveform.
+ * @param {number} numRows Number of rows to add.
+ */
+function addRows(numRows)
 {
-    numrows += rows;
+    numRows += rows;
 
     if (table.tBodies.length < 1) {
 	table.appendChild(document.createElement('tbody'));
     }
 
-    for (; rows < numrows; rows++) {
-	table.tBodies[table.tBodies.length - 1].appendChild(text("\n"));
+    for (; rows < numRows; rows++) {
+	table.tBodies[table.tBodies.length - 1].appendChild(text('\n'));
 	var row = table.insertRow(-1);
-	row.appendChild(text("\n"));
+	row.appendChild(text('\n'));
 
 	for (c = 0; c < cols; c++) {
 	    var cell = row.insertCell(-1);
 	    cell.innerHTML = cellContents(rows, c);
-	    row.appendChild(text("\n"));
+	    row.appendChild(text('\n'));
 	}
     }
 }
 
-function delRows(numrows)
+
+/**
+ * Delete rows from the bottom of the waveform.
+ * @param {number} numRows Number of rows to delete.
+ */
+function delRows(numRows)
 {
-    numrows = rows - numrows;
-    if (numrows < 1) {
-	numrows = 1;
+    numRows = rows - numRows;
+    if (numRows < 1) {
+	numRows = 1;
     }
 
-    while (rows > numrows) {
+    while (rows > numRows) {
 	table.deleteRow(-1);
 	rows--;
     }
 }
 
-function addCols(numcols)
+
+/**
+ * Add columns at the right end of the waveform.
+ * @param {number} numCols Number of columns to add.
+ */
+function addCols(numCols)
 {
-    cols += numcols;
+    cols += numCols;
 
     for (r = 0; r < rows; r++) {
 	var row = table.rows[r];
@@ -83,14 +114,19 @@ function addCols(numcols)
 	for (c = row.cells.length; c < cols; c++) {
 	    var cell = row.insertCell(-1);
 	    cell.innerHTML = cellContents(r, c);
-	    row.appendChild(text("\n"));
+	    row.appendChild(text('\n'));
 	}
     }
 }
 
-function delCols(numcols)
+
+/**
+ * Delete columns from the right end of the waveform.
+ * @param {number} numCols Number of columns to delete.
+ */
+function delCols(numCols)
 {
-    cols = cols - numcols;
+    cols = cols - numCols;
     if (cols < 1) {
 	cols = 1;
     }
@@ -106,19 +142,27 @@ function delCols(numcols)
 
 
 
+
+/**
+ * Initialize the editor and waveform grid.
+ */
 function init()
 {
-    var version_paragraph = document.getElementById("version");
+    var version_paragraph = document.getElementById('version');
 
-    version_paragraph.innerHTML = PROJNAME.concat(" ", VERSION);
+    version_paragraph.innerHTML = PROJ_NAME.concat(' ', VERSION);
 
-    table = document.getElementById("wftable");
+    table = document.getElementById('wftable');
     addRows(4);
     addCols(10);
 }
 
+
+/**
+ * Copy the table's HTML into the I/O textarea so the user can copy/paste.
+ */
 function exportHTML()
 {
-    var io = document.getElementById("io");
+    var io = document.getElementById('io');
     io.value = table.innerHTML.trim();
 }
