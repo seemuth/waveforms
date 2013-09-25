@@ -21,6 +21,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **/
+
+var PROJNAME = "Waveform Editor";
+var VERSION = "v0.1.0";
+
 var rows = 0;
 var cols = 0;
 var table;
@@ -104,6 +108,10 @@ function delCols(numcols)
 
 function init()
 {
+    var version_paragraph = document.getElementById("version");
+
+    version_paragraph.innerHTML = PROJNAME.concat(" ", VERSION);
+
     table = document.getElementById("wftable");
     addRows(4);
     addCols(10);
