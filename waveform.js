@@ -83,7 +83,7 @@ function cellContents_(rowIndex, colIndex)
 /**
  * @private
  * Set the event callbacks for a new cell.
- * @param {td} cell Set callbacks for this cell.
+ * @param {cell} cell Set callbacks for this cell.
  * @param {number} rowIndex Zero-based table row index of the cell.
  * @param {number} colIndex Zero-based table col index of the cell.
  */
@@ -110,6 +110,10 @@ function setCellEventCallbacks_(cell, rowIndex, colIndex)
  */
 function addRow_(rowIndex)
 {
+    if (rowIndex < 0) {
+	throw 'rowIndex too low';
+    }
+
     var row = table.insertRow(rowIndex);
     row.appendChild(text_('\n'));
 
@@ -126,11 +130,36 @@ function addRow_(rowIndex)
 
     /* Add columns. */
     for (var c = 0; c < cols; c++) {
-	var cell = row.insertCell(-1);
-	cell.innerHTML = cellContents_(rowIndex, c);
-	setCellEventCallbacks_(cell, rowIndex, c);
-	row.appendChild(text_('\n'));
+	addCell_(rowIndex, c);
     }
+}
+
+
+/**
+ * @private
+ * Add table cell at the given row and column indices.
+ * @param {number} rowIndex Add cell in this row (0 <= rowIndex < # rows).
+ * @param {number} colIndex Add cell in this col (0 <= colIndex <= # cells).
+ * @return {cell} Cell that was added to the table.
+ */
+function addCell_(rowIndex, colIndex)
+{
+    if (rowIndex < 0) {
+	throw 'rowIndex too low';
+    }
+
+    if (colIndex < 0) {
+	throw 'colIndex too low';
+    }
+
+    var row = table.rows[rowIndex];
+    var cell = row.insertCell(colIndex);
+
+    cell.innerHTML = cellContents_(rowIndex, colIndex);
+    setCellEventCallbacks_(cell, rowIndex, colIndex);
+    row.appendChild(text_('\n'));
+
+    return cell;
 }
 
 
@@ -227,12 +256,7 @@ function addCol(index)
     var colIndex = index;
 
     for (var r = 0; r < table.rows.length; r++) {
-	var row = table.rows[r];
-
-	var cell = row.insertCell(colIndex);
-	cell.innerHTML = cellContents_(r, index);
-	setCellEventCallbacks_(cell, r, index);
-	row.appendChild(text_('\n'));
+	addCell_(r, colIndex);
     }
 
     cols++;
