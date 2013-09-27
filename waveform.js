@@ -37,23 +37,25 @@ var table;
 
 
 /**
+ * @private
  * Create a TextNode with the given string.
  * @param {string} str Text contents for new node.
  * @return {TextNode} Node containing str.
  */
-function text(str)
+function text_(str)
 {
     return document.createTextNode(str);
 }
 
 
 /**
+ * @private
  * Generate the default contents for a new cell.
  * @param {number} rowIndex Zero-based table row index of the cell.
  * @param {number} colIndex Zero-based table col index of the cell.
  * @return {string} Text contents for the cell.
  */
-function cellContents(rowIndex, colIndex)
+function cellContents_(rowIndex, colIndex)
 {
     if (rowIndex == 0) {
 	/* Header row: show column index except for name column. */
@@ -86,24 +88,24 @@ function cellContents(rowIndex, colIndex)
 function addRow_(rowIndex)
 {
     var row = table.insertRow(rowIndex);
-    row.appendChild(text('\n'));
+    row.appendChild(text_('\n'));
 
     /* Add newline before this row. */
-    table.tBodies[0].insertBefore(text('\n'), row);
+    table.tBodies[0].insertBefore(text_('\n'), row);
 
     /* Add newline after this row. */
     var nextrow = row.nextSibling;
     if (nextrow == null) {
-	table.tBodies[0].appendChild(text('\n'));
+	table.tBodies[0].appendChild(text_('\n'));
     } else {
-	table.tBodies[0].insertBefore(text('\n'), nextrow);
+	table.tBodies[0].insertBefore(text_('\n'), nextrow);
     }
 
     /* Add columns. */
     for (var c = 0; c < cols; c++) {
 	var cell = row.insertCell(-1);
-	cell.innerHTML = cellContents(rowIndex, c);
-	row.appendChild(text('\n'));
+	cell.innerHTML = cellContents_(rowIndex, c);
+	row.appendChild(text_('\n'));
     }
 }
 
@@ -204,8 +206,8 @@ function addCol(index)
 	var row = table.rows[r];
 
 	var cell = row.insertCell(colIndex);
-	cell.innerHTML = cellContents(r, index);
-	row.appendChild(text('\n'));
+	cell.innerHTML = cellContents_(r, index);
+	row.appendChild(text_('\n'));
     }
 
     cols++;
