@@ -26,9 +26,12 @@
  **/
 
 var PROJ_NAME = 'Waveform Editor';
-var VERSION = 'v0.1.0';
+var VERSION = 'v0.2.0';
 
-var rows = 0;
+var START_SIGNALS = 4;
+var START_COLS = 8;
+
+var signals = 0;
 var cols = 0;
 var table;
 
@@ -46,97 +49,192 @@ function text(str)
 
 /**
  * Generate the default contents for a new cell.
- * @param {number} rowIndex Zero-based row index of the cell.
- * @param {number} colIndex Zero-based col index of the cell.
+ * @param {number} rowIndex Zero-based table row index of the cell.
+ * @param {number} colIndex Zero-based table col index of the cell.
  * @return {string} Text contents for the cell.
  */
 function cellContents(rowIndex, colIndex)
 {
-    return '&nbsp;';
+    if (rowIndex == 0) {
+	/* Header row: show column index except for name column. */
+	if (colIndex == 0) {
+	    return '&nbsp;';
+	} else {
+	    return colIndex.toString();
+	}
+
+    } else if ((rowIndex % 2) == 1) {
+	/* Separator row: blank cells. */
+	return '&nbsp;';
+
+    } else if (colIndex == 0) {
+	/* Signal name column. */
+	return 'SIG';
+
+    }
+
+    /* Signal data cell. */
+    return Math.floor((Math.random() * 900) + 100).toString();
 }
 
 
 /**
- * Add rows at the bottom of the waveform.
- * @param {number} numRows Number of rows to add.
+ * @private
+ * Add table row at the given row index.
+ * @param {number} rowIndex Add row at this index (0 <= rowIndex <= # rows).
  */
-function addRows(numRows)
+function addRow_(rowIndex)
 {
-    numRows += rows;
+    var row = table.insertRow(rowIndex);
+    row.appendChild(text('\n'));
 
-    if (table.tBodies.length < 1) {
-	table.appendChild(document.createElement('tbody'));
+    /* Add newline before this row. */
+    table.tBodies[0].insertBefore(text('\n'), row);
+
+    /* Add newline after this row. */
+    var nextrow = row.nextSibling;
+    if (nextrow == null) {
+	table.tBodies[0].appendChild(text('\n'));
+    } else {
+	table.tBodies[0].insertBefore(text('\n'), nextrow);
     }
 
-    for (; rows < numRows; rows++) {
-	table.tBodies[table.tBodies.length - 1].appendChild(text('\n'));
-	var row = table.insertRow(-1);
+    /* Add columns. */
+    for (var c = 0; c < cols; c++) {
+	var cell = row.insertCell(-1);
+	cell.innerHTML = cellContents(rowIndex, c);
 	row.appendChild(text('\n'));
-
-	for (c = 0; c < cols; c++) {
-	    var cell = row.insertCell(-1);
-	    cell.innerHTML = cellContents(rows, c);
-	    row.appendChild(text('\n'));
-	}
     }
 }
 
 
 /**
- * Delete rows from the bottom of the waveform.
- * @param {number} numRows Number of rows to delete.
+ * @private
+ * Convert signal index to table row index.
+ * @param {number} sigIndex Zero-based signal index.
+ * @return {number} Zero-based table row index.
  */
-function delRows(numRows)
+function sigIndexToRowIndex_(sigIndex)
 {
-    numRows = rows - numRows;
-    if (numRows < 1) {
-	numRows = 1;
+    if (sigIndex < 0) {
+	throw "sigIndex too low";
     }
 
-    while (rows > numRows) {
-	table.deleteRow(-1);
-	rows--;
+    /* Row 0 is header row, and 2 rows per signal. */
+    return 1 + (sigIndex * 2);
+}
+
+
+/**
+ * @private
+ * Convert table row index to signal index.
+ * @param {number} rowIndex Zero-based table row index.
+ * @return {number} Zero-based signal index.
+ */
+function rowIndexToSigIndex_(rowIndex)
+{
+    if (rowIndex < 1) {
+	throw "rowIndex too low";
+    }
+
+    /* Row 0 is header row, and 2 rows per signal. */
+    return Math.floor((rowIndex - 1) / 2);
+}
+
+
+/**
+ * Add signal at the given index.
+ * @param {number} index Add signal at this index (negative means last).
+ */
+function addSignal(index)
+{
+    if (index < 0) {
+	index = signals;
+    }
+
+    var rowIndex = sigIndexToRowIndex_(index);
+
+    /* Add separator row and signal row. */
+    for (var i = 0; i < 2; i++) {
+	addRow_(rowIndex + i);
+    }
+
+    signals++;
+}
+
+
+/**
+ * Delete the signal at the given index.
+ * @param {number} index Delete signal at this index (negative means last).
+ */
+function delSignal(index)
+{
+    if (signals < 1) {
+	/* No signals to delete! */
+	return;
+    }
+
+    signals--;
+
+    if (index < 0) {
+	index = signals;
+    }
+
+    var rowIndex = sigIndexToRowIndex_(index);
+
+    for (var i = 0; i < 2; i++) {
+	table.deleteRow(rowIndex);
     }
 }
 
 
 /**
- * Add columns at the right end of the waveform.
- * @param {number} numCols Number of columns to add.
+ * Add column at the given index.
+ * @param {number} index Add column at this index (negative means last).
  */
-function addCols(numCols)
+function addCol(index)
 {
-    cols += numCols;
+    if (index < 0) {
+	index = cols;
+    }
 
-    for (r = 0; r < rows; r++) {
+    var colIndex = index;
+
+    for (var r = 0; r < table.rows.length; r++) {
 	var row = table.rows[r];
 
-	for (c = row.cells.length; c < cols; c++) {
-	    var cell = row.insertCell(-1);
-	    cell.innerHTML = cellContents(r, c);
-	    row.appendChild(text('\n'));
-	}
+	var cell = row.insertCell(colIndex);
+	cell.innerHTML = cellContents(r, index);
+	row.appendChild(text('\n'));
     }
+
+    cols++;
 }
 
 
 /**
- * Delete columns from the right end of the waveform.
- * @param {number} numCols Number of columns to delete.
+ * Delete the column at the given index.
+ * @param {number} index Delete column at this index (negative means last).
  */
-function delCols(numCols)
+function delCol(index)
 {
-    cols = cols - numCols;
-    if (cols < 1) {
-	cols = 1;
+    if (cols <= 1) {
+	/* No non-name columns to delete! */
+	return;
     }
 
-    for (r = 0; r < rows; r++) {
+    cols--;
+
+    if (index < 0) {
+	index = cols;
+    }
+
+    var colIndex = index;
+
+    for (var r = 0; r < table.rows.length; r++) {
 	var row = table.rows[r];
 
-	while (row.cells.length > cols) {
-	    row.deleteCell(-1);
-	}
+	row.deleteCell(colIndex);
     }
 }
 
@@ -153,8 +251,24 @@ function init()
     version_paragraph.innerHTML = PROJ_NAME.concat(' ', VERSION);
 
     table = document.getElementById('wftable');
-    addRows(4);
-    addCols(10);
+
+
+    /* Pre-populate the table. */
+
+    if (table.tBodies.length < 1) {
+	table.appendChild(document.createElement('tbody'));
+    }
+
+    for (var i = 0; i < START_COLS; i++) {
+	addCol(-1);
+    }
+
+    /* Add header row. */
+    addRow_(0);
+
+    for (var i = 0; i < START_SIGNALS; i++) {
+	addSignal(-1);
+    }
 }
 
 
@@ -164,5 +278,7 @@ function init()
 function exportHTML()
 {
     var io = document.getElementById('io');
-    io.value = table.innerHTML.trim();
+    var text = table.innerHTML.trim().replace(/\n+/g, '\n');
+    table.innerHTML = text;
+    io.value = text;
 }
