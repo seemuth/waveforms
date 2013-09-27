@@ -82,6 +82,29 @@ function cellContents_(rowIndex, colIndex)
 
 /**
  * @private
+ * Set the event callbacks for a new cell.
+ * @param {td} cell Set callbacks for this cell.
+ * @param {number} rowIndex Zero-based table row index of the cell.
+ * @param {number} colIndex Zero-based table col index of the cell.
+ */
+function setCellEventCallbacks_(cell, rowIndex, colIndex)
+{
+    if (rowIndex == 0) {
+	/* Header row. */
+
+	if (colIndex > 0) {
+	    cell.ondblclick = cell_dblclick;
+	}
+
+    } else if (((rowIndex - 1) % 2) == 1) {
+	/* Signal row. */
+	cell.ondblclick = cell_dblclick;
+    }
+}
+
+
+/**
+ * @private
  * Add table row at the given row index.
  * @param {number} rowIndex Add row at this index (0 <= rowIndex <= # rows).
  */
@@ -105,6 +128,7 @@ function addRow_(rowIndex)
     for (var c = 0; c < cols; c++) {
 	var cell = row.insertCell(-1);
 	cell.innerHTML = cellContents_(rowIndex, c);
+	setCellEventCallbacks_(cell, rowIndex, c);
 	row.appendChild(text_('\n'));
     }
 }
@@ -207,6 +231,7 @@ function addCol(index)
 
 	var cell = row.insertCell(colIndex);
 	cell.innerHTML = cellContents_(r, index);
+	setCellEventCallbacks_(cell, r, index);
 	row.appendChild(text_('\n'));
     }
 
@@ -281,6 +306,19 @@ function exportHTML()
 {
     var io = document.getElementById('io');
     var text = table.innerHTML.trim().replace(/\n+/g, '\n');
-    table.innerHTML = text;
     io.value = text;
+}
+
+
+/**
+ * Handle double-click event on a cell.
+ */
+function cell_dblclick(event) {
+    var cell = event.currentTarget;
+
+    if (cell.style.backgroundColor == 'blue') {
+	cell.style.backgroundColor = '';
+    } else {
+	cell.style.backgroundColor = 'blue';
+    }
 }
