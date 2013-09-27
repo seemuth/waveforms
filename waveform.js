@@ -249,9 +249,15 @@ function delSignal(index)
  */
 function addCol(index)
 {
+    if (index > cols) {
+	throw 'index too high';
+    }
+
     if (index < 0) {
 	index = cols;
     }
+
+    var regenHeader = (index < cols);	/* Need to regenerate header? */
 
     var colIndex = index;
 
@@ -260,6 +266,14 @@ function addCol(index)
     }
 
     cols++;
+
+    if (regenHeader) {
+	var row = table.rows[0];
+
+	for (var c = 1; c < cols; c++) {
+	    row.cells[c].innerHTML = cellContents_(0, c);
+	}
+    }
 }
 
 
@@ -274,6 +288,12 @@ function delCol(index)
 	return;
     }
 
+    if (index >= cols) {
+	throw 'index too high';
+    }
+
+    var regenHeader = (index < (cols - 1)); /* Need to regenerate header? */
+
     cols--;
 
     if (index < 0) {
@@ -286,6 +306,14 @@ function delCol(index)
 	var row = table.rows[r];
 
 	row.deleteCell(colIndex);
+    }
+
+    if (regenHeader) {
+	var row = table.rows[0];
+
+	for (var c = 1; c < cols; c++) {
+	    row.cells[c].innerHTML = cellContents_(0, c);
+	}
     }
 }
 
