@@ -143,7 +143,7 @@ function addRow_(rowIndex)
 function sigIndexToRowIndex_(sigIndex)
 {
     if (sigIndex < 0) {
-	throw "sigIndex too low";
+	throw 'sigIndex too low';
     }
 
     /* Row 0 is header row, and 2 rows per signal. */
@@ -160,7 +160,7 @@ function sigIndexToRowIndex_(sigIndex)
 function rowIndexToSigIndex_(rowIndex)
 {
     if (rowIndex < 1) {
-	throw "rowIndex too low";
+	throw 'rowIndex too low';
     }
 
     /* Row 0 is header row, and 2 rows per signal. */
