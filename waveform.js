@@ -115,6 +115,8 @@ function setUpCell_(cell, rowIndex, colIndex)
     cell.innerHTML = cellContents_(rowIndex, colIndex);
 
     setCellEventCallbacks_(cell, rowIndex, colIndex);
+
+    cell.style.borderRight = 'thin dotted black';
 }
 
 
