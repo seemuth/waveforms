@@ -76,7 +76,7 @@ function cellContents_(rowIndex, colIndex)
     }
 
     /* Signal data cell. */
-    return Math.floor((Math.random() * 900) + 100).toString();
+    return '&nbsp';
 }
 
 
