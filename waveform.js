@@ -105,6 +105,21 @@ function setCellEventCallbacks_(cell, rowIndex, colIndex)
 
 /**
  * @private
+ * Set up a new cell (contents, callbacks, style, etc.).
+ * @param {cell} cell Set callbacks for this cell.
+ * @param {number} rowIndex Zero-based table row index of the cell.
+ * @param {number} colIndex Zero-based table col index of the cell.
+ */
+function setUpCell_(cell, rowIndex, colIndex)
+{
+    cell.innerHTML = cellContents_(rowIndex, colIndex);
+
+    setCellEventCallbacks_(cell, rowIndex, colIndex);
+}
+
+
+/**
+ * @private
  * Add table row at the given row index.
  * @param {number} rowIndex Add row at this index (0 <= rowIndex <= # rows).
  */
@@ -155,8 +170,8 @@ function addCell_(rowIndex, colIndex)
     var row = table.rows[rowIndex];
     var cell = row.insertCell(colIndex);
 
-    cell.innerHTML = cellContents_(rowIndex, colIndex);
-    setCellEventCallbacks_(cell, rowIndex, colIndex);
+    setUpCell_(cell, rowIndex, colIndex);
+
     row.appendChild(text_('\n'));
 
     return cell;
