@@ -198,6 +198,44 @@ function rowIndexToSigIndex_(rowIndex)
 
 
 /**
+ * @private
+ * Find the column index for a cell object.
+ * @param {cell} cell Cell whose index to find.
+ * @return {number} Zero-based column index.
+ */
+function cellToColIndex_(cell)
+{
+    var parent_row = cell.parentNode;
+
+    for (var i = 0; i < parent_row.cells.length; i++) {
+	if (cell === parent_row.cells[i]) {
+	    return i;
+	}
+    }
+    return -1;
+}
+
+
+/**
+ * @private
+ * Find the row index for a row object.
+ * @param {row} row Row whose index to find.
+ * @return {number} Zero-based row index.
+ */
+function rowToRowIndex_(row)
+{
+    var parent_table = row.parentNode;
+
+    for (var i = 0; i < parent_table.rows.length; i++) {
+	if (row === parent_table.rows[i]) {
+	    return i;
+	}
+    }
+    return -1;
+}
+
+
+/**
  * Add signal at the given index.
  * @param {number} index Add signal at this index (negative means last).
  */
