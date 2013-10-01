@@ -114,10 +114,8 @@ function setCellEventCallbacks_(cell, rowIndex, colIndex)
     if (rowIndex == 0) {
 	/* Header row. */
 
-	if (colIndex > 0) {
-	    cell.onclick = cell_click;
-	    cell.ondblclick = cell_dblclick;
-	}
+	cell.onclick = cell_click;
+	cell.ondblclick = cell_dblclick;
 
     } else if (((rowIndex - 1) % 2) == 1) {
 	/* Signal row. */
@@ -446,6 +444,7 @@ function clearSelection_()
     }
 
     selected = [];
+    enableSigEdit_(false);
 }
 
 
@@ -558,14 +557,31 @@ function cell_click(event)
     var colIndex = cellToColIndex_(cell);
     var modifier = (event.altKey || event.ctrlKey || event.shiftKey);
 
-    if ((colIndex > 0) && (rowIndex > 0)) {
-	/* Signal data cell. */
+    if (! modifier) {
+	/* Clear other selection and select the chosen cell(s). */
+	clearSelection_();
+    }
 
-	if (! modifier) {
-	    /* Clear other selection and select this cell. */
-	    clearSelection_();
+    if ((colIndex == 0) && (rowIndex == 0)) {
+	/* Just clear selection. */
+	return;
+
+    } else if (colIndex == 0) {
+	/* Select whole row. */
+
+	for (var ci = 0; ci < cols; ci++) {
+	    setCellSelection_(rowIndex, ci, 's');
 	}
 
+    } else if (rowIndex == 0) {
+	/* Select whole column. */
+
+	for (var si = 0; si < signals; si++) {
+	    var ri = sigIndexToRowIndex_(si) + 1;
+	    setCellSelection_(ri, colIndex, 's');
+	}
+
+    } else {
 	/* Toggle this cell's selection. */
 	setCellSelection_(rowIndex, colIndex, 't');
     }
