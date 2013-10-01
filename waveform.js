@@ -293,6 +293,8 @@ function tableCoordsToCell_(rowIndex, colIndex)
  */
 function addSignal(index)
 {
+    clearSelection_();
+
     if (index < 0) {
 	index = signals;
     }
@@ -314,6 +316,8 @@ function addSignal(index)
  */
 function delSignal(index)
 {
+    clearSelection_();
+
     if (signals < 1) {
 	/* No signals to delete! */
 	return;
@@ -339,6 +343,8 @@ function delSignal(index)
  */
 function addCol(index)
 {
+    clearSelection_();
+
     if (index > cols) {
 	throw 'index too high';
     }
@@ -373,6 +379,8 @@ function addCol(index)
  */
 function delCol(index)
 {
+    clearSelection_();
+
     if (cols <= 1) {
 	/* No non-name columns to delete! */
 	return;
