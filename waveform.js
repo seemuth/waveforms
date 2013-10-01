@@ -603,9 +603,5 @@ function cell_dblclick(event)
 {
     var cell = event.currentTarget;
 
-    if (cell.style.backgroundColor == 'blue') {
-	cell.style.backgroundColor = '';
-    } else {
-	cell.style.backgroundColor = 'blue';
-    }
+    cell.innerHTML = cell.style.borderTop.concat(', ', cell.style.borderBottom);
 }
