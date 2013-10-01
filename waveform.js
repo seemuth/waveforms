@@ -122,6 +122,10 @@ function setCellEventCallbacks_(cell, rowIndex, colIndex)
 	/* Signal row. */
 	cell.onclick = cell_click;
 	cell.ondblclick = cell_dblclick;
+
+    } else {
+	/* Spacing row. */
+	cell.onclick = spacingCell_click;
     }
 }
 
@@ -743,4 +747,13 @@ function cell_click(event)
 function cell_dblclick(event)
 {
     var cell = event.currentTarget;
+}
+
+
+/**
+ * Handle click event on a spacing cell (between signal rows).
+ */
+function spacingCell_click(event)
+{
+    clearSelection();
 }
