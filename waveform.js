@@ -454,25 +454,50 @@ function clearSelection_()
  * Toggle cell selection.
  * @param {number} rowIndex Zero-based row index.
  * @param {number} colIndex Zero-based column index.
+ * @param {string} mode Set/clear/toggle selection.
  */
-function toggleCellSelection_(rowIndex, colIndex)
+function setCellSelection_(rowIndex, colIndex, mode)
 {
     var cellKey = rowIndex.toString().concat('x', colIndex.toString());
     var index = indexOf(selected, cellKey);
-
     var cell = tableCoordsToCell_(rowIndex, colIndex);
 
-    if (index < 0) {
-	/* Select this cell. */
-	selected.push(cellKey);
+    var sel_set = false;
+    var sel_clear = false;
 
-	cell.style.backgroundColor = COLOR_SELECT;
+    mode = mode.trim().charAt(0);
+
+    if (mode == 's') {
+	sel_set = true;
+
+    } else if (mode == 'c') {
+	sel_clear = true;
+
+    } else if (mode == 't') {
+	sel_set = (index < 0);
+	sel_clear = ! sel_set;
 
     } else {
-	/* Deselect this cell. */
-	selected.splice(index, 1);
+	throw 'invalid mode';
+    }
 
-	cell.style.backgroundColor = '';
+
+    if (sel_set) {
+	/* Select this cell if it isn't already selected. */
+	if (index < 0) {
+	    selected.push(cellKey);
+
+	    cell.style.backgroundColor = COLOR_SELECT;
+	}
+    }
+
+    if (sel_clear) {
+	/* Deselect this cell if it is selected. */
+	if (index >= 0) {
+	    selected.splice(index, 1);
+
+	    cell.style.backgroundColor = '';
+	}
     }
 
     enableSigEdit_(selected.length > 0);
@@ -542,7 +567,7 @@ function cell_click(event)
 	}
 
 	/* Toggle this cell's selection. */
-	toggleCellSelection_(rowIndex, colIndex);
+	setCellSelection_(rowIndex, colIndex, 't');
     }
 }
 
