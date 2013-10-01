@@ -550,7 +550,13 @@ function init()
 function exportHTML()
 {
     var io = document.getElementById('io');
-    var text = table.innerHTML.trim().replace(/\n+/g, '\n');
+    var text = '<div style="overflow: auto">\n'.concat(
+	    '<table cellspacing="0"',
+	    ' style="border: none; border-collapse: collapse;">\n',
+	    table.innerHTML.trim().replace(/\n+/g, '\n'),
+	    '\n</table>',
+	    '\n</div>'
+	    );
     io.value = text;
 }
 
