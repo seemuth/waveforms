@@ -569,7 +569,7 @@ function cell_click(event)
     } else if (colIndex == 0) {
 	/* Select whole row. */
 
-	for (var ci = 0; ci < cols; ci++) {
+	for (var ci = 1; ci < cols; ci++) {
 	    setCellSelection_(rowIndex, ci, 's');
 	}
 
