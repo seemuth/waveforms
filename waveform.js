@@ -452,15 +452,15 @@ function clearSelection_()
 /**
  * @private
  * Toggle cell selection.
- * @param {cell} cell Select/deselect this cell.
+ * @param {number} rowIndex Zero-based row index.
+ * @param {number} colIndex Zero-based column index.
  */
-function toggleCellSelection_(cell)
+function toggleCellSelection_(rowIndex, colIndex)
 {
-    var rowIndex = rowToRowIndex_(cell.parentNode);
-    var colIndex = cellToColIndex_(cell);
     var cellKey = rowIndex.toString().concat('x', colIndex.toString());
-
     var index = indexOf(selected, cellKey);
+
+    var cell = tableCoordsToCell_(rowIndex, colIndex);
 
     if (index < 0) {
 	/* Select this cell. */
@@ -542,7 +542,7 @@ function cell_click(event)
 	}
 
 	/* Toggle this cell's selection. */
-	toggleCellSelection_(cell);
+	toggleCellSelection_(rowIndex, colIndex);
     }
 }
 
