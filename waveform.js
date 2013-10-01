@@ -441,7 +441,8 @@ function exportHTML()
 /**
  * Handle double-click event on a cell.
  */
-function cell_dblclick(event) {
+function cell_dblclick(event)
+{
     var cell = event.currentTarget;
 
     if (cell.style.backgroundColor == 'blue') {
