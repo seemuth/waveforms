@@ -42,30 +42,30 @@
     </head>
 
     <body onload="init()">
+	<p>
+	<button type="button" onclick="addSignal(-1)">Add signal</button>
+	<button type="button" onclick="delSignal(-1)">Del signal</button>
+	<button type="button" onclick="addCol(-1)">Add col</button>
+	<button type="button" onclick="delCol(-1)">Del col</button>
+	<button type="button" onclick="exportHTML()">Export</button>
+	</p>
+
+	<p id="sigEdit" style="visibility:hidden;">
+	<button type="button" disabled="disabled" onclick="sigX()">X</button>
+	<button type="button" disabled="disabled" onclick="sig0()">0</button>
+	<button type="button" disabled="disabled" onclick="sig1()">1</button>
+	<button type="button" disabled="disabled" onclick="sigInv()">Inv</button>
+	</p>
+
+	<p id="msg"></p>
+
 	<div style="overflow: auto;">
-	    <p>
-	    <button type="button" onclick="addSignal(-1)">Add signal</button>
-	    <button type="button" onclick="delSignal(-1)">Del signal</button>
-	    <button type="button" onclick="addCol(-1)">Add col</button>
-	    <button type="button" onclick="delCol(-1)">Del col</button>
-	    <button type="button" onclick="exportHTML()">Export</button>
-	    </p>
-
-	    <p id="sigEdit" style="visibility:hidden;">
-	    <button type="button" disabled="disabled" onclick="sigX()">X</button>
-	    <button type="button" disabled="disabled" onclick="sig0()">0</button>
-	    <button type="button" disabled="disabled" onclick="sig1()">1</button>
-	    <button type="button" disabled="disabled" onclick="sigInv()">Inv</button>
-	    </p>
-
-	    <p id="msg"></p>
-
 	    <table id="wftable" cellspacing="0" summary="Functional waveform"
 		style="border: none; border-collapse: collapse;">
 	    </table>
-
-	    <p><textarea id="io" rows="30" cols="60"></textarea></p>
 	</div>
+
+	<p><textarea id="io" rows="30" cols="60"></textarea></p>
 
 	<p id="version"></p>
     </body>
