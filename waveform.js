@@ -512,6 +512,41 @@ function setCellSelection_(rowIndex, colIndex, mode)
 }
 
 
+/** @private
+ * Update signal cell's entering edge (left border) as needed.
+ * @param {number} rowIndex Zero-based row index.
+ * @param {number} colIndex Zero-based column index.
+ */
+function updateCellEdge_(rowIndex, colIndex)
+{
+    if (colIndex <= 1) {
+	/* First column has no entering edge. */
+	return;
+
+    } else if (colIndex >= cols) {
+	/* Beyond the last column. */
+	return;
+    }
+
+    var cell = tableCoordsToCell_(rowIndex, colIndex);
+    var leftCell = tableCoordsToCell_(rowIndex, colIndex - 1);
+
+    var dontcare = (cell.style.borderTop == '') &&
+	(cell.style.borderBottom == '');
+    dontcare |= (leftCell.style.borderTop == '') &&
+	(leftCell.style.borderBottom == '');
+
+    var edge = (cell.style.borderTop != leftCell.style.borderTop) ||
+	(cell.style.borderBottom != leftCell.style.borderBottom);
+
+    if (edge && (! dontcare)) {
+	cell.style.borderLeft = BORDER_SIGNAL;
+    } else {
+	cell.style.borderLeft = '';
+    }
+}
+
+
 /**
  * @private
  * Set signal cell's value.
@@ -547,6 +582,10 @@ function setCellValue_(rowIndex, colIndex, mode)
     } else {
 	throw 'invalid mode';
     }
+
+    /* Update entering and leaving edges. */
+    updateCellEdge_(rowIndex, colIndex);
+    updateCellEdge_(rowIndex, colIndex + 1);
 }
 
 
