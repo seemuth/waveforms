@@ -76,7 +76,7 @@ function cellContents_(rowIndex, colIndex)
     }
 
     /* Signal data cell. */
-    return '&nbsp';
+    return '&nbsp;';
 }
 
 
