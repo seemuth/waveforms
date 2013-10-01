@@ -373,6 +373,27 @@ function delCol(index)
 }
 
 
+/**
+ * @private
+ * Enable/show or disable/hide signal editing buttons.
+ * @param {bool} enable True to enable, false to disable.
+ */
+function enableSigEdit_(enable)
+{
+    var sigEdit = document.getElementById('sigEdit');
+
+    for (var i = 0; i < sigEdit.childNodes.length; i++) {
+	var n = sigEdit.childNodes[i];
+
+	if (n.nodeName.toLowerCase() == 'button') {
+	    n.disabled = ! enable;
+	}
+    }
+
+    sigEdit.style.visibility = (enable) ? 'visible' : 'hidden';
+}
+
+
 
 
 /**
