@@ -668,8 +668,13 @@ function cell_click(event)
     }
 
     if ((colIndex == 0) && (rowIndex == 0)) {
-	/* Just clear selection. */
-	return;
+	/* Select all. */
+	for (var si = 0; si < signals; si++) {
+	    var ri = sigIndexToRowIndex_(si) + 1;
+	    for (var ci = 1; ci < cols; ci++) {
+		setCellSelection_(ri, ci, 's');
+	    }
+	}
 
     } else if (colIndex == 0) {
 	/* Select whole row. */
