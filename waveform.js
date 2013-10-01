@@ -144,6 +144,14 @@ function setUpCell_(cell, rowIndex, colIndex)
     setCellEventCallbacks_(cell, rowIndex, colIndex);
 
     cell.style.borderRight = 'thin dotted black';
+
+    if (rowIndex == 0) {
+	/* Set minimum column widths here. */
+	cell.style.minWidth = '20px';
+
+	/* Center time indices. */
+	cell.style.textAlign = 'center';
+    }
 }
 
 
