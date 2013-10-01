@@ -747,6 +747,26 @@ function cell_click(event)
 function cell_dblclick(event)
 {
     var cell = event.currentTarget;
+    var rowIndex = rowToRowIndex_(cell.parentNode);
+    var colIndex = cellToColIndex_(cell);
+
+    if (colIndex == 0) {
+	if (rowIndex > 0) {
+	    /* Rename signal. */
+	    var oldName = cell.innerHTML;
+
+	    cell.innerHTML = '<input type="text" id="newName"'.concat(
+		    ' value="',
+		    oldName,
+		    '" />'
+		    );
+
+	    var input = document.getElementById('newName');
+	    input.onblur = newName_onblur;
+
+	    cell.ondblclick = null;
+	}
+    }
 }
 
 
@@ -756,4 +776,27 @@ function cell_dblclick(event)
 function spacingCell_click(event)
 {
     clearSelection();
+}
+
+
+/**
+ * @private
+ * Handle finish of editing signal name.
+ * @param {string} newName New signal name.
+ * @param {cell} cell Signal table cell.
+ */
+function newName_finish_(newName, cell)
+{
+    cell.innerHTML = escape(newName.trim()).replace(/%20/g, ' ');
+    cell.ondblclick = cell_dblclick;
+}
+
+
+/**
+ * Handle de-focus while editing signal name.
+ */
+function newName_onblur(event)
+{
+    var input = event.currentTarget;
+    newName_finish_(input.value, input.parentNode);
 }
