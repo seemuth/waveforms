@@ -32,6 +32,7 @@ var START_SIGNALS = 4;
 var START_COLS = 8;
 
 var COLOR_SELECT = 'cyan';
+var BORDER_SIGNAL = 'thick solid blue';
 
 var signals = 0;
 var cols = 0;
@@ -511,6 +512,60 @@ function setCellSelection_(rowIndex, colIndex, mode)
 }
 
 
+/**
+ * @private
+ * Set signal cell's value.
+ * @param {number} rowIndex Zero-based row index.
+ * @param {number} colIndex Zero-based column index.
+ * @param {string} mode Set/clear/toggle/dontcare value.
+ */
+function setCellValue_(rowIndex, colIndex, mode)
+{
+    var cell = tableCoordsToCell_(rowIndex, colIndex);
+
+    mode = mode.trim().charAt(0).toLowerCase();
+
+    if (mode == 's') {
+	cell.style.borderTop = BORDER_SIGNAL;
+	cell.style.borderBottom = '';
+
+    } else if (mode == 'c') {
+	cell.style.borderTop = '';
+	cell.style.borderBottom = BORDER_SIGNAL;
+
+    } else if (mode == 't') {
+	var oldTop = cell.style.borderTop;
+	var oldBottom = cell.style.borderBottom;
+
+	cell.style.borderTop = oldBottom;
+	cell.style.borderBottom = oldTop;
+
+    } else if ((mode == 'd') || (mode == 'x')) {
+	cell.style.borderTop = '';
+	cell.style.borderBottom = '';
+
+    } else {
+	throw 'invalid mode';
+    }
+}
+
+
+/**
+ * Set selected cells' values.
+ * @param {string} mode Set/clear/toggle/dontcare values.
+ */
+function setSelectedCellValues(mode)
+{
+    for (var i = 0; i < selected.length; i++) {
+	var parts = selected[i].split('x');
+	var rowIndex = new Number(parts[0]);
+	var colIndex = new Number(parts[1]);
+
+	setCellValue_(rowIndex, colIndex, mode);
+    }
+}
+
+
 
 
 /**
@@ -558,6 +613,42 @@ function exportHTML()
 	    '\n</div>'
 	    );
     io.value = text;
+}
+
+
+/**
+ * Set selected cells to 0.
+ */
+function sig0()
+{
+    setSelectedCellValues('clear');
+}
+
+
+/**
+ * Set selected cells to 1.
+ */
+function sig1()
+{
+    setSelectedCellValues('set');
+}
+
+
+/**
+ * Toggle selected cells' values.
+ */
+function sigInv()
+{
+    setSelectedCellValues('toggle');
+}
+
+
+/**
+ * Set selected cells to X.
+ */
+function sigX()
+{
+    setSelectedCellValues('dontcare');
 }
 
 
