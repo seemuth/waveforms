@@ -655,6 +655,8 @@ function init()
  */
 function exportHTML()
 {
+    clearSelection();
+
     var io = document.getElementById('io');
     var text = '<div style="overflow: auto">\n'.concat(
 	    '<table cellspacing="0"',
