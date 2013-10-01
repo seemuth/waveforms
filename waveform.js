@@ -294,7 +294,7 @@ function tableCoordsToCell_(rowIndex, colIndex)
  */
 function addSignal(index)
 {
-    clearSelection_();
+    clearSelection();
 
     if (index < 0) {
 	index = signals;
@@ -317,7 +317,7 @@ function addSignal(index)
  */
 function delSignal(index)
 {
-    clearSelection_();
+    clearSelection();
 
     if (signals < 1) {
 	/* No signals to delete! */
@@ -344,7 +344,7 @@ function delSignal(index)
  */
 function addCol(index)
 {
-    clearSelection_();
+    clearSelection();
 
     if (index > cols) {
 	throw 'index too high';
@@ -380,7 +380,7 @@ function addCol(index)
  */
 function delCol(index)
 {
-    clearSelection_();
+    clearSelection();
 
     if (cols <= 1) {
 	/* No non-name columns to delete! */
@@ -441,7 +441,7 @@ function enableSigEdit_(enable)
 /**
  * Clear selection and unhighlight cells.
  */
-function clearSelection_()
+function clearSelection()
 {
     for (var i = 0; i < selected.length; i++) {
 	var parts = selected[i].split('x');
@@ -664,7 +664,7 @@ function cell_click(event)
 
     if (! modifier) {
 	/* Clear other selection and select the chosen cell(s). */
-	clearSelection_();
+	clearSelection();
     }
 
     if ((colIndex == 0) && (rowIndex == 0)) {
