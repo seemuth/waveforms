@@ -699,6 +699,4 @@ function cell_click(event)
 function cell_dblclick(event)
 {
     var cell = event.currentTarget;
-
-    cell.innerHTML = cell.style.borderTop.concat(', ', cell.style.borderBottom);
 }
