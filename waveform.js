@@ -449,8 +449,8 @@ function clearSelection()
 {
     for (var i = 0; i < selected.length; i++) {
 	var parts = selected[i].split('x');
-	var rowIndex = new Number(parts[0]);
-	var colIndex = new Number(parts[1]);
+	var rowIndex = parseInt(parts[0]);
+	var colIndex = parseInt(parts[1]);
 	var cell = tableCoordsToCell_(rowIndex, colIndex);
 
 	cell.style.backgroundColor = '';
@@ -601,8 +601,8 @@ function setSelectedCellValues(mode)
 {
     for (var i = 0; i < selected.length; i++) {
 	var parts = selected[i].split('x');
-	var rowIndex = new Number(parts[0]);
-	var colIndex = new Number(parts[1]);
+	var rowIndex = parseInt(parts[0]);
+	var colIndex = parseInt(parts[1]);
 
 	setCellValue_(rowIndex, colIndex, mode);
     }
