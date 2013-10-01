@@ -472,7 +472,7 @@ function setCellSelection_(rowIndex, colIndex, mode)
     var sel_set = false;
     var sel_clear = false;
 
-    mode = mode.trim().charAt(0);
+    mode = mode.trim().charAt(0).toLowerCase();
 
     if (mode == 's') {
 	sel_set = true;
