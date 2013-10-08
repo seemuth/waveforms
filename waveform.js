@@ -26,7 +26,7 @@
  **/
 
 var PROJ_NAME = 'Waveform Editor';
-var VERSION = 'v0.3.0';
+var VERSION = 'v0.3.2';
 
 var START_SIGNALS = 4;
 var START_COLS = 8;
