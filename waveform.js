@@ -33,6 +33,8 @@ var START_COLS = 8;
 
 var COLOR_SELECT = 'cyan';
 var BORDER_SIGNAL = 'thick solid blue';
+var MINWIDTH_SIGNAME = '100px';
+var MINWIDTH_DATACOL = '20px';
 
 var signals = 0;
 var cols = 0;
@@ -146,11 +148,23 @@ function setUpCell_(cell, rowIndex, colIndex)
     cell.style.borderRight = 'thin dotted black';
 
     if (rowIndex == 0) {
-	/* Set minimum column widths here. */
-	cell.style.minWidth = '20px';
+	/* Header row: center time indices. */
 
-	/* Center time indices. */
-	cell.style.textAlign = 'center';
+	if (colIndex > 0) {
+	    cell.style.textAlign = 'center';
+	}
+
+    } else if (((rowIndex - 1) % 2) == 1) {
+	/* Signal row. */
+
+	if (rowIndexToSigIndex_(rowIndex) == 0) {
+	    /* First signal: set minimum column widths. */
+	    if (colIndex == 0) {
+		cell.style.minWidth = MINWIDTH_SIGNAME;
+	    } else {
+		cell.style.minWidth = MINWIDTH_DATACOL;
+	    }
+	}
     }
 }
 
