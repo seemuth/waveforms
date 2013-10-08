@@ -35,6 +35,7 @@ var COLOR_SELECT = 'cyan';
 var BORDER_SIGNAL = 'thick solid blue';
 var MINWIDTH_SIGNAME = '100px';
 var MINWIDTH_DATACOL = '20px';
+var FONTSIZE_SIGNAME = 'medium';
 
 var signals = 0;
 var cols = 0;
@@ -156,6 +157,12 @@ function setUpCell_(cell, rowIndex, colIndex)
 
     } else if (((rowIndex - 1) % 2) == 1) {
 	/* Signal row. */
+
+	if (colIndex == 0) {
+	    /* Signal name. */
+	    cell.style.textAlign = 'right';
+	    cell.style.fontSize = FONTSIZE_SIGNAME;
+	}
 
 	if (rowIndexToSigIndex_(rowIndex) == 0) {
 	    /* First signal: set minimum column widths. */
