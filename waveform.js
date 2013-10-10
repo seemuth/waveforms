@@ -43,6 +43,8 @@ var table;
 
 var selected = [];
 
+var state = 'MAIN';
+
 
 /**
  * Find an object within an array.
@@ -638,6 +640,16 @@ function setSelectedCellValues(mode)
 }
 
 
+/**
+ * Overwrite message box.
+ * @param {string} msg Set message box contents to this.
+ */
+function setMsg(msg)
+{
+    document.getElementById('msg').innerHTML = msg;
+}
+
+
 
 
 /**
@@ -727,9 +739,9 @@ function sigX()
 
 
 /**
- * Handle single-click event on a cell.
+ * Handle single-click event on a cell while in MAIN state.
  */
-function cell_click(event)
+function cell_click_MAIN(event)
 {
     var cell = event.currentTarget;
     var rowIndex = rowToRowIndex_(cell.parentNode);
@@ -768,6 +780,43 @@ function cell_click(event)
     } else {
 	/* Toggle this cell's selection. */
 	setCellSelection_(rowIndex, colIndex, 't');
+    }
+}
+
+
+/**
+ * Handle single-click event on a cell while in ADDCOL/DELCOL state.
+ */
+function cell_click_COL(event)
+{
+    var cell = event.currentTarget;
+    var colIndex = cellToColIndex_(cell);
+
+    if (state == 'ADDCOL') {
+	addCol(colIndex + 1);
+
+    } else if (state == 'DELCOL') {
+	if (colIndex > 0) {
+	    delCol(colIndex);
+	}
+
+    }
+}
+
+
+/**
+ * Handle single-click event on a cell.
+ */
+function cell_click(event)
+{
+    if (state == 'MAIN') {
+	cell_click_MAIN(event);
+
+    } else if ((state == 'ADDCOL') || (state == 'DELCOL')) {
+	cell_click_COL(event);
+
+    } else {
+	setMsg('ERROR: Unknown state: '.concat(state))
     }
 }
 
@@ -830,4 +879,40 @@ function newName_onblur(event)
 {
     var input = event.currentTarget;
     newName_finish_(input.value, input.parentNode);
+}
+
+
+/**
+ * Handle request to add/delete column.
+ * @param {string} op Operation ('add' or 'del').
+ */
+function reqAddDelCol(op)
+{
+    op = op.trim().charAt(0).toLowerCase();
+
+    var nextState = 'MAIN';
+
+    if (op == 'a') {
+	nextState = 'ADDCOL';
+
+	setMsg('Add a column after which column?');
+
+    } else if (op == 'd') {
+	nextState = 'DELCOL';
+
+	setMsg('Delete which column?');
+
+    } else {
+	throw 'invalid operation';
+    }
+
+    clearSelection();
+
+    if (state == nextState) {
+	/* Finished with operation. */
+	nextState = 'MAIN';
+	setMsg('');
+    }
+
+    state = nextState;
 }
