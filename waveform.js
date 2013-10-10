@@ -22,7 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * @author Daniel P. Seemuth
- * @version 0.3.0
+ * @version 0.3.2
  **/
 
 var PROJ_NAME = 'Waveform Editor';
