@@ -71,7 +71,7 @@ var helper = {
      * @param {string} str Text contents for new node.
      * @return {TextNode} Node containing str.
      */
-    text: function(str)
+    text_: function(str)
     {
 	return document.createTextNode(str);
     },
@@ -192,17 +192,17 @@ function addRow_(rowIndex)
     }
 
     var row = table.insertRow(rowIndex);
-    row.appendChild(helper.text('\n'));
+    row.appendChild(helper.text_('\n'));
 
     /* Add newline before this row. */
-    table.tBodies[0].insertBefore(helper.text('\n'), row);
+    table.tBodies[0].insertBefore(helper.text_('\n'), row);
 
     /* Add newline after this row. */
     var nextrow = row.nextSibling;
     if (nextrow == null) {
-	table.tBodies[0].appendChild(helper.text('\n'));
+	table.tBodies[0].appendChild(helper.text_('\n'));
     } else {
-	table.tBodies[0].insertBefore(helper.text('\n'), nextrow);
+	table.tBodies[0].insertBefore(helper.text_('\n'), nextrow);
     }
 
     /* Add columns. */
@@ -234,7 +234,7 @@ function addCell_(rowIndex, colIndex)
 
     setUpCell_(cell, rowIndex, colIndex);
 
-    row.appendChild(helper.text('\n'));
+    row.appendChild(helper.text_('\n'));
 
     return cell;
 }
