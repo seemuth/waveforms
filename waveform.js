@@ -303,7 +303,7 @@ var tableOps = {
      */
     addSignal: function(index)
     {
-	clearSelection();
+	selOps.clearSelection();
 
 	if (index < 0) {
 	    index = signals;
@@ -326,7 +326,7 @@ var tableOps = {
      */
     delSignal: function(index)
     {
-	clearSelection();
+	selOps.clearSelection();
 
 	if (signals < 1) {
 	    /* No signals to delete! */
@@ -353,7 +353,7 @@ var tableOps = {
      */
     addCol: function(index)
     {
-	clearSelection();
+	selOps.clearSelection();
 
 	if (index > cols) {
 	    throw 'index too high';
@@ -390,7 +390,7 @@ var tableOps = {
      */
     delCol: function(index)
     {
-	clearSelection();
+	selOps.clearSelection();
 
 	if (cols <= 1) {
 	    /* No non-name columns to delete! */
@@ -465,77 +465,95 @@ var indexOps = {
 }
 
 
-/**
- * Clear selection and unhighlight cells.
- */
-function clearSelection()
-{
-    for (var i = 0; i < selected.length; i++) {
-	var parts = selected[i].split('x');
-	var rowIndex = parseInt(parts[0]);
-	var colIndex = parseInt(parts[1]);
-	var cell = tableOps.coordsToCell_(rowIndex, colIndex);
-
-	cell.style.backgroundColor = '';
-    }
-
-    selected = [];
-    uiOps.enableSigEdit_(false);
-}
-
-
-/**
- * @private
- * Toggle cell selection.
- * @param {number} rowIndex Zero-based row index.
- * @param {number} colIndex Zero-based column index.
- * @param {string} mode Set/clear/toggle selection.
- */
-function setCellSelection_(rowIndex, colIndex, mode)
-{
-    var cellKey = rowIndex.toString().concat('x', colIndex.toString());
-    var index = helper.indexOf(selected, cellKey);
-    var cell = tableOps.coordsToCell_(rowIndex, colIndex);
-
-    var sel_set = false;
-    var sel_clear = false;
-
-    mode = mode.trim().charAt(0).toLowerCase();
-
-    if (mode == 's') {
-	sel_set = true;
-
-    } else if (mode == 'c') {
-	sel_clear = true;
-
-    } else if (mode == 't') {
-	sel_set = (index < 0);
-	sel_clear = ! sel_set;
-
-    } else {
-	throw 'invalid mode';
-    }
-
-
-    if (sel_set) {
-	/* Select this cell if it isn't already selected. */
-	if (index < 0) {
-	    selected.push(cellKey);
-
-	    cell.style.backgroundColor = COLOR_SELECT;
-	}
-    }
-
-    if (sel_clear) {
-	/* Deselect this cell if it is selected. */
-	if (index >= 0) {
-	    selected.splice(index, 1);
+var selOps = {
+    /**
+     * Clear selection and unhighlight cells.
+     */
+    clearSelection: function()
+    {
+	for (var i = 0; i < selected.length; i++) {
+	    var parts = selected[i].split('x');
+	    var rowIndex = parseInt(parts[0]);
+	    var colIndex = parseInt(parts[1]);
+	    var cell = tableOps.coordsToCell_(rowIndex, colIndex);
 
 	    cell.style.backgroundColor = '';
 	}
-    }
 
-    uiOps.enableSigEdit_(selected.length > 0);
+	selected = [];
+	uiOps.enableSigEdit_(false);
+    },
+
+
+    /**
+     * @private
+     * Toggle cell selection.
+     * @param {number} rowIndex Zero-based row index.
+     * @param {number} colIndex Zero-based column index.
+     * @param {string} mode Set/clear/toggle selection.
+     */
+    setCellSelection_: function(rowIndex, colIndex, mode)
+    {
+	var cellKey = rowIndex.toString().concat('x', colIndex.toString());
+	var index = helper.indexOf(selected, cellKey);
+	var cell = tableOps.coordsToCell_(rowIndex, colIndex);
+
+	var sel_set = false;
+	var sel_clear = false;
+
+	mode = mode.trim().charAt(0).toLowerCase();
+
+	if (mode == 's') {
+	    sel_set = true;
+
+	} else if (mode == 'c') {
+	    sel_clear = true;
+
+	} else if (mode == 't') {
+	    sel_set = (index < 0);
+	    sel_clear = ! sel_set;
+
+	} else {
+	    throw 'invalid mode';
+	}
+
+
+	if (sel_set) {
+	    /* Select this cell if it isn't already selected. */
+	    if (index < 0) {
+		selected.push(cellKey);
+
+		cell.style.backgroundColor = COLOR_SELECT;
+	    }
+	}
+
+	if (sel_clear) {
+	    /* Deselect this cell if it is selected. */
+	    if (index >= 0) {
+		selected.splice(index, 1);
+
+		cell.style.backgroundColor = '';
+	    }
+	}
+
+	uiOps.enableSigEdit_(selected.length > 0);
+    },
+
+
+    /**
+     * Set selected cells' values.
+     * @param {string} mode Set/clear/toggle/dontcare values.
+     */
+    setSelectedCellValues: function(mode)
+    {
+	for (var i = 0; i < selected.length; i++) {
+	    var parts = selected[i].split('x');
+	    var rowIndex = parseInt(parts[0]);
+	    var colIndex = parseInt(parts[1]);
+
+	    setCellValue_(rowIndex, colIndex, mode);
+	}
+    },
 }
 
 
@@ -616,22 +634,6 @@ function setCellValue_(rowIndex, colIndex, mode)
 }
 
 
-/**
- * Set selected cells' values.
- * @param {string} mode Set/clear/toggle/dontcare values.
- */
-function setSelectedCellValues(mode)
-{
-    for (var i = 0; i < selected.length; i++) {
-	var parts = selected[i].split('x');
-	var rowIndex = parseInt(parts[0]);
-	var colIndex = parseInt(parts[1]);
-
-	setCellValue_(rowIndex, colIndex, mode);
-    }
-}
-
-
 var uiOps = {
     /**
      * @private
@@ -703,7 +705,7 @@ function init()
  */
 function exportHTML()
 {
-    clearSelection();
+    selOps.clearSelection();
 
     var io = document.getElementById('io');
     var text = '<div style="overflow: auto">\n'.concat(
@@ -722,7 +724,7 @@ function exportHTML()
  */
 function sig0()
 {
-    setSelectedCellValues('clear');
+    selOps.setSelectedCellValues('clear');
 }
 
 
@@ -731,7 +733,7 @@ function sig0()
  */
 function sig1()
 {
-    setSelectedCellValues('set');
+    selOps.setSelectedCellValues('set');
 }
 
 
@@ -740,7 +742,7 @@ function sig1()
  */
 function sigInv()
 {
-    setSelectedCellValues('toggle');
+    selOps.setSelectedCellValues('toggle');
 }
 
 
@@ -749,7 +751,7 @@ function sigInv()
  */
 function sigX()
 {
-    setSelectedCellValues('dontcare');
+    selOps.setSelectedCellValues('dontcare');
 }
 
 
@@ -765,7 +767,7 @@ function cell_click_MAIN(event)
 
     if (! modifier) {
 	/* Clear other selection and select the chosen cell(s). */
-	clearSelection();
+	selOps.clearSelection();
     }
 
     if ((colIndex == 0) && (rowIndex == 0)) {
@@ -773,7 +775,7 @@ function cell_click_MAIN(event)
 	for (var si = 0; si < signals; si++) {
 	    var ri = indexOps.sigToRow_(si) + 1;
 	    for (var ci = 1; ci < cols; ci++) {
-		setCellSelection_(ri, ci, 's');
+		selOps.setCellSelection_(ri, ci, 's');
 	    }
 	}
 
@@ -781,7 +783,7 @@ function cell_click_MAIN(event)
 	/* Select whole row. */
 
 	for (var ci = 1; ci < cols; ci++) {
-	    setCellSelection_(rowIndex, ci, 's');
+	    selOps.setCellSelection_(rowIndex, ci, 's');
 	}
 
     } else if (rowIndex == 0) {
@@ -789,12 +791,12 @@ function cell_click_MAIN(event)
 
 	for (var si = 0; si < signals; si++) {
 	    var ri = indexOps.sigToRow_(si) + 1;
-	    setCellSelection_(ri, colIndex, 's');
+	    selOps.setCellSelection_(ri, colIndex, 's');
 	}
 
     } else {
 	/* Toggle this cell's selection. */
-	setCellSelection_(rowIndex, colIndex, 't');
+	selOps.setCellSelection_(rowIndex, colIndex, 't');
     }
 }
 
@@ -870,7 +872,7 @@ function cell_dblclick(event)
  */
 function spacingCell_click(event)
 {
-    clearSelection();
+    selOps.clearSelection();
 }
 
 
@@ -921,7 +923,7 @@ function reqAddDelCol(op)
 	throw 'invalid operation';
     }
 
-    clearSelection();
+    selOps.clearSelection();
 
     if (state == nextState) {
 	/* Finished with operation. */
