@@ -182,63 +182,212 @@ var cellOps = {
 }
 
 
-/**
- * @private
- * Add table row at the given row index.
- * @param {number} rowIndex Add row at this index (0 <= rowIndex <= # rows).
- */
-function addRow_(rowIndex)
-{
-    if (rowIndex < 0) {
-	throw 'rowIndex too low';
-    }
+var tableOps = {
+    /**
+     * @private
+     * Add table row at the given row index.
+     * @param {number} rowIndex Add row at this index
+     *	    (0 <= rowIndex <= # rows).
+     */
+    addRow_: function(rowIndex)
+    {
+	if (rowIndex < 0) {
+	    throw 'rowIndex too low';
+	}
 
-    var row = table.insertRow(rowIndex);
-    row.appendChild(helper.text_('\n'));
+	var row = table.insertRow(rowIndex);
+	row.appendChild(helper.text_('\n'));
 
-    /* Add newline before this row. */
-    table.tBodies[0].insertBefore(helper.text_('\n'), row);
+	/* Add newline before this row. */
+	table.tBodies[0].insertBefore(helper.text_('\n'), row);
 
-    /* Add newline after this row. */
-    var nextrow = row.nextSibling;
-    if (nextrow == null) {
-	table.tBodies[0].appendChild(helper.text_('\n'));
-    } else {
-	table.tBodies[0].insertBefore(helper.text_('\n'), nextrow);
-    }
+	/* Add newline after this row. */
+	var nextrow = row.nextSibling;
+	if (nextrow == null) {
+	    table.tBodies[0].appendChild(helper.text_('\n'));
+	} else {
+	    table.tBodies[0].insertBefore(helper.text_('\n'), nextrow);
+	}
 
-    /* Add columns. */
-    for (var c = 0; c < cols; c++) {
-	addCell_(rowIndex, c);
-    }
-}
+	/* Add columns. */
+	for (var c = 0; c < cols; c++) {
+	    tableOps.addCell_(rowIndex, c);
+	}
+    },
 
 
-/**
- * @private
- * Add table cell at the given row and column indices.
- * @param {number} rowIndex Add cell in this row (0 <= rowIndex < # rows).
- * @param {number} colIndex Add cell in this col (0 <= colIndex <= # cells).
- * @return {cell} Cell that was added to the table.
- */
-function addCell_(rowIndex, colIndex)
-{
-    if (rowIndex < 0) {
-	throw 'rowIndex too low';
-    }
+    /**
+     * @private
+     * Add table cell at the given row and column indices.
+     * @param {number} rowIndex Add cell in this row
+     *	    (0 <= rowIndex < # rows).
+     * @param {number} colIndex Add cell in this col
+     *	    (0 <= colIndex <= # cells).
+     * @return {cell} Cell that was added to the table.
+     */
+    addCell_: function(rowIndex, colIndex)
+    {
+	if (rowIndex < 0) {
+	    throw 'rowIndex too low';
+	}
 
-    if (colIndex < 0) {
-	throw 'colIndex too low';
-    }
+	if (colIndex < 0) {
+	    throw 'colIndex too low';
+	}
 
-    var row = table.rows[rowIndex];
-    var cell = row.insertCell(colIndex);
+	var row = table.rows[rowIndex];
+	var cell = row.insertCell(colIndex);
 
-    cellOps.setUpCell_(cell, rowIndex, colIndex);
+	cellOps.setUpCell_(cell, rowIndex, colIndex);
 
-    row.appendChild(helper.text_('\n'));
+	row.appendChild(helper.text_('\n'));
 
-    return cell;
+	return cell;
+    },
+
+
+    /**
+     * @private
+     * Find the cell at the given table coordinates.
+     * @param {number} rowIndex Zero-based row index.
+     * @param {number} colIndex Zero-based column index.
+     * @return {cell} Cell at the given coordinates.
+     */
+    coordsToCell_: function(rowIndex, colIndex)
+    {
+	return table.rows[rowIndex].cells[colIndex];
+    },
+
+
+    /**
+     * Add signal at the given index.
+     * @param {number} index Add signal at this index (<0 means last).
+     */
+    addSignal: function(index)
+    {
+	clearSelection();
+
+	if (index < 0) {
+	    index = signals;
+	}
+
+	var rowIndex = sigIndexToRowIndex_(index);
+
+	/* Add separator row and signal row. */
+	for (var i = 0; i < 2; i++) {
+	    tableOps.addRow_(rowIndex + i);
+	}
+
+	signals++;
+    },
+
+
+    /**
+     * Delete the signal at the given index.
+     * @param {number} index Delete signal at this index (<0 means last).
+     */
+    delSignal: function(index)
+    {
+	clearSelection();
+
+	if (signals < 1) {
+	    /* No signals to delete! */
+	    return;
+	}
+
+	signals--;
+
+	if (index < 0) {
+	    index = signals;
+	}
+
+	var rowIndex = sigIndexToRowIndex_(index);
+
+	for (var i = 0; i < 2; i++) {
+	    table.deleteRow(rowIndex);
+	}
+    },
+
+
+    /**
+     * Add column at the given index.
+     * @param {number} index Add column at this index (<0 means last).
+     */
+    addCol: function(index)
+    {
+	clearSelection();
+
+	if (index > cols) {
+	    throw 'index too high';
+	}
+
+	if (index < 0) {
+	    index = cols;
+	}
+
+	/* Need to regenerate header? */
+	var regenHeader = (index < cols);
+
+	var colIndex = index;
+
+	for (var r = 0; r < table.rows.length; r++) {
+	    tableOps.addCell_(r, colIndex);
+	}
+
+	cols++;
+
+	if (regenHeader) {
+	    var row = table.rows[0];
+
+	    for (var c = 1; c < cols; c++) {
+		row.cells[c].innerHTML = cellOps.cellContents_(0, c);
+	    }
+	}
+    },
+
+
+    /**
+     * Delete the column at the given index.
+     * @param {number} index Delete column at this index (<0 means last).
+     */
+    delCol: function(index)
+    {
+	clearSelection();
+
+	if (cols <= 1) {
+	    /* No non-name columns to delete! */
+	    return;
+	}
+
+	if (index >= cols) {
+	    throw 'index too high';
+	}
+
+	/* Need to regenerate header? */
+	var regenHeader = (index < (cols - 1));
+
+	cols--;
+
+	if (index < 0) {
+	    index = cols;
+	}
+
+	var colIndex = index;
+
+	for (var r = 0; r < table.rows.length; r++) {
+	    var row = table.rows[r];
+
+	    row.deleteCell(colIndex);
+	}
+
+	if (regenHeader) {
+	    var row = table.rows[0];
+
+	    for (var c = 1; c < cols; c++) {
+		row.cells[c].innerHTML = cellOps.cellContents_(0, c);
+	    }
+	}
+    },
 }
 
 
@@ -316,148 +465,6 @@ function rowToRowIndex_(row)
 
 /**
  * @private
- * Find the cell at the given table coordinates.
- * @param {number} rowIndex Zero-based row index.
- * @param {number} colIndex Zero-based column index.
- * @return {cell} Cell at the given coordinates.
- */
-function tableCoordsToCell_(rowIndex, colIndex)
-{
-    return table.rows[rowIndex].cells[colIndex];
-}
-
-
-/**
- * Add signal at the given index.
- * @param {number} index Add signal at this index (negative means last).
- */
-function addSignal(index)
-{
-    clearSelection();
-
-    if (index < 0) {
-	index = signals;
-    }
-
-    var rowIndex = sigIndexToRowIndex_(index);
-
-    /* Add separator row and signal row. */
-    for (var i = 0; i < 2; i++) {
-	addRow_(rowIndex + i);
-    }
-
-    signals++;
-}
-
-
-/**
- * Delete the signal at the given index.
- * @param {number} index Delete signal at this index (negative means last).
- */
-function delSignal(index)
-{
-    clearSelection();
-
-    if (signals < 1) {
-	/* No signals to delete! */
-	return;
-    }
-
-    signals--;
-
-    if (index < 0) {
-	index = signals;
-    }
-
-    var rowIndex = sigIndexToRowIndex_(index);
-
-    for (var i = 0; i < 2; i++) {
-	table.deleteRow(rowIndex);
-    }
-}
-
-
-/**
- * Add column at the given index.
- * @param {number} index Add column at this index (negative means last).
- */
-function addCol(index)
-{
-    clearSelection();
-
-    if (index > cols) {
-	throw 'index too high';
-    }
-
-    if (index < 0) {
-	index = cols;
-    }
-
-    var regenHeader = (index < cols);	/* Need to regenerate header? */
-
-    var colIndex = index;
-
-    for (var r = 0; r < table.rows.length; r++) {
-	addCell_(r, colIndex);
-    }
-
-    cols++;
-
-    if (regenHeader) {
-	var row = table.rows[0];
-
-	for (var c = 1; c < cols; c++) {
-	    row.cells[c].innerHTML = cellOps.cellContents_(0, c);
-	}
-    }
-}
-
-
-/**
- * Delete the column at the given index.
- * @param {number} index Delete column at this index (negative means last).
- */
-function delCol(index)
-{
-    clearSelection();
-
-    if (cols <= 1) {
-	/* No non-name columns to delete! */
-	return;
-    }
-
-    if (index >= cols) {
-	throw 'index too high';
-    }
-
-    var regenHeader = (index < (cols - 1)); /* Need to regenerate header? */
-
-    cols--;
-
-    if (index < 0) {
-	index = cols;
-    }
-
-    var colIndex = index;
-
-    for (var r = 0; r < table.rows.length; r++) {
-	var row = table.rows[r];
-
-	row.deleteCell(colIndex);
-    }
-
-    if (regenHeader) {
-	var row = table.rows[0];
-
-	for (var c = 1; c < cols; c++) {
-	    row.cells[c].innerHTML = cellOps.cellContents_(0, c);
-	}
-    }
-}
-
-
-/**
- * @private
  * Enable/show or disable/hide signal editing buttons.
  * @param {bool} enable True to enable, false to disable.
  */
@@ -486,7 +493,7 @@ function clearSelection()
 	var parts = selected[i].split('x');
 	var rowIndex = parseInt(parts[0]);
 	var colIndex = parseInt(parts[1]);
-	var cell = tableCoordsToCell_(rowIndex, colIndex);
+	var cell = tableOps.coordsToCell_(rowIndex, colIndex);
 
 	cell.style.backgroundColor = '';
     }
@@ -507,7 +514,7 @@ function setCellSelection_(rowIndex, colIndex, mode)
 {
     var cellKey = rowIndex.toString().concat('x', colIndex.toString());
     var index = helper.indexOf(selected, cellKey);
-    var cell = tableCoordsToCell_(rowIndex, colIndex);
+    var cell = tableOps.coordsToCell_(rowIndex, colIndex);
 
     var sel_set = false;
     var sel_clear = false;
@@ -567,8 +574,8 @@ function updateCellEdge_(rowIndex, colIndex)
 	return;
     }
 
-    var cell = tableCoordsToCell_(rowIndex, colIndex);
-    var leftCell = tableCoordsToCell_(rowIndex, colIndex - 1);
+    var cell = tableOps.coordsToCell_(rowIndex, colIndex);
+    var leftCell = tableOps.coordsToCell_(rowIndex, colIndex - 1);
 
     var dontcare = (cell.style.borderTop == '') &&
 	(cell.style.borderBottom == '');
@@ -595,7 +602,7 @@ function updateCellEdge_(rowIndex, colIndex)
  */
 function setCellValue_(rowIndex, colIndex, mode)
 {
-    var cell = tableCoordsToCell_(rowIndex, colIndex);
+    var cell = tableOps.coordsToCell_(rowIndex, colIndex);
 
     mode = mode.trim().charAt(0).toLowerCase();
 
@@ -675,14 +682,14 @@ function init()
     }
 
     for (var i = 0; i < START_COLS; i++) {
-	addCol(-1);
+	tableOps.addCol(-1);
     }
 
     /* Add header row. */
-    addRow_(0);
+    tableOps.addRow_(0);
 
     for (var i = 0; i < START_SIGNALS; i++) {
-	addSignal(-1);
+	tableOps.addSignal(-1);
     }
 }
 
@@ -797,11 +804,11 @@ function cell_click_COL(event)
     var colIndex = cellToColIndex_(cell);
 
     if (state == 'ADDCOL') {
-	addCol(colIndex + 1);
+	tableOps.addCol(colIndex + 1);
 
     } else if (state == 'DELCOL') {
 	if (colIndex > 0) {
-	    delCol(colIndex);
+	    tableOps.delCol(colIndex);
 	}
 
     }
