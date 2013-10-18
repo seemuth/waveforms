@@ -466,27 +466,6 @@ var indexOps = {
 
 
 /**
- * @private
- * Enable/show or disable/hide signal editing buttons.
- * @param {bool} enable True to enable, false to disable.
- */
-function enableSigEdit_(enable)
-{
-    var sigEdit = document.getElementById('sigEdit');
-
-    for (var i = 0; i < sigEdit.childNodes.length; i++) {
-	var n = sigEdit.childNodes[i];
-
-	if (n.nodeName.toLowerCase() == 'button') {
-	    n.disabled = ! enable;
-	}
-    }
-
-    sigEdit.style.visibility = (enable) ? 'visible' : 'hidden';
-}
-
-
-/**
  * Clear selection and unhighlight cells.
  */
 function clearSelection()
@@ -501,7 +480,7 @@ function clearSelection()
     }
 
     selected = [];
-    enableSigEdit_(false);
+    uiOps.enableSigEdit_(false);
 }
 
 
@@ -556,7 +535,7 @@ function setCellSelection_(rowIndex, colIndex, mode)
 	}
     }
 
-    enableSigEdit_(selected.length > 0);
+    uiOps.enableSigEdit_(selected.length > 0);
 }
 
 
@@ -653,13 +632,36 @@ function setSelectedCellValues(mode)
 }
 
 
-/**
- * Overwrite message box.
- * @param {string} msg Set message box contents to this.
- */
-function setMsg(msg)
-{
-    document.getElementById('msg').innerHTML = msg;
+var uiOps = {
+    /**
+     * @private
+     * Enable/show or disable/hide signal editing buttons.
+     * @param {bool} enable True to enable, false to disable.
+     */
+    enableSigEdit_: function(enable)
+    {
+	var sigEdit = document.getElementById('sigEdit');
+
+	for (var i = 0; i < sigEdit.childNodes.length; i++) {
+	    var n = sigEdit.childNodes[i];
+
+	    if (n.nodeName.toLowerCase() == 'button') {
+		n.disabled = ! enable;
+	    }
+	}
+
+	sigEdit.style.visibility = (enable) ? 'visible' : 'hidden';
+    },
+
+
+    /**
+     * Overwrite message box.
+     * @param {string} msg Set message box contents to this.
+     */
+    setMsg: function(msg)
+    {
+	document.getElementById('msg').innerHTML = msg;
+    },
 }
 
 
@@ -829,7 +831,7 @@ function cell_click(event)
 	cell_click_COL(event);
 
     } else {
-	setMsg('ERROR: Unknown state: '.concat(state))
+	uiOps.setMsg('ERROR: Unknown state: '.concat(state))
     }
 }
 
@@ -908,12 +910,12 @@ function reqAddDelCol(op)
     if (op == 'a') {
 	nextState = 'ADDCOL';
 
-	setMsg('Add a column after which column?');
+	uiOps.setMsg('Add a column after which column?');
 
     } else if (op == 'd') {
 	nextState = 'DELCOL';
 
-	setMsg('Delete which column?');
+	uiOps.setMsg('Delete which column?');
 
     } else {
 	throw 'invalid operation';
@@ -924,7 +926,7 @@ function reqAddDelCol(op)
     if (state == nextState) {
 	/* Finished with operation. */
 	nextState = 'MAIN';
-	setMsg('');
+	uiOps.setMsg('');
     }
 
     state = nextState;
