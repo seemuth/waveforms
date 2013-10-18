@@ -46,33 +46,35 @@ var selected = [];
 var state = 'MAIN';
 
 
-/**
- * Find an object within an array.
- * @param {array} arr Array to search.
- * @param {object} seek Object for which to search.
- * @return {number} Index of found object, or -1 if not found.
- */
-function indexOf(arr, seek)
-{
-    for (var i = 0; i < arr.length; i++) {
-	if (arr[i] === seek) {
-	    return i;
+var helper = {
+    /**
+     * Find an object within an array.
+     * @param {array} arr Array to search.
+     * @param {object} seek Object for which to search.
+     * @return {number} Index of found object, or -1 if not found.
+     */
+    indexOf: function(arr, seek)
+    {
+	for (var i = 0; i < arr.length; i++) {
+	    if (arr[i] === seek) {
+		return i;
+	    }
 	}
-    }
 
-    return -1;
-}
+	return -1;
+    },
 
 
-/**
- * @private
- * Create a TextNode with the given string.
- * @param {string} str Text contents for new node.
- * @return {TextNode} Node containing str.
- */
-function text_(str)
-{
-    return document.createTextNode(str);
+    /**
+     * @private
+     * Create a TextNode with the given string.
+     * @param {string} str Text contents for new node.
+     * @return {TextNode} Node containing str.
+     */
+    text: function(str)
+    {
+	return document.createTextNode(str);
+    },
 }
 
 
@@ -190,17 +192,17 @@ function addRow_(rowIndex)
     }
 
     var row = table.insertRow(rowIndex);
-    row.appendChild(text_('\n'));
+    row.appendChild(helper.text('\n'));
 
     /* Add newline before this row. */
-    table.tBodies[0].insertBefore(text_('\n'), row);
+    table.tBodies[0].insertBefore(helper.text('\n'), row);
 
     /* Add newline after this row. */
     var nextrow = row.nextSibling;
     if (nextrow == null) {
-	table.tBodies[0].appendChild(text_('\n'));
+	table.tBodies[0].appendChild(helper.text('\n'));
     } else {
-	table.tBodies[0].insertBefore(text_('\n'), nextrow);
+	table.tBodies[0].insertBefore(helper.text('\n'), nextrow);
     }
 
     /* Add columns. */
@@ -232,7 +234,7 @@ function addCell_(rowIndex, colIndex)
 
     setUpCell_(cell, rowIndex, colIndex);
 
-    row.appendChild(text_('\n'));
+    row.appendChild(helper.text('\n'));
 
     return cell;
 }
@@ -502,7 +504,7 @@ function clearSelection()
 function setCellSelection_(rowIndex, colIndex, mode)
 {
     var cellKey = rowIndex.toString().concat('x', colIndex.toString());
-    var index = indexOf(selected, cellKey);
+    var index = helper.indexOf(selected, cellKey);
     var cell = tableCoordsToCell_(rowIndex, colIndex);
 
     var sel_set = false;
