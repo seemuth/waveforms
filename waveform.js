@@ -169,7 +169,7 @@ var cellOps = {
 		cell.style.fontSize = FONTSIZE_SIGNAME;
 	    }
 
-	    if (rowIndexToSigIndex_(rowIndex) == 0) {
+	    if (indexOps.rowToSig_(rowIndex) == 0) {
 		/* First signal: set minimum column widths. */
 		if (colIndex == 0) {
 		    cell.style.minWidth = MINWIDTH_SIGNAME;
@@ -183,6 +183,44 @@ var cellOps = {
 
 
 var tableOps = {
+    /**
+     * @private
+     * Find the column index for a cell object.
+     * @param {cell} cell Cell whose index to find.
+     * @return {number} Zero-based column index.
+     */
+    cellToColIndex_: function(cell)
+    {
+	var parent_row = cell.parentNode;
+
+	for (var i = 0; i < parent_row.cells.length; i++) {
+	    if (cell === parent_row.cells[i]) {
+		return i;
+	    }
+	}
+	return -1;
+    },
+
+
+    /**
+     * @private
+     * Find the row index for a row object.
+     * @param {row} row Row whose index to find.
+     * @return {number} Zero-based row index.
+     */
+    rowToRowIndex_: function(row)
+    {
+	var parent_table = row.parentNode;
+
+	for (var i = 0; i < parent_table.rows.length; i++) {
+	    if (row === parent_table.rows[i]) {
+		return i;
+	    }
+	}
+	return -1;
+    },
+
+
     /**
      * @private
      * Add table row at the given row index.
@@ -271,7 +309,7 @@ var tableOps = {
 	    index = signals;
 	}
 
-	var rowIndex = sigIndexToRowIndex_(index);
+	var rowIndex = indexOps.sigToRow_(index);
 
 	/* Add separator row and signal row. */
 	for (var i = 0; i < 2; i++) {
@@ -301,7 +339,7 @@ var tableOps = {
 	    index = signals;
 	}
 
-	var rowIndex = sigIndexToRowIndex_(index);
+	var rowIndex = indexOps.sigToRow_(index);
 
 	for (var i = 0; i < 2; i++) {
 	    table.deleteRow(rowIndex);
@@ -391,75 +429,39 @@ var tableOps = {
 }
 
 
-/**
- * @private
- * Convert signal index to table row index.
- * @param {number} sigIndex Zero-based signal index.
- * @return {number} Zero-based table row index.
- */
-function sigIndexToRowIndex_(sigIndex)
-{
-    if (sigIndex < 0) {
-	throw 'sigIndex too low';
-    }
-
-    /* Row 0 is header row, and 2 rows per signal. */
-    return 1 + (sigIndex * 2);
-}
-
-
-/**
- * @private
- * Convert table row index to signal index.
- * @param {number} rowIndex Zero-based table row index.
- * @return {number} Zero-based signal index.
- */
-function rowIndexToSigIndex_(rowIndex)
-{
-    if (rowIndex < 1) {
-	throw 'rowIndex too low';
-    }
-
-    /* Row 0 is header row, and 2 rows per signal. */
-    return Math.floor((rowIndex - 1) / 2);
-}
-
-
-/**
- * @private
- * Find the column index for a cell object.
- * @param {cell} cell Cell whose index to find.
- * @return {number} Zero-based column index.
- */
-function cellToColIndex_(cell)
-{
-    var parent_row = cell.parentNode;
-
-    for (var i = 0; i < parent_row.cells.length; i++) {
-	if (cell === parent_row.cells[i]) {
-	    return i;
+var indexOps = {
+    /**
+     * @private
+     * Convert signal index to table row index.
+     * @param {number} sigIndex Zero-based signal index.
+     * @return {number} Zero-based table row index.
+     */
+    sigToRow_: function(sigIndex)
+    {
+	if (sigIndex < 0) {
+	    throw 'sigIndex too low';
 	}
-    }
-    return -1;
-}
+
+	/* Row 0 is header row, and 2 rows per signal. */
+	return 1 + (sigIndex * 2);
+    },
 
 
-/**
- * @private
- * Find the row index for a row object.
- * @param {row} row Row whose index to find.
- * @return {number} Zero-based row index.
- */
-function rowToRowIndex_(row)
-{
-    var parent_table = row.parentNode;
-
-    for (var i = 0; i < parent_table.rows.length; i++) {
-	if (row === parent_table.rows[i]) {
-	    return i;
+    /**
+     * @private
+     * Convert table row index to signal index.
+     * @param {number} rowIndex Zero-based table row index.
+     * @return {number} Zero-based signal index.
+     */
+    rowToSig_: function(rowIndex)
+    {
+	if (rowIndex < 1) {
+	    throw 'rowIndex too low';
 	}
-    }
-    return -1;
+
+	/* Row 0 is header row, and 2 rows per signal. */
+	return Math.floor((rowIndex - 1) / 2);
+    },
 }
 
 
@@ -755,8 +757,8 @@ function sigX()
 function cell_click_MAIN(event)
 {
     var cell = event.currentTarget;
-    var rowIndex = rowToRowIndex_(cell.parentNode);
-    var colIndex = cellToColIndex_(cell);
+    var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
+    var colIndex = tableOps.cellToColIndex_(cell);
     var modifier = (event.altKey || event.ctrlKey || event.shiftKey);
 
     if (! modifier) {
@@ -767,7 +769,7 @@ function cell_click_MAIN(event)
     if ((colIndex == 0) && (rowIndex == 0)) {
 	/* Select all. */
 	for (var si = 0; si < signals; si++) {
-	    var ri = sigIndexToRowIndex_(si) + 1;
+	    var ri = indexOps.sigToRow_(si) + 1;
 	    for (var ci = 1; ci < cols; ci++) {
 		setCellSelection_(ri, ci, 's');
 	    }
@@ -784,7 +786,7 @@ function cell_click_MAIN(event)
 	/* Select whole column. */
 
 	for (var si = 0; si < signals; si++) {
-	    var ri = sigIndexToRowIndex_(si) + 1;
+	    var ri = indexOps.sigToRow_(si) + 1;
 	    setCellSelection_(ri, colIndex, 's');
 	}
 
@@ -801,7 +803,7 @@ function cell_click_MAIN(event)
 function cell_click_COL(event)
 {
     var cell = event.currentTarget;
-    var colIndex = cellToColIndex_(cell);
+    var colIndex = tableOps.cellToColIndex_(cell);
 
     if (state == 'ADDCOL') {
 	tableOps.addCol(colIndex + 1);
@@ -838,8 +840,8 @@ function cell_click(event)
 function cell_dblclick(event)
 {
     var cell = event.currentTarget;
-    var rowIndex = rowToRowIndex_(cell.parentNode);
-    var colIndex = cellToColIndex_(cell);
+    var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
+    var colIndex = tableOps.cellToColIndex_(cell);
 
     if (colIndex == 0) {
 	if (rowIndex > 0) {
