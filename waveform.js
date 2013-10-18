@@ -78,105 +78,107 @@ var helper = {
 }
 
 
-/**
- * @private
- * Generate the default contents for a new cell.
- * @param {number} rowIndex Zero-based table row index of the cell.
- * @param {number} colIndex Zero-based table col index of the cell.
- * @return {string} Text contents for the cell.
- */
-function cellContents_(rowIndex, colIndex)
-{
-    if (rowIndex == 0) {
-	/* Header row: show column index except for name column. */
-	if (colIndex == 0) {
-	    return '&nbsp;';
-	} else {
-	    return colIndex.toString();
-	}
-
-    } else if ((rowIndex % 2) == 1) {
-	/* Separator row: blank cells. */
-	return '&nbsp;';
-
-    } else if (colIndex == 0) {
-	/* Signal name column. */
-	return 'SIG';
-
-    }
-
-    /* Signal data cell. */
-    return '&nbsp;';
-}
-
-
-/**
- * @private
- * Set the event callbacks for a new cell.
- * @param {cell} cell Set callbacks for this cell.
- * @param {number} rowIndex Zero-based table row index of the cell.
- * @param {number} colIndex Zero-based table col index of the cell.
- */
-function setCellEventCallbacks_(cell, rowIndex, colIndex)
-{
-    if (rowIndex == 0) {
-	/* Header row. */
-
-	cell.onclick = cell_click;
-	cell.ondblclick = cell_dblclick;
-
-    } else if (((rowIndex - 1) % 2) == 1) {
-	/* Signal row. */
-	cell.onclick = cell_click;
-	cell.ondblclick = cell_dblclick;
-
-    } else {
-	/* Spacing row. */
-	cell.onclick = spacingCell_click;
-    }
-}
-
-
-/**
- * @private
- * Set up a new cell (contents, callbacks, style, etc.).
- * @param {cell} cell Set callbacks for this cell.
- * @param {number} rowIndex Zero-based table row index of the cell.
- * @param {number} colIndex Zero-based table col index of the cell.
- */
-function setUpCell_(cell, rowIndex, colIndex)
-{
-    cell.innerHTML = cellContents_(rowIndex, colIndex);
-
-    setCellEventCallbacks_(cell, rowIndex, colIndex);
-
-    cell.style.borderRight = 'thin dotted black';
-
-    if (rowIndex == 0) {
-	/* Header row: center time indices. */
-
-	if (colIndex > 0) {
-	    cell.style.textAlign = 'center';
-	}
-
-    } else if (((rowIndex - 1) % 2) == 1) {
-	/* Signal row. */
-
-	if (colIndex == 0) {
-	    /* Signal name. */
-	    cell.style.textAlign = 'right';
-	    cell.style.fontSize = FONTSIZE_SIGNAME;
-	}
-
-	if (rowIndexToSigIndex_(rowIndex) == 0) {
-	    /* First signal: set minimum column widths. */
+var cellOps = {
+    /**
+     * @private
+     * Generate the default contents for a new cell.
+     * @param {number} rowIndex Zero-based table row index of the cell.
+     * @param {number} colIndex Zero-based table col index of the cell.
+     * @return {string} Text contents for the cell.
+     */
+    cellContents_: function(rowIndex, colIndex)
+    {
+	if (rowIndex == 0) {
+	    /* Header row: show column index except for name column. */
 	    if (colIndex == 0) {
-		cell.style.minWidth = MINWIDTH_SIGNAME;
+		return '&nbsp;';
 	    } else {
-		cell.style.minWidth = MINWIDTH_DATACOL;
+		return colIndex.toString();
+	    }
+
+	} else if ((rowIndex % 2) == 1) {
+	    /* Separator row: blank cells. */
+	    return '&nbsp;';
+
+	} else if (colIndex == 0) {
+	    /* Signal name column. */
+	    return 'SIG';
+
+	}
+
+	/* Signal data cell. */
+	return '&nbsp;';
+    },
+
+
+    /**
+     * @private
+     * Set the event callbacks for a new cell.
+     * @param {cell} cell Set callbacks for this cell.
+     * @param {number} rowIndex Zero-based table row index of the cell.
+     * @param {number} colIndex Zero-based table col index of the cell.
+     */
+    setCellEventCallbacks_: function(cell, rowIndex, colIndex)
+    {
+	if (rowIndex == 0) {
+	    /* Header row. */
+
+	    cell.onclick = cell_click;
+	    cell.ondblclick = cell_dblclick;
+
+	} else if (((rowIndex - 1) % 2) == 1) {
+	    /* Signal row. */
+	    cell.onclick = cell_click;
+	    cell.ondblclick = cell_dblclick;
+
+	} else {
+	    /* Spacing row. */
+	    cell.onclick = spacingCell_click;
+	}
+    },
+
+
+    /**
+     * @private
+     * Set up a new cell (contents, callbacks, style, etc.).
+     * @param {cell} cell Set callbacks for this cell.
+     * @param {number} rowIndex Zero-based table row index of the cell.
+     * @param {number} colIndex Zero-based table col index of the cell.
+     */
+    setUpCell_: function(cell, rowIndex, colIndex)
+    {
+	cell.innerHTML = cellOps.cellContents_(rowIndex, colIndex);
+
+	cellOps.setCellEventCallbacks_(cell, rowIndex, colIndex);
+
+	cell.style.borderRight = 'thin dotted black';
+
+	if (rowIndex == 0) {
+	    /* Header row: center time indices. */
+
+	    if (colIndex > 0) {
+		cell.style.textAlign = 'center';
+	    }
+
+	} else if (((rowIndex - 1) % 2) == 1) {
+	    /* Signal row. */
+
+	    if (colIndex == 0) {
+		/* Signal name. */
+		cell.style.textAlign = 'right';
+		cell.style.fontSize = FONTSIZE_SIGNAME;
+	    }
+
+	    if (rowIndexToSigIndex_(rowIndex) == 0) {
+		/* First signal: set minimum column widths. */
+		if (colIndex == 0) {
+		    cell.style.minWidth = MINWIDTH_SIGNAME;
+		} else {
+		    cell.style.minWidth = MINWIDTH_DATACOL;
+		}
 	    }
 	}
-    }
+    },
 }
 
 
@@ -232,7 +234,7 @@ function addCell_(rowIndex, colIndex)
     var row = table.rows[rowIndex];
     var cell = row.insertCell(colIndex);
 
-    setUpCell_(cell, rowIndex, colIndex);
+    cellOps.setUpCell_(cell, rowIndex, colIndex);
 
     row.appendChild(helper.text_('\n'));
 
@@ -405,7 +407,7 @@ function addCol(index)
 	var row = table.rows[0];
 
 	for (var c = 1; c < cols; c++) {
-	    row.cells[c].innerHTML = cellContents_(0, c);
+	    row.cells[c].innerHTML = cellOps.cellContents_(0, c);
 	}
     }
 }
@@ -448,7 +450,7 @@ function delCol(index)
 	var row = table.rows[0];
 
 	for (var c = 1; c < cols; c++) {
-	    row.cells[c].innerHTML = cellContents_(0, c);
+	    row.cells[c].innerHTML = cellOps.cellContents_(0, c);
 	}
     }
 }
