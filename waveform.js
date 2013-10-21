@@ -426,6 +426,83 @@ var tableOps = {
 	    }
 	}
     },
+
+
+    /** @private
+     * Update signal cell's entering edge (left border) as needed.
+     * @param {number} rowIndex Zero-based row index.
+     * @param {number} colIndex Zero-based column index.
+     */
+    updateCellEdge_: function(rowIndex, colIndex)
+    {
+	if (colIndex <= 1) {
+	    /* First column has no entering edge. */
+	    return;
+
+	} else if (colIndex >= cols) {
+	    /* Beyond the last column. */
+	    return;
+	}
+
+	var cell = tableOps.coordsToCell_(rowIndex, colIndex);
+	var leftCell = tableOps.coordsToCell_(rowIndex, colIndex - 1);
+
+	var dontcare = (cell.style.borderTop == '') &&
+	    (cell.style.borderBottom == '');
+	dontcare |= (leftCell.style.borderTop == '') &&
+	    (leftCell.style.borderBottom == '');
+
+	var edge = (cell.style.borderTop != leftCell.style.borderTop) ||
+	    (cell.style.borderBottom != leftCell.style.borderBottom);
+
+	if (edge && (! dontcare)) {
+	    cell.style.borderLeft = BORDER_SIGNAL;
+	} else {
+	    cell.style.borderLeft = '';
+	}
+    },
+
+
+    /**
+     * @private
+     * Set signal cell's value.
+     * @param {number} rowIndex Zero-based row index.
+     * @param {number} colIndex Zero-based column index.
+     * @param {string} mode Set/clear/toggle/dontcare value.
+     */
+    setCellValue_: function(rowIndex, colIndex, mode)
+    {
+	var cell = tableOps.coordsToCell_(rowIndex, colIndex);
+
+	mode = mode.trim().charAt(0).toLowerCase();
+
+	if (mode == 's') {
+	    cell.style.borderTop = BORDER_SIGNAL;
+	    cell.style.borderBottom = '';
+
+	} else if (mode == 'c') {
+	    cell.style.borderTop = '';
+	    cell.style.borderBottom = BORDER_SIGNAL;
+
+	} else if (mode == 't') {
+	    var oldTop = cell.style.borderTop;
+	    var oldBottom = cell.style.borderBottom;
+
+	    cell.style.borderTop = oldBottom;
+	    cell.style.borderBottom = oldTop;
+
+	} else if ((mode == 'd') || (mode == 'x')) {
+	    cell.style.borderTop = '';
+	    cell.style.borderBottom = '';
+
+	} else {
+	    throw 'invalid mode';
+	}
+
+	/* Update entering and leaving edges. */
+	tableOps.updateCellEdge_(rowIndex, colIndex);
+	tableOps.updateCellEdge_(rowIndex, colIndex + 1);
+    },
 }
 
 
@@ -551,86 +628,9 @@ var selOps = {
 	    var rowIndex = parseInt(parts[0]);
 	    var colIndex = parseInt(parts[1]);
 
-	    setCellValue_(rowIndex, colIndex, mode);
+	    tableOps.setCellValue_(rowIndex, colIndex, mode);
 	}
     },
-}
-
-
-/** @private
- * Update signal cell's entering edge (left border) as needed.
- * @param {number} rowIndex Zero-based row index.
- * @param {number} colIndex Zero-based column index.
- */
-function updateCellEdge_(rowIndex, colIndex)
-{
-    if (colIndex <= 1) {
-	/* First column has no entering edge. */
-	return;
-
-    } else if (colIndex >= cols) {
-	/* Beyond the last column. */
-	return;
-    }
-
-    var cell = tableOps.coordsToCell_(rowIndex, colIndex);
-    var leftCell = tableOps.coordsToCell_(rowIndex, colIndex - 1);
-
-    var dontcare = (cell.style.borderTop == '') &&
-	(cell.style.borderBottom == '');
-    dontcare |= (leftCell.style.borderTop == '') &&
-	(leftCell.style.borderBottom == '');
-
-    var edge = (cell.style.borderTop != leftCell.style.borderTop) ||
-	(cell.style.borderBottom != leftCell.style.borderBottom);
-
-    if (edge && (! dontcare)) {
-	cell.style.borderLeft = BORDER_SIGNAL;
-    } else {
-	cell.style.borderLeft = '';
-    }
-}
-
-
-/**
- * @private
- * Set signal cell's value.
- * @param {number} rowIndex Zero-based row index.
- * @param {number} colIndex Zero-based column index.
- * @param {string} mode Set/clear/toggle/dontcare value.
- */
-function setCellValue_(rowIndex, colIndex, mode)
-{
-    var cell = tableOps.coordsToCell_(rowIndex, colIndex);
-
-    mode = mode.trim().charAt(0).toLowerCase();
-
-    if (mode == 's') {
-	cell.style.borderTop = BORDER_SIGNAL;
-	cell.style.borderBottom = '';
-
-    } else if (mode == 'c') {
-	cell.style.borderTop = '';
-	cell.style.borderBottom = BORDER_SIGNAL;
-
-    } else if (mode == 't') {
-	var oldTop = cell.style.borderTop;
-	var oldBottom = cell.style.borderBottom;
-
-	cell.style.borderTop = oldBottom;
-	cell.style.borderBottom = oldTop;
-
-    } else if ((mode == 'd') || (mode == 'x')) {
-	cell.style.borderTop = '';
-	cell.style.borderBottom = '';
-
-    } else {
-	throw 'invalid mode';
-    }
-
-    /* Update entering and leaving edges. */
-    updateCellEdge_(rowIndex, colIndex);
-    updateCellEdge_(rowIndex, colIndex + 1);
 }
 
 
