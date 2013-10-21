@@ -703,6 +703,27 @@ var uiOps = {
 }
 
 
+var exportOps = {
+    /**
+     * Copy the table's HTML into the I/O textarea so the user can copy/paste.
+     */
+    showHTML: function()
+    {
+	selOps.clearSelection();
+
+	var io = document.getElementById('io');
+	var text = '<div style="overflow: auto">\n'.concat(
+		'<table cellspacing="0"',
+		' style="border: none; border-collapse: collapse;">\n',
+		table.innerHTML.trim().replace(/\n+/g, '\n'),
+		'\n</table>',
+		'\n</div>'
+		);
+	io.value = text;
+    },
+}
+
+
 
 
 /**
@@ -733,25 +754,6 @@ function init()
     for (var i = 0; i < START_SIGNALS; i++) {
 	tableOps.addSignal(-1);
     }
-}
-
-
-/**
- * Copy the table's HTML into the I/O textarea so the user can copy/paste.
- */
-function exportHTML()
-{
-    selOps.clearSelection();
-
-    var io = document.getElementById('io');
-    var text = '<div style="overflow: auto">\n'.concat(
-	    '<table cellspacing="0"',
-	    ' style="border: none; border-collapse: collapse;">\n',
-	    table.innerHTML.trim().replace(/\n+/g, '\n'),
-	    '\n</table>',
-	    '\n</div>'
-	    );
-    io.value = text;
 }
 
 
