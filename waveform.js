@@ -631,6 +631,42 @@ var selOps = {
 	    tableOps.setCellValue_(rowIndex, colIndex, mode);
 	}
     },
+
+
+    /**
+     * Set selected cells to 0.
+     */
+    sig0: function()
+    {
+	selOps.setSelectedCellValues('clear');
+    },
+
+
+    /**
+     * Set selected cells to 1.
+     */
+    sig1: function()
+    {
+	selOps.setSelectedCellValues('set');
+    },
+
+
+    /**
+     * Toggle selected cells' values.
+     */
+    sigInv: function()
+    {
+	selOps.setSelectedCellValues('toggle');
+    },
+
+
+    /**
+     * Set selected cells to X.
+     */
+    sigX: function()
+    {
+	selOps.setSelectedCellValues('dontcare');
+    },
 }
 
 
@@ -716,42 +752,6 @@ function exportHTML()
 	    '\n</div>'
 	    );
     io.value = text;
-}
-
-
-/**
- * Set selected cells to 0.
- */
-function sig0()
-{
-    selOps.setSelectedCellValues('clear');
-}
-
-
-/**
- * Set selected cells to 1.
- */
-function sig1()
-{
-    selOps.setSelectedCellValues('set');
-}
-
-
-/**
- * Toggle selected cells' values.
- */
-function sigInv()
-{
-    selOps.setSelectedCellValues('toggle');
-}
-
-
-/**
- * Set selected cells to X.
- */
-function sigX()
-{
-    selOps.setSelectedCellValues('dontcare');
 }
 
 
