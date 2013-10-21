@@ -123,17 +123,17 @@ var cellOps = {
 	if (rowIndex == 0) {
 	    /* Header row. */
 
-	    cell.onclick = cell_click;
-	    cell.ondblclick = cell_dblclick;
+	    cell.onclick = eventOps.cell_click;
+	    cell.ondblclick = eventOps.cell_dblclick;
 
 	} else if (((rowIndex - 1) % 2) == 1) {
 	    /* Signal row. */
-	    cell.onclick = cell_click;
-	    cell.ondblclick = cell_dblclick;
+	    cell.onclick = eventOps.cell_click;
+	    cell.ondblclick = eventOps.cell_dblclick;
 
 	} else {
 	    /* Spacing row. */
-	    cell.onclick = spacingCell_click;
+	    cell.onclick = eventOps.spacingCell_click;
 	}
     },
 
@@ -726,212 +726,214 @@ var exportOps = {
 
 
 
-/**
- * Initialize the editor and waveform grid.
- */
-function init()
-{
-    var version_paragraph = document.getElementById('version');
+var eventOps = {
+    /**
+     * Initialize the editor and waveform grid.
+     */
+    init: function()
+    {
+	var version_paragraph = document.getElementById('version');
 
-    version_paragraph.innerHTML = PROJ_NAME.concat(' ', VERSION);
+	version_paragraph.innerHTML = PROJ_NAME.concat(' ', VERSION);
 
-    table = document.getElementById('wftable');
-
-
-    /* Pre-populate the table. */
-
-    if (table.tBodies.length < 1) {
-	table.appendChild(document.createElement('tbody'));
-    }
-
-    for (var i = 0; i < START_COLS; i++) {
-	tableOps.addCol(-1);
-    }
-
-    /* Add header row. */
-    tableOps.addRow_(0);
-
-    for (var i = 0; i < START_SIGNALS; i++) {
-	tableOps.addSignal(-1);
-    }
-}
+	table = document.getElementById('wftable');
 
 
-/**
- * Handle single-click event on a cell while in MAIN state.
- */
-function cell_click_MAIN(event)
-{
-    var cell = event.currentTarget;
-    var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
-    var colIndex = tableOps.cellToColIndex_(cell);
-    var modifier = (event.altKey || event.ctrlKey || event.shiftKey);
+	/* Pre-populate the table. */
 
-    if (! modifier) {
-	/* Clear other selection and select the chosen cell(s). */
-	selOps.clearSelection();
-    }
+	if (table.tBodies.length < 1) {
+	    table.appendChild(document.createElement('tbody'));
+	}
 
-    if ((colIndex == 0) && (rowIndex == 0)) {
-	/* Select all. */
-	for (var si = 0; si < signals; si++) {
-	    var ri = indexOps.sigToRow_(si) + 1;
+	for (var i = 0; i < START_COLS; i++) {
+	    tableOps.addCol(-1);
+	}
+
+	/* Add header row. */
+	tableOps.addRow_(0);
+
+	for (var i = 0; i < START_SIGNALS; i++) {
+	    tableOps.addSignal(-1);
+	}
+    },
+
+
+    /**
+     * Handle single-click event on a cell while in MAIN state.
+     */
+    cell_click_MAIN: function(event)
+    {
+	var cell = event.currentTarget;
+	var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
+	var colIndex = tableOps.cellToColIndex_(cell);
+	var modifier = (event.altKey || event.ctrlKey || event.shiftKey);
+
+	if (! modifier) {
+	    /* Clear other selection and select the chosen cell(s). */
+	    selOps.clearSelection();
+	}
+
+	if ((colIndex == 0) && (rowIndex == 0)) {
+	    /* Select all. */
+	    for (var si = 0; si < signals; si++) {
+		var ri = indexOps.sigToRow_(si) + 1;
+		for (var ci = 1; ci < cols; ci++) {
+		    selOps.setCellSelection_(ri, ci, 's');
+		}
+	    }
+
+	} else if (colIndex == 0) {
+	    /* Select whole row. */
+
 	    for (var ci = 1; ci < cols; ci++) {
-		selOps.setCellSelection_(ri, ci, 's');
+		selOps.setCellSelection_(rowIndex, ci, 's');
+	    }
+
+	} else if (rowIndex == 0) {
+	    /* Select whole column. */
+
+	    for (var si = 0; si < signals; si++) {
+		var ri = indexOps.sigToRow_(si) + 1;
+		selOps.setCellSelection_(ri, colIndex, 's');
+	    }
+
+	} else {
+	    /* Toggle this cell's selection. */
+	    selOps.setCellSelection_(rowIndex, colIndex, 't');
+	}
+    },
+
+
+    /**
+     * Handle single-click event on a cell while in ADDCOL/DELCOL state.
+     */
+    cell_click_COL: function(event)
+    {
+	var cell = event.currentTarget;
+	var colIndex = tableOps.cellToColIndex_(cell);
+
+	if (state == 'ADDCOL') {
+	    tableOps.addCol(colIndex + 1);
+
+	} else if (state == 'DELCOL') {
+	    if (colIndex > 0) {
+		tableOps.delCol(colIndex);
+	    }
+
+	}
+    },
+
+
+    /**
+     * Handle single-click event on a cell.
+     */
+    cell_click: function(event)
+    {
+	if (state == 'MAIN') {
+	    eventOps.cell_click_MAIN(event);
+
+	} else if ((state == 'ADDCOL') || (state == 'DELCOL')) {
+	    eventOps.cell_click_COL(event);
+
+	} else {
+	    uiOps.setMsg('ERROR: Unknown state: '.concat(state))
+	}
+    },
+
+
+    /**
+     * Handle double-click event on a cell.
+     */
+    cell_dblclick: function(event)
+    {
+	var cell = event.currentTarget;
+	var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
+	var colIndex = tableOps.cellToColIndex_(cell);
+
+	if (colIndex == 0) {
+	    if (rowIndex > 0) {
+		/* Rename signal. */
+		var oldName = cell.innerHTML;
+
+		cell.innerHTML = '<input type="text" id="newName"'.concat(
+			' value="',
+			oldName,
+			'" />'
+			);
+
+		var input = document.getElementById('newName');
+		input.onblur = eventOps.newName_onblur;
+
+		cell.ondblclick = null;
 	    }
 	}
+    },
 
-    } else if (colIndex == 0) {
-	/* Select whole row. */
 
-	for (var ci = 1; ci < cols; ci++) {
-	    selOps.setCellSelection_(rowIndex, ci, 's');
+    /**
+     * Handle click event on a spacing cell (between signal rows).
+     */
+    spacingCell_click: function(event)
+    {
+	selOps.clearSelection();
+    },
+
+
+    /**
+     * @private
+     * Handle finish of editing signal name.
+     * @param {string} newName New signal name.
+     * @param {cell} cell Signal table cell.
+     */
+    newName_finish_: function(newName, cell)
+    {
+	cell.innerHTML = escape(newName.trim()).replace(/%20/g, ' ');
+	cell.ondblclick = eventOps.cell_dblclick;
+    },
+
+
+    /**
+     * Handle de-focus while editing signal name.
+     */
+    newName_onblur: function(event)
+    {
+	var input = event.currentTarget;
+	eventOps.newName_finish_(input.value, input.parentNode);
+    },
+
+
+    /**
+     * Handle request to add/delete column.
+     * @param {string} op Operation ('add' or 'del').
+     */
+    reqAddDelCol: function(op)
+    {
+	op = op.trim().charAt(0).toLowerCase();
+
+	var nextState = 'MAIN';
+
+	if (op == 'a') {
+	    nextState = 'ADDCOL';
+
+	    uiOps.setMsg('Add a column after which column?');
+
+	} else if (op == 'd') {
+	    nextState = 'DELCOL';
+
+	    uiOps.setMsg('Delete which column?');
+
+	} else {
+	    throw 'invalid operation';
 	}
 
-    } else if (rowIndex == 0) {
-	/* Select whole column. */
+	selOps.clearSelection();
 
-	for (var si = 0; si < signals; si++) {
-	    var ri = indexOps.sigToRow_(si) + 1;
-	    selOps.setCellSelection_(ri, colIndex, 's');
+	if (state == nextState) {
+	    /* Finished with operation. */
+	    nextState = 'MAIN';
+	    uiOps.setMsg('');
 	}
 
-    } else {
-	/* Toggle this cell's selection. */
-	selOps.setCellSelection_(rowIndex, colIndex, 't');
-    }
-}
-
-
-/**
- * Handle single-click event on a cell while in ADDCOL/DELCOL state.
- */
-function cell_click_COL(event)
-{
-    var cell = event.currentTarget;
-    var colIndex = tableOps.cellToColIndex_(cell);
-
-    if (state == 'ADDCOL') {
-	tableOps.addCol(colIndex + 1);
-
-    } else if (state == 'DELCOL') {
-	if (colIndex > 0) {
-	    tableOps.delCol(colIndex);
-	}
-
-    }
-}
-
-
-/**
- * Handle single-click event on a cell.
- */
-function cell_click(event)
-{
-    if (state == 'MAIN') {
-	cell_click_MAIN(event);
-
-    } else if ((state == 'ADDCOL') || (state == 'DELCOL')) {
-	cell_click_COL(event);
-
-    } else {
-	uiOps.setMsg('ERROR: Unknown state: '.concat(state))
-    }
-}
-
-
-/**
- * Handle double-click event on a cell.
- */
-function cell_dblclick(event)
-{
-    var cell = event.currentTarget;
-    var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
-    var colIndex = tableOps.cellToColIndex_(cell);
-
-    if (colIndex == 0) {
-	if (rowIndex > 0) {
-	    /* Rename signal. */
-	    var oldName = cell.innerHTML;
-
-	    cell.innerHTML = '<input type="text" id="newName"'.concat(
-		    ' value="',
-		    oldName,
-		    '" />'
-		    );
-
-	    var input = document.getElementById('newName');
-	    input.onblur = newName_onblur;
-
-	    cell.ondblclick = null;
-	}
-    }
-}
-
-
-/**
- * Handle click event on a spacing cell (between signal rows).
- */
-function spacingCell_click(event)
-{
-    selOps.clearSelection();
-}
-
-
-/**
- * @private
- * Handle finish of editing signal name.
- * @param {string} newName New signal name.
- * @param {cell} cell Signal table cell.
- */
-function newName_finish_(newName, cell)
-{
-    cell.innerHTML = escape(newName.trim()).replace(/%20/g, ' ');
-    cell.ondblclick = cell_dblclick;
-}
-
-
-/**
- * Handle de-focus while editing signal name.
- */
-function newName_onblur(event)
-{
-    var input = event.currentTarget;
-    newName_finish_(input.value, input.parentNode);
-}
-
-
-/**
- * Handle request to add/delete column.
- * @param {string} op Operation ('add' or 'del').
- */
-function reqAddDelCol(op)
-{
-    op = op.trim().charAt(0).toLowerCase();
-
-    var nextState = 'MAIN';
-
-    if (op == 'a') {
-	nextState = 'ADDCOL';
-
-	uiOps.setMsg('Add a column after which column?');
-
-    } else if (op == 'd') {
-	nextState = 'DELCOL';
-
-	uiOps.setMsg('Delete which column?');
-
-    } else {
-	throw 'invalid operation';
-    }
-
-    selOps.clearSelection();
-
-    if (state == nextState) {
-	/* Finished with operation. */
-	nextState = 'MAIN';
-	uiOps.setMsg('');
-    }
-
-    state = nextState;
+	state = nextState;
+    },
 }
