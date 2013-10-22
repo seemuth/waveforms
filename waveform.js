@@ -42,6 +42,8 @@ var signals = 0;
 var cols = 0;
 var table;
 
+var data = [];
+
 var selected = [];
 
 var state = 'MAIN';
@@ -75,6 +77,179 @@ var helper = {
     text_: function(str)
     {
 	return document.createTextNode(str);
+    },
+}
+
+
+var dataOps = {
+    /**
+     * @private
+     * Insert data cell at the specified position.
+     * @param {number} sigIndex Zero-based signal index.
+     * @param {number} cellIndex Zero-based cell index.
+     * @param {string} [opt_value='x'] Use 0/1/x value or copy from previous
+     *	    (left) cell value.
+     */
+    addCell_: function(sigIndex, cellIndex, opt_value)
+    {
+	var mode;
+	var value;
+
+	if (sigIndex < 0) {
+	    throw 'sigIndex too low';
+	} else if (sigIndex >= signals) {
+	    throw 'sigIndex too high';
+	}
+
+	if (cellIndex < 1) {
+	    throw 'cellIndex too low';
+	} else if (cellIndex > (cols + 1)) {
+	    throw 'cellIndex too high';
+	}
+
+
+	if (opt_value === undefined) {
+	    mode = 'x';
+	} else {
+	    mode = opt_value.toString().trim().charAt(0).toLowerCase();
+	}
+
+	if ((mode == '0') || (mode == '1') || (mode == 'x')) {
+	    value = mode;
+
+	} else if ((mode == 'c') || (mode == 'p')) {
+	    value = data[sigIndex][cellIndex - 1];
+
+	} else {
+	    throw 'Invalid value';
+	}
+
+	data[sigIndex].splice(cellIndex, 0, value);
+    },
+
+
+    /**
+     * @private
+     * Delete data cell at the specified position.
+     * @param {number} sigIndex Zero-based signal index.
+     * @param {number} cellIndex Zero-based cell index.
+     */
+    delCell_: function(sigIndex, cellIndex)
+    {
+	if (sigIndex < 0) {
+	    throw 'sigIndex too low';
+	} else if (sigIndex >= signals) {
+	    throw 'sigIndex too high';
+	}
+
+	if (cellIndex < 1) {
+	    throw 'cellIndex too low';
+	} else if (cellIndex > cols) {
+	    throw 'cellIndex too high';
+	}
+
+	data[sigIndex].splice(cellIndex, 1);
+    },
+
+
+    /**
+     * @private
+     * Add data column at the specified position for all signals.
+     * @param {number} colIndex Zero-based column index.
+     * @param {string} [opt_value='x'] Use 0/1/x value or copy from previous
+     *	    (left) cell value.
+     */
+    addCol_: function(colIndex, opt_value)
+    {
+	if (colIndex < 1) {
+	    throw 'colIndex too low';
+	} else if (colIndex > (cols + 1)) {
+	    throw 'colIndex too high';
+	}
+
+	for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
+	    dataOps.addCell_(sigIndex, colIndex, opt_value);
+	}
+
+	cols++;
+    },
+
+
+    /**
+     * @private
+     * Delete data column at the specified position for all signals.
+     * @param {number} colIndex Zero-based column index.
+     */
+    delCol_: function(colIndex)
+    {
+	if (colIndex < 1) {
+	    throw 'colIndex too low';
+	} else if (colIndex > cols) {
+	    throw 'colIndex too high';
+	}
+
+	for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
+	    dataOps.delCell_(sigIndex, colIndex);
+	}
+
+	cols--;
+    },
+
+
+    /**
+     * @private
+     * Add signal data row at the specified position.
+     * @param {number} sigIndex Zero-based signal index.
+     * @param {string} [opt_value='x'] Use 0/1/x value for all data cells.
+     */
+    addSignal_: function(sigIndex, opt_value)
+    {
+	var mode;
+	var values = [];
+
+	if (sigIndex < 0) {
+	    throw 'sigIndex too low';
+	} else if (sigIndex > signals) {
+	    throw 'sigIndex too high';
+	}
+
+	if (opt_value === undefined) {
+	    mode = 'x';
+	} else {
+	    mode = opt_value.toString().trim().charAt(0).toLowerCase();
+	}
+
+	if ((mode == '0') || (mode == '1') || (mode == 'x')) {
+	    for (var i = 0; i < (cols + 1); i++) {
+		values.push(mode);
+	    }
+
+	} else {
+	    throw 'Invalid value';
+	}
+
+	data.splice(sigIndex, 0, values);
+
+	signals++;
+    },
+
+
+    /**
+     * @private
+     * Delete signal data row at the specified position.
+     * @param {number} sigIndex Zero-based signal index.
+     */
+    delSignal_: function(sigIndex)
+    {
+	if (sigIndex < 0) {
+	    throw 'sigIndex too low';
+	} else if (sigIndex >= signals) {
+	    throw 'sigIndex too high';
+	}
+
+	data.splice(sigIndex, 1);
+
+	signals--;
     },
 }
 
@@ -316,8 +491,6 @@ var tableOps = {
 	for (var i = 0; i < 2; i++) {
 	    tableOps.addRow_(rowIndex + i);
 	}
-
-	signals++;
     },
 
 
@@ -333,8 +506,6 @@ var tableOps = {
 	    /* No signals to delete! */
 	    return;
 	}
-
-	signals--;
 
 	if (index < 0) {
 	    index = signals;
@@ -373,8 +544,6 @@ var tableOps = {
 	    tableOps.addCell_(r, colIndex);
 	}
 
-	cols++;
-
 	if (regenHeader) {
 	    var row = table.rows[0];
 
@@ -404,8 +573,6 @@ var tableOps = {
 
 	/* Need to regenerate header? */
 	var regenHeader = (index < (cols - 1));
-
-	cols--;
 
 	if (index < 0) {
 	    index = cols;
