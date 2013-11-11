@@ -975,9 +975,52 @@ var uiOps = {
     /**
      * Update specific cells in the displayed table from the
      * internally-stored data.
+     * Note that column 0 is always x (don't-care) and is not displayed.
+     * @param {number} sigMin Zero-based starting signal index (inclusive)
+     * @param {number} sigMax Zero-based ending signal index (inclusive)
+     * @param {number} colMin Zero-based starting column index (inclusive)
+     * @param {number} colMax Zero-based ending column index (inclusive)
      */
     updateDisplayedCells: function(sigMin, sigMax, colMin, colMax)
     {
+        if (sigMax < 0) {
+            sigMax = signals - 1;
+        }
+        if (colMin < 1) {
+            colMin = 1;
+        }
+        if (colMax < 0) {
+            colMax = cols - 1;
+        }
+
+        for (var sigIndex = sigMin; sigIndex <= sigMax; sigIndex++) {
+            for (var colIndex = colMin; colIndex <= colMax; colIndex++) {
+                var dataVal = data[sigIndex][colIndex];
+                var tableMode = null;
+
+                if ((dataVal == '0') || (dataVal == 0)) {
+                    tableMode = 'clear';
+
+                } else if ((dataVal == '1') || (dataVal == 1)) {
+                    tableMode = 'set';
+
+                } else if (dataVal == 'x') {
+                    tableMode = 'x';
+
+                } else {
+                    throw ('invalid data ' +
+                            sigIndex.toString() +
+                            ', ' +
+                            colIndex.toString() +
+                            ': ' +
+                            dataVal.toString()
+                          )
+                }
+
+                var rowIndex = indexOps.sigToRow_(sigIndex);
+                tableOps.setCellValue(rowIndex, colIndex, tableMode);
+            }
+        }
     },
 }
 
