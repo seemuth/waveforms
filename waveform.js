@@ -888,8 +888,9 @@ var uiOps = {
 	}
 
 	dataOps.addSignal_(index, opt_value);
+        tableOps.addSignal_(index);
 
-        uiOps.updateDisplayedData();
+        uiOps.updateDisplayedCells(index, index, 0, -1);
     },
 
 
@@ -911,8 +912,7 @@ var uiOps = {
 	}
 
 	dataOps.delSignal_(index);
-
-        uiOps.updateDisplayedData();
+        tableOps.delSignal(index);
     },
 
 
@@ -934,8 +934,9 @@ var uiOps = {
 	}
 
         dataOps.addCol_(index, opt_value);
+        tableOps.addCol_(index);
 
-        uiOps.updateDisplayedData();
+        uiOps.updateDisplayedCells(0, -1, index, index);
     },
 
 
@@ -957,8 +958,7 @@ var uiOps = {
 	}
 
         dataOps.delCol_(index);
-
-        uiOps.updateDisplayedData();
+        tableOps.delCol(index);
     },
 
 
@@ -967,7 +967,18 @@ var uiOps = {
      */
     updateDisplayedData: function()
     {
-    }
+        tableOps.updateHeader();
+        uiOps.updateDisplayedCells(0, -1, 0, -1);
+    },
+
+
+    /**
+     * Update specific cells in the displayed table from the
+     * internally-stored data.
+     */
+    updateDisplayedCells: function(sigMin, sigMax, colMin, colMax)
+    {
+    },
 }
 
 
