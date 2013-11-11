@@ -958,7 +958,7 @@ var uiOps = {
 	}
 
         dataOps.delCol_(index);
-        tableOps.delCol(index);
+        tableOps.delCol_(index);
     },
 
 
