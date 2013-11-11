@@ -1135,11 +1135,11 @@ var eventOps = {
 	var colIndex = tableOps.cellToColIndex_(cell);
 
 	if (state == 'ADDCOL') {
-	    tableOps.addCol_(colIndex + 1);
+	    uiOps.addCol(colIndex + 1);
 
 	} else if (state == 'DELCOL') {
 	    if (colIndex > 0) {
-		tableOps.delCol_(colIndex);
+		uiOps.delCol(colIndex);
 	    }
 
 	}
