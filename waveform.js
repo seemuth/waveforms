@@ -912,7 +912,7 @@ var uiOps = {
 	}
 
 	dataOps.delSignal_(index);
-        tableOps.delSignal(index);
+        tableOps.delSignal_(index);
     },
 
 
