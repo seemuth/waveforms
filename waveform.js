@@ -936,7 +936,7 @@ var uiOps = {
         dataOps.addCol_(index, opt_value);
         tableOps.addCol_(index);
 
-        uiOps.updateDisplayedCells(0, -1, index, index);
+        uiOps.updateDisplayedCells(0, -1, index - 1, index + 1);
     },
 
 
@@ -959,6 +959,8 @@ var uiOps = {
 
         dataOps.delCol_(index);
         tableOps.delCol_(index);
+
+        uiOps.updateDisplayedCells(0, -1, index - 1, index + 1);
     },
 
 
@@ -983,13 +985,13 @@ var uiOps = {
      */
     updateDisplayedCells: function(sigMin, sigMax, colMin, colMax)
     {
-        if (sigMax < 0) {
+        if ((sigMax < 0) || (sigMax >= signals)) {
             sigMax = signals - 1;
         }
         if (colMin < 1) {
             colMin = 1;
         }
-        if (colMax < 0) {
+        if ((colMax < 0) || (colMax >= cols)) {
             colMax = cols - 1;
         }
 
