@@ -510,7 +510,7 @@ var tableOps = {
 	}
 
 	if (index < 0) {
-	    index = signals;
+	    index = signals - 1;
 	}
 
 	var rowIndex = indexOps.sigToRow_(index);
