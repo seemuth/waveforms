@@ -872,6 +872,102 @@ var uiOps = {
     {
 	document.getElementById('msg').innerHTML = msg;
     },
+
+
+    /**
+     * Add signal at the given index.
+     * @param {number} index Add signal at this index (<0 means last).
+     * @param {string} [opt_value='x'] Use 0/1/x value for all data cells.
+     */
+    addSignal: function(index, opt_value)
+    {
+	selOps.clearSelection();
+
+	if (index < 0) {
+	    index = signals;
+	}
+
+	dataOps.addSignal_(index, opt_value);
+
+        uiOps.updateDisplayedData();
+    },
+
+
+    /**
+     * Delete the signal at the given index.
+     * @param {number} index Delete signal at this index (<0 means last).
+     */
+    delSignal: function(index)
+    {
+	selOps.clearSelection();
+
+	if (signals < 1) {
+	    /* No signals to delete! */
+	    return;
+	}
+
+	if (index < 0) {
+	    index = signals - 1;
+	}
+
+	dataOps.delSignal_(index);
+
+        uiOps.updateDisplayedData();
+    },
+
+
+    /**
+     * Add column at the given index.
+     * @param {number} index Add column at this index (<0 means last).
+     * @param {string} [opt_value='x'] Use 0/1/x value for all data cells.
+     */
+    addCol: function(index, opt_value)
+    {
+	selOps.clearSelection();
+
+	if (index > cols) {
+	    throw 'index too high';
+	}
+
+	if (index < 0) {
+	    index = cols;
+	}
+
+        dataOps.addCol_(index, opt_value);
+
+        uiOps.updateDisplayedData();
+    },
+
+
+    /**
+     * Delete the column at the given index.
+     * @param {number} index Delete column at this index (<0 means last).
+     */
+    delCol: function(index)
+    {
+	selOps.clearSelection();
+
+	if (cols <= 1) {
+	    /* No non-name columns to delete! */
+	    return;
+	}
+
+	if (index >= cols) {
+	    throw 'index too high';
+	}
+
+        dataOps.delCol_(index);
+
+        uiOps.updateDisplayedData();
+    },
+
+
+    /**
+     * Update the displayed table with the internally-stored data.
+     */
+    updateDisplayedData: function()
+    {
+    }
 }
 
 
