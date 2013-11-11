@@ -39,7 +39,7 @@ var MINWIDTH_DATACOL = '20px';
 var FONTSIZE_SIGNAME = 'medium';
 
 var signals = 0;
-var cols = 0;
+var cols = 1;   /* Always have zeroth column (don't-care) */
 var table;
 
 var data = [];
@@ -1018,7 +1018,7 @@ var uiOps = {
                 }
 
                 var rowIndex = indexOps.sigToRow_(sigIndex);
-                tableOps.setCellValue(rowIndex, colIndex, tableMode);
+                tableOps.setCellValue_(rowIndex, colIndex, tableMode);
             }
         }
     },
@@ -1067,15 +1067,15 @@ var eventOps = {
 	    table.appendChild(document.createElement('tbody'));
 	}
 
-	for (var i = 0; i < START_COLS; i++) {
-	    tableOps.addCol_(-1);
-	}
-
 	/* Add header row. */
 	tableOps.addRow_(0);
 
+	for (var i = 0; i < START_COLS; i++) {
+	    uiOps.addCol(-1);
+	}
+
 	for (var i = 0; i < START_SIGNALS; i++) {
-	    tableOps.addSignal_(-1);
+	    uiOps.addSignal(-1);
 	}
     },
 
