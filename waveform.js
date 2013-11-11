@@ -474,10 +474,11 @@ var tableOps = {
 
 
     /**
+     * @private
      * Add signal at the given index.
      * @param {number} index Add signal at this index (<0 means last).
      */
-    addSignal: function(index)
+    addSignal_: function(index)
     {
 	selOps.clearSelection();
 
@@ -495,10 +496,11 @@ var tableOps = {
 
 
     /**
+     * @private
      * Delete the signal at the given index.
      * @param {number} index Delete signal at this index (<0 means last).
      */
-    delSignal: function(index)
+    delSignal_: function(index)
     {
 	selOps.clearSelection();
 
@@ -520,10 +522,11 @@ var tableOps = {
 
 
     /**
+     * @private
      * Add column at the given index.
      * @param {number} index Add column at this index (<0 means last).
      */
-    addCol: function(index)
+    addCol_: function(index)
     {
 	selOps.clearSelection();
 
@@ -555,10 +558,11 @@ var tableOps = {
 
 
     /**
+     * @private
      * Delete the column at the given index.
      * @param {number} index Delete column at this index (<0 means last).
      */
-    delCol: function(index)
+    delCol_: function(index)
     {
 	selOps.clearSelection();
 
@@ -914,14 +918,14 @@ var eventOps = {
 	}
 
 	for (var i = 0; i < START_COLS; i++) {
-	    tableOps.addCol(-1);
+	    tableOps.addCol_(-1);
 	}
 
 	/* Add header row. */
 	tableOps.addRow_(0);
 
 	for (var i = 0; i < START_SIGNALS; i++) {
-	    tableOps.addSignal(-1);
+	    tableOps.addSignal_(-1);
 	}
     },
 
@@ -981,11 +985,11 @@ var eventOps = {
 	var colIndex = tableOps.cellToColIndex_(cell);
 
 	if (state == 'ADDCOL') {
-	    tableOps.addCol(colIndex + 1);
+	    tableOps.addCol_(colIndex + 1);
 
 	} else if (state == 'DELCOL') {
 	    if (colIndex > 0) {
-		tableOps.delCol(colIndex);
+		tableOps.delCol_(colIndex);
 	    }
 
 	}
