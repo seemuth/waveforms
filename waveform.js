@@ -835,6 +835,7 @@ var selOps = {
 	    var rowIndex = parseInt(parts[0]);
 	    var colIndex = parseInt(parts[1]);
 
+	    dataOps.setCellValue_(rowIndex, colIndex, mode);
 	    tableOps.setCellValue_(rowIndex, colIndex, mode);
 	}
     },
