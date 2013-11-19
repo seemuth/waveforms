@@ -583,11 +583,7 @@ var tableOps = {
 	}
 
 	if (regenHeader) {
-	    var row = table.rows[0];
-
-	    for (var c = 1; c < cols; c++) {
-		row.cells[c].innerHTML = cellOps.cellContents_(0, c);
-	    }
+	    tableOps.updateHeader();
 	}
     },
 
@@ -626,11 +622,7 @@ var tableOps = {
 	}
 
 	if (regenHeader) {
-	    var row = table.rows[0];
-
-	    for (var c = 1; c < cols; c++) {
-		row.cells[c].innerHTML = cellOps.cellContents_(0, c);
-	    }
+	    tableOps.updateHeader();
 	}
     },
 
@@ -709,6 +701,19 @@ var tableOps = {
 	/* Update entering and leaving edges. */
 	tableOps.updateCellEdge_(rowIndex, colIndex);
 	tableOps.updateCellEdge_(rowIndex, colIndex + 1);
+    },
+
+
+    /**
+     * Update table header row with column indices.
+     */
+    updateHeader: function()
+    {
+	var row = table.rows[0];
+
+	for (var c = 1; c < cols; c++) {
+	    row.cells[c].innerHTML = cellOps.cellContents_(0, c);
+	}
     },
 }
 
