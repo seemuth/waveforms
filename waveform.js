@@ -251,6 +251,41 @@ var dataOps = {
 
 	signals--;
     },
+
+
+    /**
+     * @private
+     * Set signal cell's value.
+     * @param {number} rowIndex Zero-based row index.
+     * @param {number} colIndex Zero-based column index.
+     * @param {string} mode Set/clear/toggle/dontcare value.
+     */
+    setCellValue_: function(rowIndex, colIndex, mode)
+    {
+	mode = mode.trim().charAt(0).toLowerCase();
+
+	if (mode == 's') {
+	    data[rowIndex][colIndex] = '1';
+
+	} else if (mode == 'c') {
+	    data[rowIndex][colIndex] = '0';
+
+	} else if (mode == 't') {
+	    var current = data[rowIndex][colIndex];
+
+	    if (current == '0') {
+		data[rowIndex][colIndex] = '1';
+	    } else if (current == '1') {
+		data[rowIndex][colIndex] = '0';
+	    }
+
+	} else if ((mode == 'd') || (mode == 'x')) {
+	    data[rowIndex][colIndex] = 'x';
+
+	} else {
+	    throw 'invalid mode';
+	}
+    },
 }
 
 
