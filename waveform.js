@@ -39,8 +39,10 @@ var MINWIDTH_DATACOL = '20px';
 var FONTSIZE_SIGNAME = 'medium';
 
 var signals = 0;
-var cols = 0;
+var cols = 1;   /* Always have zeroth column (don't-care) */
 var table;
+
+var data = [];
 
 var selected = [];
 
@@ -75,6 +77,214 @@ var helper = {
     text_: function(str)
     {
 	return document.createTextNode(str);
+    },
+}
+
+
+var dataOps = {
+    /**
+     * @private
+     * Insert data cell at the specified position.
+     * @param {number} sigIndex Zero-based signal index.
+     * @param {number} cellIndex Zero-based cell index.
+     * @param {string} [opt_value='x'] Use 0/1/x value or copy from previous
+     *	    (left) cell value.
+     */
+    addCell_: function(sigIndex, cellIndex, opt_value)
+    {
+	var mode;
+	var value;
+
+	if (sigIndex < 0) {
+	    throw new Error('sigIndex too low');
+	} else if (sigIndex >= signals) {
+	    throw new Error('sigIndex too high');
+	}
+
+	if (cellIndex < 1) {
+	    throw new Error('cellIndex too low');
+	} else if (cellIndex > (cols + 1)) {
+	    throw new Error('cellIndex too high');
+	}
+
+
+	if (opt_value === undefined) {
+	    mode = 'x';
+	} else {
+	    mode = opt_value.toString().trim().charAt(0).toLowerCase();
+	}
+
+	if ((mode == '0') || (mode == '1') || (mode == 'x')) {
+	    value = mode;
+
+	} else if ((mode == 'c') || (mode == 'p')) {
+	    value = data[sigIndex][cellIndex - 1];
+
+	} else {
+	    throw new Error('Invalid value');
+	}
+
+	data[sigIndex].splice(cellIndex, 0, value);
+    },
+
+
+    /**
+     * @private
+     * Delete data cell at the specified position.
+     * @param {number} sigIndex Zero-based signal index.
+     * @param {number} cellIndex Zero-based cell index.
+     */
+    delCell_: function(sigIndex, cellIndex)
+    {
+	if (sigIndex < 0) {
+	    throw new Error('sigIndex too low');
+	} else if (sigIndex >= signals) {
+	    throw new Error('sigIndex too high');
+	}
+
+	if (cellIndex < 1) {
+	    throw new Error('cellIndex too low');
+	} else if (cellIndex > cols) {
+	    throw new Error('cellIndex too high');
+	}
+
+	data[sigIndex].splice(cellIndex, 1);
+    },
+
+
+    /**
+     * @private
+     * Add data column at the specified position for all signals.
+     * @param {number} colIndex Zero-based column index.
+     * @param {string} [opt_value='x'] Use 0/1/x value or copy from previous
+     *	    (left) cell value.
+     */
+    addCol_: function(colIndex, opt_value)
+    {
+	if (colIndex < 1) {
+	    throw new Error('colIndex too low');
+	} else if (colIndex > (cols + 1)) {
+	    throw new Error('colIndex too high');
+	}
+
+	for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
+	    dataOps.addCell_(sigIndex, colIndex, opt_value);
+	}
+
+	cols++;
+    },
+
+
+    /**
+     * @private
+     * Delete data column at the specified position for all signals.
+     * @param {number} colIndex Zero-based column index.
+     */
+    delCol_: function(colIndex)
+    {
+	if (colIndex < 1) {
+	    throw new Error('colIndex too low');
+	} else if (colIndex > cols) {
+	    throw new Error('colIndex too high');
+	}
+
+	for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
+	    dataOps.delCell_(sigIndex, colIndex);
+	}
+
+	cols--;
+    },
+
+
+    /**
+     * @private
+     * Add signal data row at the specified position.
+     * @param {number} sigIndex Zero-based signal index.
+     * @param {string} [opt_value='x'] Use 0/1/x value for all data cells.
+     */
+    addSignal_: function(sigIndex, opt_value)
+    {
+	var mode;
+	var values = [];
+
+	if (sigIndex < 0) {
+	    throw new Error('sigIndex too low');
+	} else if (sigIndex > signals) {
+	    throw new Error('sigIndex too high');
+	}
+
+	if (opt_value === undefined) {
+	    mode = 'x';
+	} else {
+	    mode = opt_value.toString().trim().charAt(0).toLowerCase();
+	}
+
+	if ((mode == '0') || (mode == '1') || (mode == 'x')) {
+	    for (var i = 0; i < (cols + 1); i++) {
+		values.push(mode);
+	    }
+
+	} else {
+	    throw new Error('Invalid value');
+	}
+
+	data.splice(sigIndex, 0, values);
+
+	signals++;
+    },
+
+
+    /**
+     * @private
+     * Delete signal data row at the specified position.
+     * @param {number} sigIndex Zero-based signal index.
+     */
+    delSignal_: function(sigIndex)
+    {
+	if (sigIndex < 0) {
+	    throw new Error('sigIndex too low');
+	} else if (sigIndex >= signals) {
+	    throw new Error('sigIndex too high');
+	}
+
+	data.splice(sigIndex, 1);
+
+	signals--;
+    },
+
+
+    /**
+     * @private
+     * Set signal cell's value.
+     * @param {number} sigIndex Zero-based signal index.
+     * @param {number} colIndex Zero-based column index.
+     * @param {string} mode Set/clear/toggle/dontcare value.
+     */
+    setCellValue_: function(sigIndex, colIndex, mode)
+    {
+	mode = mode.trim().charAt(0).toLowerCase();
+
+	if (mode == 's') {
+	    data[sigIndex][colIndex] = '1';
+
+	} else if (mode == 'c') {
+	    data[sigIndex][colIndex] = '0';
+
+	} else if (mode == 't') {
+	    var current = data[sigIndex][colIndex];
+
+	    if (current == '0') {
+		data[sigIndex][colIndex] = '1';
+	    } else if (current == '1') {
+		data[sigIndex][colIndex] = '0';
+	    }
+
+	} else if ((mode == 'd') || (mode == 'x')) {
+	    data[sigIndex][colIndex] = 'x';
+
+	} else {
+	    throw new Error('invalid mode');
+	}
     },
 }
 
@@ -231,7 +441,7 @@ var tableOps = {
     addRow_: function(rowIndex)
     {
 	if (rowIndex < 0) {
-	    throw 'rowIndex too low';
+	    throw new Error('rowIndex too low');
 	}
 
 	var row = table.insertRow(rowIndex);
@@ -267,11 +477,11 @@ var tableOps = {
     addCell_: function(rowIndex, colIndex)
     {
 	if (rowIndex < 0) {
-	    throw 'rowIndex too low';
+	    throw new Error('rowIndex too low');
 	}
 
 	if (colIndex < 0) {
-	    throw 'colIndex too low';
+	    throw new Error('colIndex too low');
 	}
 
 	var row = table.rows[rowIndex];
@@ -299,10 +509,11 @@ var tableOps = {
 
 
     /**
+     * @private
      * Add signal at the given index.
      * @param {number} index Add signal at this index (<0 means last).
      */
-    addSignal: function(index)
+    addSignal_: function(index)
     {
 	selOps.clearSelection();
 
@@ -316,16 +527,15 @@ var tableOps = {
 	for (var i = 0; i < 2; i++) {
 	    tableOps.addRow_(rowIndex + i);
 	}
-
-	signals++;
     },
 
 
     /**
+     * @private
      * Delete the signal at the given index.
      * @param {number} index Delete signal at this index (<0 means last).
      */
-    delSignal: function(index)
+    delSignal_: function(index)
     {
 	selOps.clearSelection();
 
@@ -334,10 +544,8 @@ var tableOps = {
 	    return;
 	}
 
-	signals--;
-
 	if (index < 0) {
-	    index = signals;
+	    index = signals - 1;
 	}
 
 	var rowIndex = indexOps.sigToRow_(index);
@@ -349,47 +557,36 @@ var tableOps = {
 
 
     /**
+     * @private
      * Add column at the given index.
      * @param {number} index Add column at this index (<0 means last).
      */
-    addCol: function(index)
+    addCol_: function(index)
     {
 	selOps.clearSelection();
 
 	if (index > cols) {
-	    throw 'index too high';
+	    throw new Error('index too high');
 	}
 
 	if (index < 0) {
 	    index = cols;
 	}
 
-	/* Need to regenerate header? */
-	var regenHeader = (index < cols);
-
 	var colIndex = index;
 
 	for (var r = 0; r < table.rows.length; r++) {
 	    tableOps.addCell_(r, colIndex);
 	}
-
-	cols++;
-
-	if (regenHeader) {
-	    var row = table.rows[0];
-
-	    for (var c = 1; c < cols; c++) {
-		row.cells[c].innerHTML = cellOps.cellContents_(0, c);
-	    }
-	}
     },
 
 
     /**
+     * @private
      * Delete the column at the given index.
      * @param {number} index Delete column at this index (<0 means last).
      */
-    delCol: function(index)
+    delCol_: function(index)
     {
 	selOps.clearSelection();
 
@@ -399,13 +596,8 @@ var tableOps = {
 	}
 
 	if (index >= cols) {
-	    throw 'index too high';
+	    throw new Error('index too high');
 	}
-
-	/* Need to regenerate header? */
-	var regenHeader = (index < (cols - 1));
-
-	cols--;
 
 	if (index < 0) {
 	    index = cols;
@@ -417,14 +609,6 @@ var tableOps = {
 	    var row = table.rows[r];
 
 	    row.deleteCell(colIndex);
-	}
-
-	if (regenHeader) {
-	    var row = table.rows[0];
-
-	    for (var c = 1; c < cols; c++) {
-		row.cells[c].innerHTML = cellOps.cellContents_(0, c);
-	    }
 	}
     },
 
@@ -497,12 +681,25 @@ var tableOps = {
 	    cell.style.borderBottom = '';
 
 	} else {
-	    throw 'invalid mode';
+	    throw new Error('invalid mode');
 	}
 
 	/* Update entering and leaving edges. */
 	tableOps.updateCellEdge_(rowIndex, colIndex);
 	tableOps.updateCellEdge_(rowIndex, colIndex + 1);
+    },
+
+
+    /**
+     * Update table header row with column indices.
+     */
+    updateHeader: function()
+    {
+	var row = table.rows[0];
+
+	for (var c = 1; c < cols; c++) {
+	    row.cells[c].innerHTML = cellOps.cellContents_(0, c);
+	}
     },
 }
 
@@ -517,7 +714,7 @@ var indexOps = {
     sigToRow_: function(sigIndex)
     {
 	if (sigIndex < 0) {
-	    throw 'sigIndex too low';
+	    throw new Error('sigIndex too low');
 	}
 
 	/* Row 0 is header row, and 2 rows per signal. */
@@ -534,7 +731,7 @@ var indexOps = {
     rowToSig_: function(rowIndex)
     {
 	if (rowIndex < 1) {
-	    throw 'rowIndex too low';
+	    throw new Error('rowIndex too low');
 	}
 
 	/* Row 0 is header row, and 2 rows per signal. */
@@ -592,7 +789,7 @@ var selOps = {
 	    sel_clear = ! sel_set;
 
 	} else {
-	    throw 'invalid mode';
+	    throw new Error('invalid mode');
 	}
 
 
@@ -629,6 +826,9 @@ var selOps = {
 	    var rowIndex = parseInt(parts[0]);
 	    var colIndex = parseInt(parts[1]);
 
+	    var sigIndex = indexOps.rowToSig_(rowIndex);
+
+	    dataOps.setCellValue_(sigIndex, colIndex, mode);
 	    tableOps.setCellValue_(rowIndex, colIndex, mode);
 	}
     },
@@ -701,6 +901,164 @@ var uiOps = {
     {
 	document.getElementById('msg').innerHTML = msg;
     },
+
+
+    /**
+     * Add signal at the given index.
+     * @param {number} index Add signal at this index (<0 means last).
+     * @param {string} [opt_value='x'] Use 0/1/x value for all data cells.
+     */
+    addSignal: function(index, opt_value)
+    {
+	selOps.clearSelection();
+
+	if (index < 0) {
+	    index = signals;
+	}
+
+	dataOps.addSignal_(index, opt_value);
+        tableOps.addSignal_(index);
+
+        uiOps.updateDisplayedCells(index, index, 0, -1);
+    },
+
+
+    /**
+     * Delete the signal at the given index.
+     * @param {number} index Delete signal at this index (<0 means last).
+     */
+    delSignal: function(index)
+    {
+	selOps.clearSelection();
+
+	if (signals < 1) {
+	    /* No signals to delete! */
+	    return;
+	}
+
+	if (index < 0) {
+	    index = signals - 1;
+	}
+
+	dataOps.delSignal_(index);
+        tableOps.delSignal_(index);
+    },
+
+
+    /**
+     * Add column at the given index.
+     * @param {number} index Add column at this index (<0 means last).
+     * @param {string} [opt_value='x'] Use 0/1/x value or copy from previous
+     *	    (left) cell value.
+     */
+    addCol: function(index, opt_value)
+    {
+	selOps.clearSelection();
+
+	if (index > cols) {
+	    throw new Error('index too high');
+	}
+
+	if (index < 0) {
+	    index = cols;
+	}
+
+        dataOps.addCol_(index, opt_value);
+        tableOps.addCol_(index);
+
+	tableOps.updateHeader();
+
+        uiOps.updateDisplayedCells(0, -1, index - 1, index + 1);
+    },
+
+
+    /**
+     * Delete the column at the given index.
+     * @param {number} index Delete column at this index (<0 means last).
+     */
+    delCol: function(index)
+    {
+	selOps.clearSelection();
+
+	if (cols <= 1) {
+	    /* No non-name columns to delete! */
+	    return;
+	}
+
+	if (index >= cols) {
+	    throw new Error('index too high');
+	}
+
+        tableOps.delCol_(index);
+        dataOps.delCol_(index);
+
+	tableOps.updateHeader();
+
+        uiOps.updateDisplayedCells(0, -1, index - 1, index + 1);
+    },
+
+
+    /**
+     * Update the displayed table with the internally-stored data.
+     */
+    updateDisplayedData: function()
+    {
+        tableOps.updateHeader();
+        uiOps.updateDisplayedCells(0, -1, 0, -1);
+    },
+
+
+    /**
+     * Update specific cells in the displayed table from the
+     * internally-stored data.
+     * Note that column 0 is always x (don't-care) and is not displayed.
+     * @param {number} sigMin Zero-based starting signal index (inclusive)
+     * @param {number} sigMax Zero-based ending signal index (inclusive)
+     * @param {number} colMin Zero-based starting column index (inclusive)
+     * @param {number} colMax Zero-based ending column index (inclusive)
+     */
+    updateDisplayedCells: function(sigMin, sigMax, colMin, colMax)
+    {
+        if ((sigMax < 0) || (sigMax >= signals)) {
+            sigMax = signals - 1;
+        }
+        if (colMin < 1) {
+            colMin = 1;
+        }
+        if ((colMax < 0) || (colMax >= cols)) {
+            colMax = cols - 1;
+        }
+
+        for (var sigIndex = sigMin; sigIndex <= sigMax; sigIndex++) {
+            for (var colIndex = colMin; colIndex <= colMax; colIndex++) {
+                var dataVal = data[sigIndex][colIndex];
+                var tableMode = null;
+
+                if ((dataVal == '0') || (dataVal == 0)) {
+                    tableMode = 'clear';
+
+                } else if ((dataVal == '1') || (dataVal == 1)) {
+                    tableMode = 'set';
+
+                } else if (dataVal == 'x') {
+                    tableMode = 'x';
+
+                } else {
+                    throw new Error('invalid data ' +
+                            sigIndex.toString() +
+                            ', ' +
+                            colIndex.toString() +
+                            ': ' +
+                            dataVal.toString()
+                          );
+                }
+
+		/* Add 1 to rowIndex to get to the signal row (not spacer). */
+                var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
+                tableOps.setCellValue_(rowIndex, colIndex, tableMode);
+            }
+        }
+    },
 }
 
 
@@ -746,15 +1104,15 @@ var eventOps = {
 	    table.appendChild(document.createElement('tbody'));
 	}
 
-	for (var i = 0; i < START_COLS; i++) {
-	    tableOps.addCol(-1);
-	}
-
 	/* Add header row. */
 	tableOps.addRow_(0);
 
+	for (var i = 0; i < START_COLS; i++) {
+	    uiOps.addCol(-1);
+	}
+
 	for (var i = 0; i < START_SIGNALS; i++) {
-	    tableOps.addSignal(-1);
+	    uiOps.addSignal(-1);
 	}
     },
 
@@ -814,11 +1172,11 @@ var eventOps = {
 	var colIndex = tableOps.cellToColIndex_(cell);
 
 	if (state == 'ADDCOL') {
-	    tableOps.addCol(colIndex + 1);
+	    uiOps.addCol(colIndex + 1, 'c');	/* Copy from previous col. */
 
 	} else if (state == 'DELCOL') {
 	    if (colIndex > 0) {
-		tableOps.delCol(colIndex);
+		uiOps.delCol(colIndex);
 	    }
 
 	}
@@ -924,7 +1282,7 @@ var eventOps = {
 	    uiOps.setMsg('Delete which column?');
 
 	} else {
-	    throw 'invalid operation';
+	    throw new Error('invalid operation');
 	}
 
 	selOps.clearSelection();
