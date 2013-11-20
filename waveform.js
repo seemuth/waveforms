@@ -573,17 +573,10 @@ var tableOps = {
 	    index = cols;
 	}
 
-	/* Need to regenerate header? */
-	var regenHeader = (index < cols);
-
 	var colIndex = index;
 
 	for (var r = 0; r < table.rows.length; r++) {
 	    tableOps.addCell_(r, colIndex);
-	}
-
-	if (regenHeader) {
-	    tableOps.updateHeader();
 	}
     },
 
@@ -606,9 +599,6 @@ var tableOps = {
 	    throw new Error('index too high');
 	}
 
-	/* Need to regenerate header? */
-	var regenHeader = (index < (cols - 1));
-
 	if (index < 0) {
 	    index = cols;
 	}
@@ -619,10 +609,6 @@ var tableOps = {
 	    var row = table.rows[r];
 
 	    row.deleteCell(colIndex);
-	}
-
-	if (regenHeader) {
-	    tableOps.updateHeader();
 	}
     },
 
@@ -979,6 +965,8 @@ var uiOps = {
         dataOps.addCol_(index, opt_value);
         tableOps.addCol_(index);
 
+	tableOps.updateHeader();
+
         uiOps.updateDisplayedCells(0, -1, index - 1, index + 1);
     },
 
@@ -1000,8 +988,10 @@ var uiOps = {
 	    throw new Error('index too high');
 	}
 
-        dataOps.delCol_(index);
         tableOps.delCol_(index);
+        dataOps.delCol_(index);
+
+	tableOps.updateHeader();
 
         uiOps.updateDisplayedCells(0, -1, index - 1, index + 1);
     },
