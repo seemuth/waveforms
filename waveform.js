@@ -96,15 +96,15 @@ var dataOps = {
 	var value;
 
 	if (sigIndex < 0) {
-	    throw 'sigIndex too low';
+	    throw new Error('sigIndex too low');
 	} else if (sigIndex >= signals) {
-	    throw 'sigIndex too high';
+	    throw new Error('sigIndex too high');
 	}
 
 	if (cellIndex < 1) {
-	    throw 'cellIndex too low';
+	    throw new Error('cellIndex too low');
 	} else if (cellIndex > (cols + 1)) {
-	    throw 'cellIndex too high';
+	    throw new Error('cellIndex too high');
 	}
 
 
@@ -121,7 +121,7 @@ var dataOps = {
 	    value = data[sigIndex][cellIndex - 1];
 
 	} else {
-	    throw 'Invalid value';
+	    throw new Error('Invalid value');
 	}
 
 	data[sigIndex].splice(cellIndex, 0, value);
@@ -137,15 +137,15 @@ var dataOps = {
     delCell_: function(sigIndex, cellIndex)
     {
 	if (sigIndex < 0) {
-	    throw 'sigIndex too low';
+	    throw new Error('sigIndex too low');
 	} else if (sigIndex >= signals) {
-	    throw 'sigIndex too high';
+	    throw new Error('sigIndex too high');
 	}
 
 	if (cellIndex < 1) {
-	    throw 'cellIndex too low';
+	    throw new Error('cellIndex too low');
 	} else if (cellIndex > cols) {
-	    throw 'cellIndex too high';
+	    throw new Error('cellIndex too high');
 	}
 
 	data[sigIndex].splice(cellIndex, 1);
@@ -162,9 +162,9 @@ var dataOps = {
     addCol_: function(colIndex, opt_value)
     {
 	if (colIndex < 1) {
-	    throw 'colIndex too low';
+	    throw new Error('colIndex too low');
 	} else if (colIndex > (cols + 1)) {
-	    throw 'colIndex too high';
+	    throw new Error('colIndex too high');
 	}
 
 	for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
@@ -183,9 +183,9 @@ var dataOps = {
     delCol_: function(colIndex)
     {
 	if (colIndex < 1) {
-	    throw 'colIndex too low';
+	    throw new Error('colIndex too low');
 	} else if (colIndex > cols) {
-	    throw 'colIndex too high';
+	    throw new Error('colIndex too high');
 	}
 
 	for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
@@ -208,9 +208,9 @@ var dataOps = {
 	var values = [];
 
 	if (sigIndex < 0) {
-	    throw 'sigIndex too low';
+	    throw new Error('sigIndex too low');
 	} else if (sigIndex > signals) {
-	    throw 'sigIndex too high';
+	    throw new Error('sigIndex too high');
 	}
 
 	if (opt_value === undefined) {
@@ -225,7 +225,7 @@ var dataOps = {
 	    }
 
 	} else {
-	    throw 'Invalid value';
+	    throw new Error('Invalid value');
 	}
 
 	data.splice(sigIndex, 0, values);
@@ -242,9 +242,9 @@ var dataOps = {
     delSignal_: function(sigIndex)
     {
 	if (sigIndex < 0) {
-	    throw 'sigIndex too low';
+	    throw new Error('sigIndex too low');
 	} else if (sigIndex >= signals) {
-	    throw 'sigIndex too high';
+	    throw new Error('sigIndex too high');
 	}
 
 	data.splice(sigIndex, 1);
@@ -283,7 +283,7 @@ var dataOps = {
 	    data[sigIndex][colIndex] = 'x';
 
 	} else {
-	    throw 'invalid mode';
+	    throw new Error('invalid mode');
 	}
     },
 }
@@ -441,7 +441,7 @@ var tableOps = {
     addRow_: function(rowIndex)
     {
 	if (rowIndex < 0) {
-	    throw 'rowIndex too low';
+	    throw new Error('rowIndex too low');
 	}
 
 	var row = table.insertRow(rowIndex);
@@ -477,11 +477,11 @@ var tableOps = {
     addCell_: function(rowIndex, colIndex)
     {
 	if (rowIndex < 0) {
-	    throw 'rowIndex too low';
+	    throw new Error('rowIndex too low');
 	}
 
 	if (colIndex < 0) {
-	    throw 'colIndex too low';
+	    throw new Error('colIndex too low');
 	}
 
 	var row = table.rows[rowIndex];
@@ -566,7 +566,7 @@ var tableOps = {
 	selOps.clearSelection();
 
 	if (index > cols) {
-	    throw 'index too high';
+	    throw new Error('index too high');
 	}
 
 	if (index < 0) {
@@ -603,7 +603,7 @@ var tableOps = {
 	}
 
 	if (index >= cols) {
-	    throw 'index too high';
+	    throw new Error('index too high');
 	}
 
 	/* Need to regenerate header? */
@@ -695,7 +695,7 @@ var tableOps = {
 	    cell.style.borderBottom = '';
 
 	} else {
-	    throw 'invalid mode';
+	    throw new Error('invalid mode');
 	}
 
 	/* Update entering and leaving edges. */
@@ -728,7 +728,7 @@ var indexOps = {
     sigToRow_: function(sigIndex)
     {
 	if (sigIndex < 0) {
-	    throw 'sigIndex too low';
+	    throw new Error('sigIndex too low');
 	}
 
 	/* Row 0 is header row, and 2 rows per signal. */
@@ -745,7 +745,7 @@ var indexOps = {
     rowToSig_: function(rowIndex)
     {
 	if (rowIndex < 1) {
-	    throw 'rowIndex too low';
+	    throw new Error('rowIndex too low');
 	}
 
 	/* Row 0 is header row, and 2 rows per signal. */
@@ -803,7 +803,7 @@ var selOps = {
 	    sel_clear = ! sel_set;
 
 	} else {
-	    throw 'invalid mode';
+	    throw new Error('invalid mode');
 	}
 
 
@@ -969,7 +969,7 @@ var uiOps = {
 	selOps.clearSelection();
 
 	if (index > cols) {
-	    throw 'index too high';
+	    throw new Error('index too high');
 	}
 
 	if (index < 0) {
@@ -997,7 +997,7 @@ var uiOps = {
 	}
 
 	if (index >= cols) {
-	    throw 'index too high';
+	    throw new Error('index too high');
 	}
 
         dataOps.delCol_(index);
@@ -1053,13 +1053,13 @@ var uiOps = {
                     tableMode = 'x';
 
                 } else {
-                    throw ('invalid data ' +
+                    throw new Error('invalid data ' +
                             sigIndex.toString() +
                             ', ' +
                             colIndex.toString() +
                             ': ' +
                             dataVal.toString()
-                          )
+                          );
                 }
 
                 var rowIndex = indexOps.sigToRow_(sigIndex);
@@ -1290,7 +1290,7 @@ var eventOps = {
 	    uiOps.setMsg('Delete which column?');
 
 	} else {
-	    throw 'invalid operation';
+	    throw new Error('invalid operation');
 	}
 
 	selOps.clearSelection();
