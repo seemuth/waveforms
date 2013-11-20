@@ -948,7 +948,8 @@ var uiOps = {
     /**
      * Add column at the given index.
      * @param {number} index Add column at this index (<0 means last).
-     * @param {string} [opt_value='x'] Use 0/1/x value for all data cells.
+     * @param {string} [opt_value='x'] Use 0/1/x value or copy from previous
+     *	    (left) cell value.
      */
     addCol: function(index, opt_value)
     {
@@ -1052,7 +1053,8 @@ var uiOps = {
                           );
                 }
 
-                var rowIndex = indexOps.sigToRow_(sigIndex);
+		/* Add 1 to rowIndex to get to the signal row (not spacer). */
+                var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
                 tableOps.setCellValue_(rowIndex, colIndex, tableMode);
             }
         }
@@ -1170,7 +1172,7 @@ var eventOps = {
 	var colIndex = tableOps.cellToColIndex_(cell);
 
 	if (state == 'ADDCOL') {
-	    uiOps.addCol(colIndex + 1);
+	    uiOps.addCol(colIndex + 1, 'c');	/* Copy from previous col. */
 
 	} else if (state == 'DELCOL') {
 	    if (colIndex > 0) {
