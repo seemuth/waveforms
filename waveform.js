@@ -868,6 +868,31 @@ var selOps = {
     {
 	selOps.setSelectedCellValues('dontcare');
     },
+
+
+    /**
+     * @private
+     * Return columns containing selected cells.
+     * @return {array} of {number}
+     */
+    columnsWithSelectedCells_: function()
+    {
+	var selectedCols = [];
+
+	for (var i = 0; i < selected.length; i++) {
+	    var parts = selected[i].split('x');
+	    var colIndex = parseInt(parts[1]);
+
+	    selectedCols[colIndex] = true;
+	}
+
+	var ret = [];
+	for (i in selectedCols) {
+	    ret.push(i);
+	}
+
+	return ret;
+    }
 }
 
 
