@@ -1073,6 +1073,16 @@ var uiOps = {
             }
         }
     },
+
+
+    /**
+     * Return to main state (editing waveform values).
+     */
+    stateMain: function()
+    {
+	state = 'MAIN';
+	uiOps.setMsg('');
+    },
 }
 
 
