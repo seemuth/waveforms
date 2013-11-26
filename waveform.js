@@ -892,7 +892,7 @@ var selOps = {
 	}
 
 	return ret;
-    }
+    },
 }
 
 
