@@ -904,6 +904,20 @@ var uiOps = {
 
 
     /**
+     * Add elements to message box.
+     * @param {array} elements Elements to add
+     */
+    addMsgElements: function(elements)
+    {
+	var msg = document.getElementById('msg');
+
+	for (e in elements) {
+	    msg.appendChild(elements[e]);
+	}
+    },
+
+
+    /**
      * Add signal at the given index.
      * @param {number} index Add signal at this index (<0 means last).
      * @param {string} [opt_value='x'] Use 0/1/x value for all data cells.
