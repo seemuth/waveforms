@@ -1286,6 +1286,15 @@ var eventOps = {
 
 
     /**
+     * Done adding/deleting column(s).
+     */
+    reqAddDelColDone: function()
+    {
+	uiOps.stateMain();
+    },
+
+
+    /**
      * Handle request to add/delete column.
      * @param {string} op Operation ('add' or 'del').
      */
@@ -1309,12 +1318,17 @@ var eventOps = {
 	    throw new Error('invalid operation');
 	}
 
+	var button = document.createElement('BUTTON');
+	button.appendChild(helper.text_('Done'));
+	button.onclick = eventOps.reqAddDelColDone;
+
+	uiOps.addMsgElements([helper.text_(' '), button]);
+
 	selOps.clearSelection();
 
 	if (state == nextState) {
 	    /* Finished with operation. */
-	    nextState = 'MAIN';
-	    uiOps.setMsg('');
+	    uiOps.stateMain();
 	}
 
 	state = nextState;
