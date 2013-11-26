@@ -887,7 +887,7 @@ var selOps = {
 	}
 
 	var ret = [];
-	for (i in selectedCols) {
+	for (var i in selectedCols) {
 	    ret.push(i);
 	}
 
