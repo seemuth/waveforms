@@ -1108,6 +1108,24 @@ var uiOps = {
 	state = 'MAIN';
 	uiOps.setMsg('');
     },
+
+
+    /**
+     * Subdivide selected columns.
+     */
+    subdivideCols: function()
+    {
+	var cols = selOps.columnsWithSelectedCells_();
+	selOps.clearSelection();
+
+	/* Sort descending so column indices don't change. */
+	cols.sort(function(a, b) { return b - a; });
+
+	for (var i in cols) {
+	    /* Split column by adding new column with same data. */
+	    uiOps.addCol(cols[i] + 1, 'c');
+	}
+    },
 }
 
 
