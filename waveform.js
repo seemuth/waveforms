@@ -1208,6 +1208,31 @@ var eventOps = {
 
 
     /**
+     * Handle single-click event on a cell while in ADDSIG/DELSIG state.
+     */
+    cell_click_SIG: function(event)
+    {
+	var cell = event.currentTarget;
+	var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
+
+	var sigIndex = -1;
+	if (rowIndex > 0) {
+	    sigIndex = indexOps.rowToSig_(rowIndex);
+	}
+
+	if (state == 'ADDSIG') {
+	    uiOps.addSignal(sigIndex + 1, 'x');
+
+	} else if (state == 'DELSIG') {
+	    if (sigIndex >= 0) {
+		uiOps.delSignal(sigIndex);
+	    }
+
+	}
+    },
+
+
+    /**
      * Handle single-click event on a cell.
      */
     cell_click: function(event)
@@ -1217,6 +1242,9 @@ var eventOps = {
 
 	} else if ((state == 'ADDCOL') || (state == 'DELCOL')) {
 	    eventOps.cell_click_COL(event);
+
+	} else if ((state == 'ADDSIG') || (state == 'DELSIG')) {
+	    eventOps.cell_click_SIG(event);
 
 	} else {
 	    uiOps.setMsg('ERROR: Unknown state: '.concat(state))
@@ -1321,6 +1349,56 @@ var eventOps = {
 	var button = document.createElement('BUTTON');
 	button.appendChild(helper.text_('Done'));
 	button.onclick = eventOps.reqAddDelColDone;
+
+	uiOps.addMsgElements([helper.text_(' '), button]);
+
+	selOps.clearSelection();
+
+	if (state == nextState) {
+	    /* Finished with operation. */
+	    uiOps.stateMain();
+	}
+
+	state = nextState;
+    },
+
+
+    /**
+     * Done adding/deleting signal(s).
+     */
+    reqAddDelSigDone: function()
+    {
+	uiOps.stateMain();
+    },
+
+
+    /**
+     * Handle request to add/delete signal.
+     * @param {string} op Operation ('add' or 'del').
+     */
+    reqAddDelSig: function(op)
+    {
+	op = op.trim().charAt(0).toLowerCase();
+
+	var nextState = 'MAIN';
+
+	if (op == 'a') {
+	    nextState = 'ADDSIG';
+
+	    uiOps.setMsg('Add a signal after which signal?');
+
+	} else if (op == 'd') {
+	    nextState = 'DELSIG';
+
+	    uiOps.setMsg('Delete which signal?');
+
+	} else {
+	    throw new Error('invalid operation');
+	}
+
+	var button = document.createElement('BUTTON');
+	button.appendChild(helper.text_('Done'));
+	button.onclick = eventOps.reqAddDelSigDone;
 
 	uiOps.addMsgElements([helper.text_(' '), button]);
 
