@@ -888,7 +888,7 @@ var selOps = {
 
 	var ret = [];
 	for (var i in selectedCols) {
-	    ret.push(i);
+	    ret.push(parseInt(i));
 	}
 
 	return ret;
