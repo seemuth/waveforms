@@ -23,11 +23,11 @@
  * DEALINGS IN THE SOFTWARE.
  *
  * @author Daniel P. Seemuth
- * @version 0.6.0
+ * @version 0.7.0
  **/
 
 var PROJ_NAME = 'Waveform Editor';
-var VERSION = 'v0.6.0';
+var VERSION = 'v0.7.0';
 
 var START_SIGNALS = 4;
 var START_COLS = 8;
