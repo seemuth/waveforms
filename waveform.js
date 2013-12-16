@@ -43,6 +43,7 @@ var cols = 1;   /* Always have zeroth column (don't-care) */
 var table;
 
 var data = [];
+var signalNames = [];
 
 var selected = [];
 
@@ -229,6 +230,7 @@ var dataOps = {
         }
 
         data.splice(sigIndex, 0, values);
+        signalNames.splice(sigIndex, 0, 'SIG');
 
         signals++;
     },
@@ -248,6 +250,7 @@ var dataOps = {
         }
 
         data.splice(sigIndex, 1);
+        signalNames.splice(sigIndex, 1);
 
         signals--;
     },
@@ -1096,11 +1099,21 @@ var uiOps = {
         if ((sigMax < 0) || (sigMax >= signals)) {
             sigMax = signals - 1;
         }
-        if (colMin < 1) {
-            colMin = 1;
+        if (colMin < 0) {
+            colMin = 0;
         }
         if ((colMax < 0) || (colMax >= cols)) {
             colMax = cols - 1;
+        }
+
+        /* First update signal names if requested. */
+        if (colMin < 1) {
+            for (var sigIndex = sigMin; sigIndex <= sigMax; sigIndex++) {
+                var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
+                tableOps.setCellContents_(rowIndex, 0, signalNames[sigIndex]);
+            }
+
+            colMin = 1;
         }
 
         for (var sigIndex = sigMin; sigIndex <= sigMax; sigIndex++) {
@@ -1382,6 +1395,11 @@ var eventOps = {
         cell.innerHTML = escape(newName.trim()).replace(/%20/g, ' ');
         cell.ondblclick = eventOps.cell_dblclick;
         uiOps.enableMainEdit_(true);
+
+        var rowIndex = tableOps.rowToRowIndex_(cell.parent);
+        var sigIndex = indexOps.rowToSig_(rowIndex);
+
+        signalNames[sigIndex] = cell.innerHTML;
     },
 
 
