@@ -921,17 +921,17 @@ var uiOps = {
      */
     enableMainEdit_: function(enable)
     {
-	var mainEdit = document.getElementById('mainEdit');
+        var mainEdit = document.getElementById('mainEdit');
 
-	for (var i = 0; i < mainEdit.childNodes.length; i++) {
-	    var n = mainEdit.childNodes[i];
+        for (var i = 0; i < mainEdit.childNodes.length; i++) {
+            var n = mainEdit.childNodes[i];
 
-	    if (n.nodeName.toLowerCase() == 'button') {
-		n.disabled = ! enable;
-	    }
-	}
+            if (n.nodeName.toLowerCase() == 'button') {
+                n.disabled = ! enable;
+            }
+        }
 
-	mainEdit.style.visibility = (enable) ? 'visible' : 'hidden';
+        mainEdit.style.visibility = (enable) ? 'visible' : 'hidden';
     },
 
 
