@@ -691,6 +691,20 @@ var tableOps = {
 
 
     /**
+     * @private
+     * Set cell's contents.
+     * @param {number} rowIndex Zero-based row index.
+     * @param {number} colIndex Zero-based column index.
+     * @param {string} val Set contents to this value.
+     */
+    setCellContents_: function(rowIndex, colIndex, val)
+    {
+        var cell = tableOps.coordsToCell_(rowIndex, colIndex);
+        cell.innerHTML = val;
+    },
+
+
+    /**
      * Update table header row with column indices.
      */
     updateHeader: function()
