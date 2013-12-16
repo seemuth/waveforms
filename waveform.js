@@ -899,6 +899,27 @@ var selOps = {
 var uiOps = {
     /**
      * @private
+     * Enable/show or disable/hide main editing buttons.
+     * @param {bool} enable True to enable, false to disable.
+     */
+    enableMainEdit_: function(enable)
+    {
+	var mainEdit = document.getElementById('mainEdit');
+
+	for (var i = 0; i < mainEdit.childNodes.length; i++) {
+	    var n = mainEdit.childNodes[i];
+
+	    if (n.nodeName.toLowerCase() == 'button') {
+		n.disabled = ! enable;
+	    }
+	}
+
+	mainEdit.style.visibility = (enable) ? 'visible' : 'hidden';
+    },
+
+
+    /**
+     * @private
      * Enable/show or disable/hide signal editing buttons.
      * @param {bool} enable True to enable, false to disable.
      */
@@ -1319,6 +1340,9 @@ var eventOps = {
 		input.onblur = eventOps.newName_onblur;
 
 		cell.ondblclick = null;
+
+		uiOps.enableMainEdit_(false);
+		selOps.clearSelection();
 	    }
 	}
     },
@@ -1343,6 +1367,7 @@ var eventOps = {
     {
 	cell.innerHTML = escape(newName.trim()).replace(/%20/g, ' ');
 	cell.ondblclick = eventOps.cell_dblclick;
+	uiOps.enableMainEdit_(true);
     },
 
 
