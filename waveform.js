@@ -58,13 +58,13 @@ var helper = {
      */
     indexOf: function(arr, seek)
     {
-	for (var i = 0; i < arr.length; i++) {
-	    if (arr[i] === seek) {
-		return i;
-	    }
-	}
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i] === seek) {
+                return i;
+            }
+        }
 
-	return -1;
+        return -1;
     },
 
 
@@ -76,7 +76,7 @@ var helper = {
      */
     text_: function(str)
     {
-	return document.createTextNode(str);
+        return document.createTextNode(str);
     },
 }
 
@@ -88,43 +88,43 @@ var dataOps = {
      * @param {number} sigIndex Zero-based signal index.
      * @param {number} cellIndex Zero-based cell index.
      * @param {string} [opt_value='x'] Use 0/1/x value or copy from previous
-     *	    (left) cell value.
+     *      (left) cell value.
      */
     addCell_: function(sigIndex, cellIndex, opt_value)
     {
-	var mode;
-	var value;
+        var mode;
+        var value;
 
-	if (sigIndex < 0) {
-	    throw new Error('sigIndex too low');
-	} else if (sigIndex >= signals) {
-	    throw new Error('sigIndex too high');
-	}
+        if (sigIndex < 0) {
+            throw new Error('sigIndex too low');
+        } else if (sigIndex >= signals) {
+            throw new Error('sigIndex too high');
+        }
 
-	if (cellIndex < 1) {
-	    throw new Error('cellIndex too low');
-	} else if (cellIndex > (cols + 1)) {
-	    throw new Error('cellIndex too high');
-	}
+        if (cellIndex < 1) {
+            throw new Error('cellIndex too low');
+        } else if (cellIndex > (cols + 1)) {
+            throw new Error('cellIndex too high');
+        }
 
 
-	if (opt_value === undefined) {
-	    mode = 'x';
-	} else {
-	    mode = opt_value.toString().trim().charAt(0).toLowerCase();
-	}
+        if (opt_value === undefined) {
+            mode = 'x';
+        } else {
+            mode = opt_value.toString().trim().charAt(0).toLowerCase();
+        }
 
-	if ((mode == '0') || (mode == '1') || (mode == 'x')) {
-	    value = mode;
+        if ((mode == '0') || (mode == '1') || (mode == 'x')) {
+            value = mode;
 
-	} else if ((mode == 'c') || (mode == 'p')) {
-	    value = data[sigIndex][cellIndex - 1];
+        } else if ((mode == 'c') || (mode == 'p')) {
+            value = data[sigIndex][cellIndex - 1];
 
-	} else {
-	    throw new Error('Invalid value');
-	}
+        } else {
+            throw new Error('Invalid value');
+        }
 
-	data[sigIndex].splice(cellIndex, 0, value);
+        data[sigIndex].splice(cellIndex, 0, value);
     },
 
 
@@ -136,19 +136,19 @@ var dataOps = {
      */
     delCell_: function(sigIndex, cellIndex)
     {
-	if (sigIndex < 0) {
-	    throw new Error('sigIndex too low');
-	} else if (sigIndex >= signals) {
-	    throw new Error('sigIndex too high');
-	}
+        if (sigIndex < 0) {
+            throw new Error('sigIndex too low');
+        } else if (sigIndex >= signals) {
+            throw new Error('sigIndex too high');
+        }
 
-	if (cellIndex < 1) {
-	    throw new Error('cellIndex too low');
-	} else if (cellIndex > cols) {
-	    throw new Error('cellIndex too high');
-	}
+        if (cellIndex < 1) {
+            throw new Error('cellIndex too low');
+        } else if (cellIndex > cols) {
+            throw new Error('cellIndex too high');
+        }
 
-	data[sigIndex].splice(cellIndex, 1);
+        data[sigIndex].splice(cellIndex, 1);
     },
 
 
@@ -157,21 +157,21 @@ var dataOps = {
      * Add data column at the specified position for all signals.
      * @param {number} colIndex Zero-based column index.
      * @param {string} [opt_value='x'] Use 0/1/x value or copy from previous
-     *	    (left) cell value.
+     *      (left) cell value.
      */
     addCol_: function(colIndex, opt_value)
     {
-	if (colIndex < 1) {
-	    throw new Error('colIndex too low');
-	} else if (colIndex > (cols + 1)) {
-	    throw new Error('colIndex too high');
-	}
+        if (colIndex < 1) {
+            throw new Error('colIndex too low');
+        } else if (colIndex > (cols + 1)) {
+            throw new Error('colIndex too high');
+        }
 
-	for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
-	    dataOps.addCell_(sigIndex, colIndex, opt_value);
-	}
+        for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
+            dataOps.addCell_(sigIndex, colIndex, opt_value);
+        }
 
-	cols++;
+        cols++;
     },
 
 
@@ -182,17 +182,17 @@ var dataOps = {
      */
     delCol_: function(colIndex)
     {
-	if (colIndex < 1) {
-	    throw new Error('colIndex too low');
-	} else if (colIndex > cols) {
-	    throw new Error('colIndex too high');
-	}
+        if (colIndex < 1) {
+            throw new Error('colIndex too low');
+        } else if (colIndex > cols) {
+            throw new Error('colIndex too high');
+        }
 
-	for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
-	    dataOps.delCell_(sigIndex, colIndex);
-	}
+        for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
+            dataOps.delCell_(sigIndex, colIndex);
+        }
 
-	cols--;
+        cols--;
     },
 
 
@@ -204,33 +204,33 @@ var dataOps = {
      */
     addSignal_: function(sigIndex, opt_value)
     {
-	var mode;
-	var values = [];
+        var mode;
+        var values = [];
 
-	if (sigIndex < 0) {
-	    throw new Error('sigIndex too low');
-	} else if (sigIndex > signals) {
-	    throw new Error('sigIndex too high');
-	}
+        if (sigIndex < 0) {
+            throw new Error('sigIndex too low');
+        } else if (sigIndex > signals) {
+            throw new Error('sigIndex too high');
+        }
 
-	if (opt_value === undefined) {
-	    mode = 'x';
-	} else {
-	    mode = opt_value.toString().trim().charAt(0).toLowerCase();
-	}
+        if (opt_value === undefined) {
+            mode = 'x';
+        } else {
+            mode = opt_value.toString().trim().charAt(0).toLowerCase();
+        }
 
-	if ((mode == '0') || (mode == '1') || (mode == 'x')) {
-	    for (var i = 0; i < (cols + 1); i++) {
-		values.push(mode);
-	    }
+        if ((mode == '0') || (mode == '1') || (mode == 'x')) {
+            for (var i = 0; i < (cols + 1); i++) {
+                values.push(mode);
+            }
 
-	} else {
-	    throw new Error('Invalid value');
-	}
+        } else {
+            throw new Error('Invalid value');
+        }
 
-	data.splice(sigIndex, 0, values);
+        data.splice(sigIndex, 0, values);
 
-	signals++;
+        signals++;
     },
 
 
@@ -241,15 +241,15 @@ var dataOps = {
      */
     delSignal_: function(sigIndex)
     {
-	if (sigIndex < 0) {
-	    throw new Error('sigIndex too low');
-	} else if (sigIndex >= signals) {
-	    throw new Error('sigIndex too high');
-	}
+        if (sigIndex < 0) {
+            throw new Error('sigIndex too low');
+        } else if (sigIndex >= signals) {
+            throw new Error('sigIndex too high');
+        }
 
-	data.splice(sigIndex, 1);
+        data.splice(sigIndex, 1);
 
-	signals--;
+        signals--;
     },
 
 
@@ -262,29 +262,29 @@ var dataOps = {
      */
     setCellValue_: function(sigIndex, colIndex, mode)
     {
-	mode = mode.trim().charAt(0).toLowerCase();
+        mode = mode.trim().charAt(0).toLowerCase();
 
-	if (mode == 's') {
-	    data[sigIndex][colIndex] = '1';
+        if (mode == 's') {
+            data[sigIndex][colIndex] = '1';
 
-	} else if (mode == 'c') {
-	    data[sigIndex][colIndex] = '0';
+        } else if (mode == 'c') {
+            data[sigIndex][colIndex] = '0';
 
-	} else if (mode == 't') {
-	    var current = data[sigIndex][colIndex];
+        } else if (mode == 't') {
+            var current = data[sigIndex][colIndex];
 
-	    if (current == '0') {
-		data[sigIndex][colIndex] = '1';
-	    } else if (current == '1') {
-		data[sigIndex][colIndex] = '0';
-	    }
+            if (current == '0') {
+                data[sigIndex][colIndex] = '1';
+            } else if (current == '1') {
+                data[sigIndex][colIndex] = '0';
+            }
 
-	} else if ((mode == 'd') || (mode == 'x')) {
-	    data[sigIndex][colIndex] = 'x';
+        } else if ((mode == 'd') || (mode == 'x')) {
+            data[sigIndex][colIndex] = 'x';
 
-	} else {
-	    throw new Error('invalid mode');
-	}
+        } else {
+            throw new Error('invalid mode');
+        }
     },
 }
 
@@ -299,26 +299,26 @@ var cellOps = {
      */
     cellContents_: function(rowIndex, colIndex)
     {
-	if (rowIndex == 0) {
-	    /* Header row: show column index except for name column. */
-	    if (colIndex == 0) {
-		return '&nbsp;';
-	    } else {
-		return colIndex.toString();
-	    }
+        if (rowIndex == 0) {
+            /* Header row: show column index except for name column. */
+            if (colIndex == 0) {
+                return '&nbsp;';
+            } else {
+                return colIndex.toString();
+            }
 
-	} else if ((rowIndex % 2) == 1) {
-	    /* Separator row: blank cells. */
-	    return '&nbsp;';
+        } else if ((rowIndex % 2) == 1) {
+            /* Separator row: blank cells. */
+            return '&nbsp;';
 
-	} else if (colIndex == 0) {
-	    /* Signal name column. */
-	    return 'SIG';
+        } else if (colIndex == 0) {
+            /* Signal name column. */
+            return 'SIG';
 
-	}
+        }
 
-	/* Signal data cell. */
-	return '&nbsp;';
+        /* Signal data cell. */
+        return '&nbsp;';
     },
 
 
@@ -331,21 +331,21 @@ var cellOps = {
      */
     setCellEventCallbacks_: function(cell, rowIndex, colIndex)
     {
-	if (rowIndex == 0) {
-	    /* Header row. */
+        if (rowIndex == 0) {
+            /* Header row. */
 
-	    cell.onclick = eventOps.cell_click;
-	    cell.ondblclick = eventOps.cell_dblclick;
+            cell.onclick = eventOps.cell_click;
+            cell.ondblclick = eventOps.cell_dblclick;
 
-	} else if (((rowIndex - 1) % 2) == 1) {
-	    /* Signal row. */
-	    cell.onclick = eventOps.cell_click;
-	    cell.ondblclick = eventOps.cell_dblclick;
+        } else if (((rowIndex - 1) % 2) == 1) {
+            /* Signal row. */
+            cell.onclick = eventOps.cell_click;
+            cell.ondblclick = eventOps.cell_dblclick;
 
-	} else {
-	    /* Spacing row. */
-	    cell.onclick = eventOps.spacingCell_click;
-	}
+        } else {
+            /* Spacing row. */
+            cell.onclick = eventOps.spacingCell_click;
+        }
     },
 
 
@@ -358,37 +358,37 @@ var cellOps = {
      */
     setUpCell_: function(cell, rowIndex, colIndex)
     {
-	cell.innerHTML = cellOps.cellContents_(rowIndex, colIndex);
+        cell.innerHTML = cellOps.cellContents_(rowIndex, colIndex);
 
-	cellOps.setCellEventCallbacks_(cell, rowIndex, colIndex);
+        cellOps.setCellEventCallbacks_(cell, rowIndex, colIndex);
 
-	cell.style.borderRight = 'thin dotted black';
+        cell.style.borderRight = 'thin dotted black';
 
-	if (rowIndex == 0) {
-	    /* Header row: center time indices. */
+        if (rowIndex == 0) {
+            /* Header row: center time indices. */
 
-	    if (colIndex > 0) {
-		cell.style.textAlign = 'center';
-	    }
+            if (colIndex > 0) {
+                cell.style.textAlign = 'center';
+            }
 
-	} else if (((rowIndex - 1) % 2) == 1) {
-	    /* Signal row. */
+        } else if (((rowIndex - 1) % 2) == 1) {
+            /* Signal row. */
 
-	    if (colIndex == 0) {
-		/* Signal name. */
-		cell.style.textAlign = 'right';
-		cell.style.fontSize = FONTSIZE_SIGNAME;
-	    }
+            if (colIndex == 0) {
+                /* Signal name. */
+                cell.style.textAlign = 'right';
+                cell.style.fontSize = FONTSIZE_SIGNAME;
+            }
 
-	    if (indexOps.rowToSig_(rowIndex) == 0) {
-		/* First signal: set minimum column widths. */
-		if (colIndex == 0) {
-		    cell.style.minWidth = MINWIDTH_SIGNAME;
-		} else {
-		    cell.style.minWidth = MINWIDTH_DATACOL;
-		}
-	    }
-	}
+            if (indexOps.rowToSig_(rowIndex) == 0) {
+                /* First signal: set minimum column widths. */
+                if (colIndex == 0) {
+                    cell.style.minWidth = MINWIDTH_SIGNAME;
+                } else {
+                    cell.style.minWidth = MINWIDTH_DATACOL;
+                }
+            }
+        }
     },
 }
 
@@ -402,14 +402,14 @@ var tableOps = {
      */
     cellToColIndex_: function(cell)
     {
-	var parent_row = cell.parentNode;
+        var parent_row = cell.parentNode;
 
-	for (var i = 0; i < parent_row.cells.length; i++) {
-	    if (cell === parent_row.cells[i]) {
-		return i;
-	    }
-	}
-	return -1;
+        for (var i = 0; i < parent_row.cells.length; i++) {
+            if (cell === parent_row.cells[i]) {
+                return i;
+            }
+        }
+        return -1;
     },
 
 
@@ -421,14 +421,14 @@ var tableOps = {
      */
     rowToRowIndex_: function(row)
     {
-	var parent_table = row.parentNode;
+        var parent_table = row.parentNode;
 
-	for (var i = 0; i < parent_table.rows.length; i++) {
-	    if (row === parent_table.rows[i]) {
-		return i;
-	    }
-	}
-	return -1;
+        for (var i = 0; i < parent_table.rows.length; i++) {
+            if (row === parent_table.rows[i]) {
+                return i;
+            }
+        }
+        return -1;
     },
 
 
@@ -436,32 +436,32 @@ var tableOps = {
      * @private
      * Add table row at the given row index.
      * @param {number} rowIndex Add row at this index
-     *	    (0 <= rowIndex <= # rows).
+     *      (0 <= rowIndex <= # rows).
      */
     addRow_: function(rowIndex)
     {
-	if (rowIndex < 0) {
-	    throw new Error('rowIndex too low');
-	}
+        if (rowIndex < 0) {
+            throw new Error('rowIndex too low');
+        }
 
-	var row = table.insertRow(rowIndex);
-	row.appendChild(helper.text_('\n'));
+        var row = table.insertRow(rowIndex);
+        row.appendChild(helper.text_('\n'));
 
-	/* Add newline before this row. */
-	table.tBodies[0].insertBefore(helper.text_('\n'), row);
+        /* Add newline before this row. */
+        table.tBodies[0].insertBefore(helper.text_('\n'), row);
 
-	/* Add newline after this row. */
-	var nextrow = row.nextSibling;
-	if (nextrow == null) {
-	    table.tBodies[0].appendChild(helper.text_('\n'));
-	} else {
-	    table.tBodies[0].insertBefore(helper.text_('\n'), nextrow);
-	}
+        /* Add newline after this row. */
+        var nextrow = row.nextSibling;
+        if (nextrow == null) {
+            table.tBodies[0].appendChild(helper.text_('\n'));
+        } else {
+            table.tBodies[0].insertBefore(helper.text_('\n'), nextrow);
+        }
 
-	/* Add columns. */
-	for (var c = 0; c < cols; c++) {
-	    tableOps.addCell_(rowIndex, c);
-	}
+        /* Add columns. */
+        for (var c = 0; c < cols; c++) {
+            tableOps.addCell_(rowIndex, c);
+        }
     },
 
 
@@ -469,29 +469,29 @@ var tableOps = {
      * @private
      * Add table cell at the given row and column indices.
      * @param {number} rowIndex Add cell in this row
-     *	    (0 <= rowIndex < # rows).
+     *      (0 <= rowIndex < # rows).
      * @param {number} colIndex Add cell in this col
-     *	    (0 <= colIndex <= # cells).
+     *      (0 <= colIndex <= # cells).
      * @return {cell} Cell that was added to the table.
      */
     addCell_: function(rowIndex, colIndex)
     {
-	if (rowIndex < 0) {
-	    throw new Error('rowIndex too low');
-	}
+        if (rowIndex < 0) {
+            throw new Error('rowIndex too low');
+        }
 
-	if (colIndex < 0) {
-	    throw new Error('colIndex too low');
-	}
+        if (colIndex < 0) {
+            throw new Error('colIndex too low');
+        }
 
-	var row = table.rows[rowIndex];
-	var cell = row.insertCell(colIndex);
+        var row = table.rows[rowIndex];
+        var cell = row.insertCell(colIndex);
 
-	cellOps.setUpCell_(cell, rowIndex, colIndex);
+        cellOps.setUpCell_(cell, rowIndex, colIndex);
 
-	row.appendChild(helper.text_('\n'));
+        row.appendChild(helper.text_('\n'));
 
-	return cell;
+        return cell;
     },
 
 
@@ -504,7 +504,7 @@ var tableOps = {
      */
     coordsToCell_: function(rowIndex, colIndex)
     {
-	return table.rows[rowIndex].cells[colIndex];
+        return table.rows[rowIndex].cells[colIndex];
     },
 
 
@@ -515,18 +515,18 @@ var tableOps = {
      */
     addSignal_: function(index)
     {
-	selOps.clearSelection();
+        selOps.clearSelection();
 
-	if (index < 0) {
-	    index = signals;
-	}
+        if (index < 0) {
+            index = signals;
+        }
 
-	var rowIndex = indexOps.sigToRow_(index);
+        var rowIndex = indexOps.sigToRow_(index);
 
-	/* Add separator row and signal row. */
-	for (var i = 0; i < 2; i++) {
-	    tableOps.addRow_(rowIndex + i);
-	}
+        /* Add separator row and signal row. */
+        for (var i = 0; i < 2; i++) {
+            tableOps.addRow_(rowIndex + i);
+        }
     },
 
 
@@ -537,22 +537,22 @@ var tableOps = {
      */
     delSignal_: function(index)
     {
-	selOps.clearSelection();
+        selOps.clearSelection();
 
-	if (signals < 1) {
-	    /* No signals to delete! */
-	    return;
-	}
+        if (signals < 1) {
+            /* No signals to delete! */
+            return;
+        }
 
-	if (index < 0) {
-	    index = signals - 1;
-	}
+        if (index < 0) {
+            index = signals - 1;
+        }
 
-	var rowIndex = indexOps.sigToRow_(index);
+        var rowIndex = indexOps.sigToRow_(index);
 
-	for (var i = 0; i < 2; i++) {
-	    table.deleteRow(rowIndex);
-	}
+        for (var i = 0; i < 2; i++) {
+            table.deleteRow(rowIndex);
+        }
     },
 
 
@@ -563,21 +563,21 @@ var tableOps = {
      */
     addCol_: function(index)
     {
-	selOps.clearSelection();
+        selOps.clearSelection();
 
-	if (index > cols) {
-	    throw new Error('index too high');
-	}
+        if (index > cols) {
+            throw new Error('index too high');
+        }
 
-	if (index < 0) {
-	    index = cols;
-	}
+        if (index < 0) {
+            index = cols;
+        }
 
-	var colIndex = index;
+        var colIndex = index;
 
-	for (var r = 0; r < table.rows.length; r++) {
-	    tableOps.addCell_(r, colIndex);
-	}
+        for (var r = 0; r < table.rows.length; r++) {
+            tableOps.addCell_(r, colIndex);
+        }
     },
 
 
@@ -588,28 +588,28 @@ var tableOps = {
      */
     delCol_: function(index)
     {
-	selOps.clearSelection();
+        selOps.clearSelection();
 
-	if (cols <= 1) {
-	    /* No non-name columns to delete! */
-	    return;
-	}
+        if (cols <= 1) {
+            /* No non-name columns to delete! */
+            return;
+        }
 
-	if (index >= cols) {
-	    throw new Error('index too high');
-	}
+        if (index >= cols) {
+            throw new Error('index too high');
+        }
 
-	if (index < 0) {
-	    index = cols;
-	}
+        if (index < 0) {
+            index = cols;
+        }
 
-	var colIndex = index;
+        var colIndex = index;
 
-	for (var r = 0; r < table.rows.length; r++) {
-	    var row = table.rows[r];
+        for (var r = 0; r < table.rows.length; r++) {
+            var row = table.rows[r];
 
-	    row.deleteCell(colIndex);
-	}
+            row.deleteCell(colIndex);
+        }
     },
 
 
@@ -620,31 +620,31 @@ var tableOps = {
      */
     updateCellEdge_: function(rowIndex, colIndex)
     {
-	if (colIndex <= 1) {
-	    /* First column has no entering edge. */
-	    return;
+        if (colIndex <= 1) {
+            /* First column has no entering edge. */
+            return;
 
-	} else if (colIndex >= cols) {
-	    /* Beyond the last column. */
-	    return;
-	}
+        } else if (colIndex >= cols) {
+            /* Beyond the last column. */
+            return;
+        }
 
-	var cell = tableOps.coordsToCell_(rowIndex, colIndex);
-	var leftCell = tableOps.coordsToCell_(rowIndex, colIndex - 1);
+        var cell = tableOps.coordsToCell_(rowIndex, colIndex);
+        var leftCell = tableOps.coordsToCell_(rowIndex, colIndex - 1);
 
-	var dontcare = (cell.style.borderTop == '') &&
-	    (cell.style.borderBottom == '');
-	dontcare |= (leftCell.style.borderTop == '') &&
-	    (leftCell.style.borderBottom == '');
+        var dontcare = (cell.style.borderTop == '') &&
+            (cell.style.borderBottom == '');
+        dontcare |= (leftCell.style.borderTop == '') &&
+            (leftCell.style.borderBottom == '');
 
-	var edge = (cell.style.borderTop != leftCell.style.borderTop) ||
-	    (cell.style.borderBottom != leftCell.style.borderBottom);
+        var edge = (cell.style.borderTop != leftCell.style.borderTop) ||
+            (cell.style.borderBottom != leftCell.style.borderBottom);
 
-	if (edge && (! dontcare)) {
-	    cell.style.borderLeft = BORDER_SIGNAL;
-	} else {
-	    cell.style.borderLeft = '';
-	}
+        if (edge && (! dontcare)) {
+            cell.style.borderLeft = BORDER_SIGNAL;
+        } else {
+            cell.style.borderLeft = '';
+        }
     },
 
 
@@ -657,36 +657,36 @@ var tableOps = {
      */
     setCellValue_: function(rowIndex, colIndex, mode)
     {
-	var cell = tableOps.coordsToCell_(rowIndex, colIndex);
+        var cell = tableOps.coordsToCell_(rowIndex, colIndex);
 
-	mode = mode.trim().charAt(0).toLowerCase();
+        mode = mode.trim().charAt(0).toLowerCase();
 
-	if (mode == 's') {
-	    cell.style.borderTop = BORDER_SIGNAL;
-	    cell.style.borderBottom = '';
+        if (mode == 's') {
+            cell.style.borderTop = BORDER_SIGNAL;
+            cell.style.borderBottom = '';
 
-	} else if (mode == 'c') {
-	    cell.style.borderTop = '';
-	    cell.style.borderBottom = BORDER_SIGNAL;
+        } else if (mode == 'c') {
+            cell.style.borderTop = '';
+            cell.style.borderBottom = BORDER_SIGNAL;
 
-	} else if (mode == 't') {
-	    var oldTop = cell.style.borderTop;
-	    var oldBottom = cell.style.borderBottom;
+        } else if (mode == 't') {
+            var oldTop = cell.style.borderTop;
+            var oldBottom = cell.style.borderBottom;
 
-	    cell.style.borderTop = oldBottom;
-	    cell.style.borderBottom = oldTop;
+            cell.style.borderTop = oldBottom;
+            cell.style.borderBottom = oldTop;
 
-	} else if ((mode == 'd') || (mode == 'x')) {
-	    cell.style.borderTop = '';
-	    cell.style.borderBottom = '';
+        } else if ((mode == 'd') || (mode == 'x')) {
+            cell.style.borderTop = '';
+            cell.style.borderBottom = '';
 
-	} else {
-	    throw new Error('invalid mode');
-	}
+        } else {
+            throw new Error('invalid mode');
+        }
 
-	/* Update entering and leaving edges. */
-	tableOps.updateCellEdge_(rowIndex, colIndex);
-	tableOps.updateCellEdge_(rowIndex, colIndex + 1);
+        /* Update entering and leaving edges. */
+        tableOps.updateCellEdge_(rowIndex, colIndex);
+        tableOps.updateCellEdge_(rowIndex, colIndex + 1);
     },
 
 
@@ -695,11 +695,11 @@ var tableOps = {
      */
     updateHeader: function()
     {
-	var row = table.rows[0];
+        var row = table.rows[0];
 
-	for (var c = 1; c < cols; c++) {
-	    row.cells[c].innerHTML = cellOps.cellContents_(0, c);
-	}
+        for (var c = 1; c < cols; c++) {
+            row.cells[c].innerHTML = cellOps.cellContents_(0, c);
+        }
     },
 }
 
@@ -713,12 +713,12 @@ var indexOps = {
      */
     sigToRow_: function(sigIndex)
     {
-	if (sigIndex < 0) {
-	    throw new Error('sigIndex too low');
-	}
+        if (sigIndex < 0) {
+            throw new Error('sigIndex too low');
+        }
 
-	/* Row 0 is header row, and 2 rows per signal. */
-	return 1 + (sigIndex * 2);
+        /* Row 0 is header row, and 2 rows per signal. */
+        return 1 + (sigIndex * 2);
     },
 
 
@@ -730,12 +730,12 @@ var indexOps = {
      */
     rowToSig_: function(rowIndex)
     {
-	if (rowIndex < 1) {
-	    throw new Error('rowIndex too low');
-	}
+        if (rowIndex < 1) {
+            throw new Error('rowIndex too low');
+        }
 
-	/* Row 0 is header row, and 2 rows per signal. */
-	return Math.floor((rowIndex - 1) / 2);
+        /* Row 0 is header row, and 2 rows per signal. */
+        return Math.floor((rowIndex - 1) / 2);
     },
 }
 
@@ -746,17 +746,17 @@ var selOps = {
      */
     clearSelection: function()
     {
-	for (var i = 0; i < selected.length; i++) {
-	    var parts = selected[i].split('x');
-	    var rowIndex = parseInt(parts[0]);
-	    var colIndex = parseInt(parts[1]);
-	    var cell = tableOps.coordsToCell_(rowIndex, colIndex);
+        for (var i = 0; i < selected.length; i++) {
+            var parts = selected[i].split('x');
+            var rowIndex = parseInt(parts[0]);
+            var colIndex = parseInt(parts[1]);
+            var cell = tableOps.coordsToCell_(rowIndex, colIndex);
 
-	    cell.style.backgroundColor = '';
-	}
+            cell.style.backgroundColor = '';
+        }
 
-	selected = [];
-	uiOps.enableSigEdit_(false);
+        selected = [];
+        uiOps.enableSigEdit_(false);
     },
 
 
@@ -769,49 +769,49 @@ var selOps = {
      */
     setCellSelection_: function(rowIndex, colIndex, mode)
     {
-	var cellKey = rowIndex.toString().concat('x', colIndex.toString());
-	var index = helper.indexOf(selected, cellKey);
-	var cell = tableOps.coordsToCell_(rowIndex, colIndex);
+        var cellKey = rowIndex.toString().concat('x', colIndex.toString());
+        var index = helper.indexOf(selected, cellKey);
+        var cell = tableOps.coordsToCell_(rowIndex, colIndex);
 
-	var sel_set = false;
-	var sel_clear = false;
+        var sel_set = false;
+        var sel_clear = false;
 
-	mode = mode.trim().charAt(0).toLowerCase();
+        mode = mode.trim().charAt(0).toLowerCase();
 
-	if (mode == 's') {
-	    sel_set = true;
+        if (mode == 's') {
+            sel_set = true;
 
-	} else if (mode == 'c') {
-	    sel_clear = true;
+        } else if (mode == 'c') {
+            sel_clear = true;
 
-	} else if (mode == 't') {
-	    sel_set = (index < 0);
-	    sel_clear = ! sel_set;
+        } else if (mode == 't') {
+            sel_set = (index < 0);
+            sel_clear = ! sel_set;
 
-	} else {
-	    throw new Error('invalid mode');
-	}
+        } else {
+            throw new Error('invalid mode');
+        }
 
 
-	if (sel_set) {
-	    /* Select this cell if it isn't already selected. */
-	    if (index < 0) {
-		selected.push(cellKey);
+        if (sel_set) {
+            /* Select this cell if it isn't already selected. */
+            if (index < 0) {
+                selected.push(cellKey);
 
-		cell.style.backgroundColor = COLOR_SELECT;
-	    }
-	}
+                cell.style.backgroundColor = COLOR_SELECT;
+            }
+        }
 
-	if (sel_clear) {
-	    /* Deselect this cell if it is selected. */
-	    if (index >= 0) {
-		selected.splice(index, 1);
+        if (sel_clear) {
+            /* Deselect this cell if it is selected. */
+            if (index >= 0) {
+                selected.splice(index, 1);
 
-		cell.style.backgroundColor = '';
-	    }
-	}
+                cell.style.backgroundColor = '';
+            }
+        }
 
-	uiOps.enableSigEdit_(selected.length > 0);
+        uiOps.enableSigEdit_(selected.length > 0);
     },
 
 
@@ -821,16 +821,16 @@ var selOps = {
      */
     setSelectedCellValues: function(mode)
     {
-	for (var i = 0; i < selected.length; i++) {
-	    var parts = selected[i].split('x');
-	    var rowIndex = parseInt(parts[0]);
-	    var colIndex = parseInt(parts[1]);
+        for (var i = 0; i < selected.length; i++) {
+            var parts = selected[i].split('x');
+            var rowIndex = parseInt(parts[0]);
+            var colIndex = parseInt(parts[1]);
 
-	    var sigIndex = indexOps.rowToSig_(rowIndex);
+            var sigIndex = indexOps.rowToSig_(rowIndex);
 
-	    dataOps.setCellValue_(sigIndex, colIndex, mode);
-	    tableOps.setCellValue_(rowIndex, colIndex, mode);
-	}
+            dataOps.setCellValue_(sigIndex, colIndex, mode);
+            tableOps.setCellValue_(rowIndex, colIndex, mode);
+        }
     },
 
 
@@ -839,7 +839,7 @@ var selOps = {
      */
     sig0: function()
     {
-	selOps.setSelectedCellValues('clear');
+        selOps.setSelectedCellValues('clear');
     },
 
 
@@ -848,7 +848,7 @@ var selOps = {
      */
     sig1: function()
     {
-	selOps.setSelectedCellValues('set');
+        selOps.setSelectedCellValues('set');
     },
 
 
@@ -857,7 +857,7 @@ var selOps = {
      */
     sigInv: function()
     {
-	selOps.setSelectedCellValues('toggle');
+        selOps.setSelectedCellValues('toggle');
     },
 
 
@@ -866,7 +866,7 @@ var selOps = {
      */
     sigX: function()
     {
-	selOps.setSelectedCellValues('dontcare');
+        selOps.setSelectedCellValues('dontcare');
     },
 
 
@@ -877,21 +877,21 @@ var selOps = {
      */
     columnsWithSelectedCells_: function()
     {
-	var selectedCols = [];
+        var selectedCols = [];
 
-	for (var i = 0; i < selected.length; i++) {
-	    var parts = selected[i].split('x');
-	    var colIndex = parseInt(parts[1]);
+        for (var i = 0; i < selected.length; i++) {
+            var parts = selected[i].split('x');
+            var colIndex = parseInt(parts[1]);
 
-	    selectedCols[colIndex] = true;
-	}
+            selectedCols[colIndex] = true;
+        }
 
-	var ret = [];
-	for (var i in selectedCols) {
-	    ret.push(parseInt(i));
-	}
+        var ret = [];
+        for (var i in selectedCols) {
+            ret.push(parseInt(i));
+        }
 
-	return ret;
+        return ret;
     },
 }
 
@@ -925,17 +925,17 @@ var uiOps = {
      */
     enableSigEdit_: function(enable)
     {
-	var sigEdit = document.getElementById('sigEdit');
+        var sigEdit = document.getElementById('sigEdit');
 
-	for (var i = 0; i < sigEdit.childNodes.length; i++) {
-	    var n = sigEdit.childNodes[i];
+        for (var i = 0; i < sigEdit.childNodes.length; i++) {
+            var n = sigEdit.childNodes[i];
 
-	    if (n.nodeName.toLowerCase() == 'button') {
-		n.disabled = ! enable;
-	    }
-	}
+            if (n.nodeName.toLowerCase() == 'button') {
+                n.disabled = ! enable;
+            }
+        }
 
-	sigEdit.style.visibility = (enable) ? 'visible' : 'hidden';
+        sigEdit.style.visibility = (enable) ? 'visible' : 'hidden';
     },
 
 
@@ -945,7 +945,7 @@ var uiOps = {
      */
     setMsg: function(msg)
     {
-	document.getElementById('msg').innerHTML = msg;
+        document.getElementById('msg').innerHTML = msg;
     },
 
 
@@ -955,11 +955,11 @@ var uiOps = {
      */
     addMsgElements: function(elements)
     {
-	var msg = document.getElementById('msg');
+        var msg = document.getElementById('msg');
 
-	for (e in elements) {
-	    msg.appendChild(elements[e]);
-	}
+        for (e in elements) {
+            msg.appendChild(elements[e]);
+        }
     },
 
 
@@ -970,13 +970,13 @@ var uiOps = {
      */
     addSignal: function(index, opt_value)
     {
-	selOps.clearSelection();
+        selOps.clearSelection();
 
-	if (index < 0) {
-	    index = signals;
-	}
+        if (index < 0) {
+            index = signals;
+        }
 
-	dataOps.addSignal_(index, opt_value);
+        dataOps.addSignal_(index, opt_value);
         tableOps.addSignal_(index);
 
         uiOps.updateDisplayedCells(index, index, 0, -1);
@@ -989,18 +989,18 @@ var uiOps = {
      */
     delSignal: function(index)
     {
-	selOps.clearSelection();
+        selOps.clearSelection();
 
-	if (signals < 1) {
-	    /* No signals to delete! */
-	    return;
-	}
+        if (signals < 1) {
+            /* No signals to delete! */
+            return;
+        }
 
-	if (index < 0) {
-	    index = signals - 1;
-	}
+        if (index < 0) {
+            index = signals - 1;
+        }
 
-	dataOps.delSignal_(index);
+        dataOps.delSignal_(index);
         tableOps.delSignal_(index);
     },
 
@@ -1009,24 +1009,24 @@ var uiOps = {
      * Add column at the given index.
      * @param {number} index Add column at this index (<0 means last).
      * @param {string} [opt_value='x'] Use 0/1/x value or copy from previous
-     *	    (left) cell value.
+     *      (left) cell value.
      */
     addCol: function(index, opt_value)
     {
-	selOps.clearSelection();
+        selOps.clearSelection();
 
-	if (index > cols) {
-	    throw new Error('index too high');
-	}
+        if (index > cols) {
+            throw new Error('index too high');
+        }
 
-	if (index < 0) {
-	    index = cols;
-	}
+        if (index < 0) {
+            index = cols;
+        }
 
         dataOps.addCol_(index, opt_value);
         tableOps.addCol_(index);
 
-	tableOps.updateHeader();
+        tableOps.updateHeader();
 
         uiOps.updateDisplayedCells(0, -1, index - 1, index + 1);
     },
@@ -1038,21 +1038,21 @@ var uiOps = {
      */
     delCol: function(index)
     {
-	selOps.clearSelection();
+        selOps.clearSelection();
 
-	if (cols <= 1) {
-	    /* No non-name columns to delete! */
-	    return;
-	}
+        if (cols <= 1) {
+            /* No non-name columns to delete! */
+            return;
+        }
 
-	if (index >= cols) {
-	    throw new Error('index too high');
-	}
+        if (index >= cols) {
+            throw new Error('index too high');
+        }
 
         tableOps.delCol_(index);
         dataOps.delCol_(index);
 
-	tableOps.updateHeader();
+        tableOps.updateHeader();
 
         uiOps.updateDisplayedCells(0, -1, index - 1, index + 1);
     },
@@ -1113,7 +1113,7 @@ var uiOps = {
                           );
                 }
 
-		/* Add 1 to rowIndex to get to the signal row (not spacer). */
+                /* Add 1 to rowIndex to get to the signal row (not spacer). */
                 var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
                 tableOps.setCellValue_(rowIndex, colIndex, tableMode);
             }
@@ -1126,8 +1126,8 @@ var uiOps = {
      */
     stateMain: function()
     {
-	state = 'MAIN';
-	uiOps.setMsg('');
+        state = 'MAIN';
+        uiOps.setMsg('');
     },
 
 
@@ -1136,16 +1136,16 @@ var uiOps = {
      */
     subdivideCols: function()
     {
-	var selCols = selOps.columnsWithSelectedCells_();
-	selOps.clearSelection();
+        var selCols = selOps.columnsWithSelectedCells_();
+        selOps.clearSelection();
 
-	/* Sort descending so column indices don't change. */
-	selCols.sort(function(a, b) { return b - a; });
+        /* Sort descending so column indices don't change. */
+        selCols.sort(function(a, b) { return b - a; });
 
-	for (var i in selCols) {
-	    /* Split column by adding new column with same data. */
-	    uiOps.addCol(selCols[i] + 1, 'c');
-	}
+        for (var i in selCols) {
+            /* Split column by adding new column with same data. */
+            uiOps.addCol(selCols[i] + 1, 'c');
+        }
     },
 }
 
@@ -1156,17 +1156,17 @@ var exportOps = {
      */
     showHTML: function()
     {
-	selOps.clearSelection();
+        selOps.clearSelection();
 
-	var io = document.getElementById('io');
-	var text = '<div style="overflow: auto">\n'.concat(
-		'<table cellspacing="0"',
-		' style="border: none; border-collapse: collapse;">\n',
-		table.innerHTML.trim().replace(/\n+/g, '\n'),
-		'\n</table>',
-		'\n</div>'
-		);
-	io.value = text;
+        var io = document.getElementById('io');
+        var text = '<div style="overflow: auto">\n'.concat(
+                '<table cellspacing="0"',
+                ' style="border: none; border-collapse: collapse;">\n',
+                table.innerHTML.trim().replace(/\n+/g, '\n'),
+                '\n</table>',
+                '\n</div>'
+                );
+        io.value = text;
     },
 }
 
@@ -1179,29 +1179,29 @@ var eventOps = {
      */
     init: function()
     {
-	var version_paragraph = document.getElementById('version');
+        var version_paragraph = document.getElementById('version');
 
-	version_paragraph.innerHTML = PROJ_NAME.concat(' ', VERSION);
+        version_paragraph.innerHTML = PROJ_NAME.concat(' ', VERSION);
 
-	table = document.getElementById('wftable');
+        table = document.getElementById('wftable');
 
 
-	/* Pre-populate the table. */
+        /* Pre-populate the table. */
 
-	if (table.tBodies.length < 1) {
-	    table.appendChild(document.createElement('tbody'));
-	}
+        if (table.tBodies.length < 1) {
+            table.appendChild(document.createElement('tbody'));
+        }
 
-	/* Add header row. */
-	tableOps.addRow_(0);
+        /* Add header row. */
+        tableOps.addRow_(0);
 
-	for (var i = 0; i < START_COLS; i++) {
-	    uiOps.addCol(-1);
-	}
+        for (var i = 0; i < START_COLS; i++) {
+            uiOps.addCol(-1);
+        }
 
-	for (var i = 0; i < START_SIGNALS; i++) {
-	    uiOps.addSignal(-1);
-	}
+        for (var i = 0; i < START_SIGNALS; i++) {
+            uiOps.addSignal(-1);
+        }
     },
 
 
@@ -1210,44 +1210,44 @@ var eventOps = {
      */
     cell_click_MAIN: function(event)
     {
-	var cell = event.currentTarget;
-	var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
-	var colIndex = tableOps.cellToColIndex_(cell);
-	var modifier = (event.altKey || event.ctrlKey || event.shiftKey);
+        var cell = event.currentTarget;
+        var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
+        var colIndex = tableOps.cellToColIndex_(cell);
+        var modifier = (event.altKey || event.ctrlKey || event.shiftKey);
 
-	if (! modifier) {
-	    /* Clear other selection and select the chosen cell(s). */
-	    selOps.clearSelection();
-	}
+        if (! modifier) {
+            /* Clear other selection and select the chosen cell(s). */
+            selOps.clearSelection();
+        }
 
-	if ((colIndex == 0) && (rowIndex == 0)) {
-	    /* Select all. */
-	    for (var si = 0; si < signals; si++) {
-		var ri = indexOps.sigToRow_(si) + 1;
-		for (var ci = 1; ci < cols; ci++) {
-		    selOps.setCellSelection_(ri, ci, 's');
-		}
-	    }
+        if ((colIndex == 0) && (rowIndex == 0)) {
+            /* Select all. */
+            for (var si = 0; si < signals; si++) {
+                var ri = indexOps.sigToRow_(si) + 1;
+                for (var ci = 1; ci < cols; ci++) {
+                    selOps.setCellSelection_(ri, ci, 's');
+                }
+            }
 
-	} else if (colIndex == 0) {
-	    /* Select whole row. */
+        } else if (colIndex == 0) {
+            /* Select whole row. */
 
-	    for (var ci = 1; ci < cols; ci++) {
-		selOps.setCellSelection_(rowIndex, ci, 's');
-	    }
+            for (var ci = 1; ci < cols; ci++) {
+                selOps.setCellSelection_(rowIndex, ci, 's');
+            }
 
-	} else if (rowIndex == 0) {
-	    /* Select whole column. */
+        } else if (rowIndex == 0) {
+            /* Select whole column. */
 
-	    for (var si = 0; si < signals; si++) {
-		var ri = indexOps.sigToRow_(si) + 1;
-		selOps.setCellSelection_(ri, colIndex, 's');
-	    }
+            for (var si = 0; si < signals; si++) {
+                var ri = indexOps.sigToRow_(si) + 1;
+                selOps.setCellSelection_(ri, colIndex, 's');
+            }
 
-	} else {
-	    /* Toggle this cell's selection. */
-	    selOps.setCellSelection_(rowIndex, colIndex, 't');
-	}
+        } else {
+            /* Toggle this cell's selection. */
+            selOps.setCellSelection_(rowIndex, colIndex, 't');
+        }
     },
 
 
@@ -1256,18 +1256,18 @@ var eventOps = {
      */
     cell_click_COL: function(event)
     {
-	var cell = event.currentTarget;
-	var colIndex = tableOps.cellToColIndex_(cell);
+        var cell = event.currentTarget;
+        var colIndex = tableOps.cellToColIndex_(cell);
 
-	if (state == 'ADDCOL') {
-	    uiOps.addCol(colIndex + 1, 'c');	/* Copy from previous col. */
+        if (state == 'ADDCOL') {
+            uiOps.addCol(colIndex + 1, 'c');    /* Copy from previous col. */
 
-	} else if (state == 'DELCOL') {
-	    if (colIndex > 0) {
-		uiOps.delCol(colIndex);
-	    }
+        } else if (state == 'DELCOL') {
+            if (colIndex > 0) {
+                uiOps.delCol(colIndex);
+            }
 
-	}
+        }
     },
 
 
@@ -1276,23 +1276,23 @@ var eventOps = {
      */
     cell_click_SIG: function(event)
     {
-	var cell = event.currentTarget;
-	var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
+        var cell = event.currentTarget;
+        var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
 
-	var sigIndex = -1;
-	if (rowIndex > 0) {
-	    sigIndex = indexOps.rowToSig_(rowIndex);
-	}
+        var sigIndex = -1;
+        if (rowIndex > 0) {
+            sigIndex = indexOps.rowToSig_(rowIndex);
+        }
 
-	if (state == 'ADDSIG') {
-	    uiOps.addSignal(sigIndex + 1, 'x');
+        if (state == 'ADDSIG') {
+            uiOps.addSignal(sigIndex + 1, 'x');
 
-	} else if (state == 'DELSIG') {
-	    if (sigIndex >= 0) {
-		uiOps.delSignal(sigIndex);
-	    }
+        } else if (state == 'DELSIG') {
+            if (sigIndex >= 0) {
+                uiOps.delSignal(sigIndex);
+            }
 
-	}
+        }
     },
 
 
@@ -1301,18 +1301,18 @@ var eventOps = {
      */
     cell_click: function(event)
     {
-	if (state == 'MAIN') {
-	    eventOps.cell_click_MAIN(event);
+        if (state == 'MAIN') {
+            eventOps.cell_click_MAIN(event);
 
-	} else if ((state == 'ADDCOL') || (state == 'DELCOL')) {
-	    eventOps.cell_click_COL(event);
+        } else if ((state == 'ADDCOL') || (state == 'DELCOL')) {
+            eventOps.cell_click_COL(event);
 
-	} else if ((state == 'ADDSIG') || (state == 'DELSIG')) {
-	    eventOps.cell_click_SIG(event);
+        } else if ((state == 'ADDSIG') || (state == 'DELSIG')) {
+            eventOps.cell_click_SIG(event);
 
-	} else {
-	    uiOps.setMsg('ERROR: Unknown state: '.concat(state))
-	}
+        } else {
+            uiOps.setMsg('ERROR: Unknown state: '.concat(state))
+        }
     },
 
 
@@ -1321,30 +1321,30 @@ var eventOps = {
      */
     cell_dblclick: function(event)
     {
-	var cell = event.currentTarget;
-	var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
-	var colIndex = tableOps.cellToColIndex_(cell);
+        var cell = event.currentTarget;
+        var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
+        var colIndex = tableOps.cellToColIndex_(cell);
 
-	if (colIndex == 0) {
-	    if (rowIndex > 0) {
-		/* Rename signal. */
-		var oldName = cell.innerHTML;
+        if (colIndex == 0) {
+            if (rowIndex > 0) {
+                /* Rename signal. */
+                var oldName = cell.innerHTML;
 
-		cell.innerHTML = '<input type="text" id="newName"'.concat(
-			' value="',
-			oldName,
-			'" />'
-			);
+                cell.innerHTML = '<input type="text" id="newName"'.concat(
+                        ' value="',
+                        oldName,
+                        '" />'
+                        );
 
-		var input = document.getElementById('newName');
-		input.onblur = eventOps.newName_onblur;
+                var input = document.getElementById('newName');
+                input.onblur = eventOps.newName_onblur;
 
-		cell.ondblclick = null;
+                cell.ondblclick = null;
 
-		uiOps.enableMainEdit_(false);
-		selOps.clearSelection();
-	    }
-	}
+                uiOps.enableMainEdit_(false);
+                selOps.clearSelection();
+            }
+        }
     },
 
 
@@ -1353,7 +1353,7 @@ var eventOps = {
      */
     spacingCell_click: function(event)
     {
-	selOps.clearSelection();
+        selOps.clearSelection();
     },
 
 
@@ -1365,9 +1365,9 @@ var eventOps = {
      */
     newName_finish_: function(newName, cell)
     {
-	cell.innerHTML = escape(newName.trim()).replace(/%20/g, ' ');
-	cell.ondblclick = eventOps.cell_dblclick;
-	uiOps.enableMainEdit_(true);
+        cell.innerHTML = escape(newName.trim()).replace(/%20/g, ' ');
+        cell.ondblclick = eventOps.cell_dblclick;
+        uiOps.enableMainEdit_(true);
     },
 
 
@@ -1376,8 +1376,8 @@ var eventOps = {
      */
     newName_onblur: function(event)
     {
-	var input = event.currentTarget;
-	eventOps.newName_finish_(input.value, input.parentNode);
+        var input = event.currentTarget;
+        eventOps.newName_finish_(input.value, input.parentNode);
     },
 
 
@@ -1386,7 +1386,7 @@ var eventOps = {
      */
     reqAddDelColDone: function()
     {
-	uiOps.stateMain();
+        uiOps.stateMain();
     },
 
 
@@ -1396,38 +1396,38 @@ var eventOps = {
      */
     reqAddDelCol: function(op)
     {
-	op = op.trim().charAt(0).toLowerCase();
+        op = op.trim().charAt(0).toLowerCase();
 
-	var nextState = 'MAIN';
+        var nextState = 'MAIN';
 
-	if (op == 'a') {
-	    nextState = 'ADDCOL';
+        if (op == 'a') {
+            nextState = 'ADDCOL';
 
-	    uiOps.setMsg('Add a column after which column?');
+            uiOps.setMsg('Add a column after which column?');
 
-	} else if (op == 'd') {
-	    nextState = 'DELCOL';
+        } else if (op == 'd') {
+            nextState = 'DELCOL';
 
-	    uiOps.setMsg('Delete which column?');
+            uiOps.setMsg('Delete which column?');
 
-	} else {
-	    throw new Error('invalid operation');
-	}
+        } else {
+            throw new Error('invalid operation');
+        }
 
-	var button = document.createElement('BUTTON');
-	button.appendChild(helper.text_('Done'));
-	button.onclick = eventOps.reqAddDelColDone;
+        var button = document.createElement('BUTTON');
+        button.appendChild(helper.text_('Done'));
+        button.onclick = eventOps.reqAddDelColDone;
 
-	uiOps.addMsgElements([helper.text_(' '), button]);
+        uiOps.addMsgElements([helper.text_(' '), button]);
 
-	selOps.clearSelection();
+        selOps.clearSelection();
 
-	if (state == nextState) {
-	    /* Finished with operation. */
-	    uiOps.stateMain();
-	}
+        if (state == nextState) {
+            /* Finished with operation. */
+            uiOps.stateMain();
+        }
 
-	state = nextState;
+        state = nextState;
     },
 
 
@@ -1436,7 +1436,7 @@ var eventOps = {
      */
     reqAddDelSigDone: function()
     {
-	uiOps.stateMain();
+        uiOps.stateMain();
     },
 
 
@@ -1446,37 +1446,37 @@ var eventOps = {
      */
     reqAddDelSig: function(op)
     {
-	op = op.trim().charAt(0).toLowerCase();
+        op = op.trim().charAt(0).toLowerCase();
 
-	var nextState = 'MAIN';
+        var nextState = 'MAIN';
 
-	if (op == 'a') {
-	    nextState = 'ADDSIG';
+        if (op == 'a') {
+            nextState = 'ADDSIG';
 
-	    uiOps.setMsg('Add a signal after which signal?');
+            uiOps.setMsg('Add a signal after which signal?');
 
-	} else if (op == 'd') {
-	    nextState = 'DELSIG';
+        } else if (op == 'd') {
+            nextState = 'DELSIG';
 
-	    uiOps.setMsg('Delete which signal?');
+            uiOps.setMsg('Delete which signal?');
 
-	} else {
-	    throw new Error('invalid operation');
-	}
+        } else {
+            throw new Error('invalid operation');
+        }
 
-	var button = document.createElement('BUTTON');
-	button.appendChild(helper.text_('Done'));
-	button.onclick = eventOps.reqAddDelSigDone;
+        var button = document.createElement('BUTTON');
+        button.appendChild(helper.text_('Done'));
+        button.onclick = eventOps.reqAddDelSigDone;
 
-	uiOps.addMsgElements([helper.text_(' '), button]);
+        uiOps.addMsgElements([helper.text_(' '), button]);
 
-	selOps.clearSelection();
+        selOps.clearSelection();
 
-	if (state == nextState) {
-	    /* Finished with operation. */
-	    uiOps.stateMain();
-	}
+        if (state == nextState) {
+            /* Finished with operation. */
+            uiOps.stateMain();
+        }
 
-	state = nextState;
+        state = nextState;
     },
 }
