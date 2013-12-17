@@ -1306,21 +1306,21 @@ var exportOps = {
             } else {
                 /* Data column. */
                 var prev = data[sigIndex][c-1];
-                var val = data[sigIndex][c];
+                var cur = data[sigIndex][c];
 
-                if (val == '0') {
+                if (cur == '0') {
                     styles.push(
                             'border-bottom: '.concat(BORDER_SIGNAL, ';')
                         );
-                } else if (val == '1') {
+                } else if (cur == '1') {
                     styles.push(
                             'border-top: '.concat(BORDER_SIGNAL, ';')
                         );
                 }
 
                 /* Render rising or falling edge. */
-                var pv = prev.concat(val);
-                if ((pv == '01') || (pv == '10')) {
+                var pc = prev.concat(cur);
+                if ((pc == '01') || (pc == '10')) {
                     styles.push(
                             'border-left: '.concat(BORDER_SIGNAL, ';')
                         );
