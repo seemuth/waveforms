@@ -1015,8 +1015,8 @@ var uiOps = {
             index = signals - 1;
         }
 
-        dataOps.delSignal_(index);
         tableOps.delSignal_(index);
+        dataOps.delSignal_(index);
     },
 
 
