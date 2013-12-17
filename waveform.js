@@ -1180,6 +1180,33 @@ var uiOps = {
 var exportOps = {
     /**
      * @private
+     * Return the style attribute for an HTML tag.
+     * @param {array} of {string} styles CSS styles
+     * @return {string} HTML tag attribute string
+     */
+    styleString_: function(styles)
+    {
+        var ret = '';
+
+        var filteredStyles = [];
+        for (var s in styles) {
+            s = styles[s].trim();
+            if (s.charAt(s.length - 1) != ';') {
+                s = s.concat(';');
+            }
+            filteredStyles.push(s);
+        }
+
+        if (filteredStyles.length > 0) {
+            ret = 'style="'.concat(filteredStyles.join(' '), '"');
+        }
+
+        return ret;
+    },
+
+
+    /**
+     * @private
      * Return the HTML to represent the header row.
      * @return {string} HTML of header row
      */
@@ -1195,7 +1222,10 @@ var exportOps = {
         ret = ret.concat('<tr>\n');
 
         for (var c = 0; c < cols; c++) {
-            ret = ret.concat('<td ', styles.join(' '), '>');
+            ret = ret.concat('<td ',
+                    exportOps.styleString_(styles),
+                    '>'
+                );
 
             if (c == 0) {
                 ret = ret.concat('&nbsp;');
@@ -1236,7 +1266,10 @@ var exportOps = {
         ret = ret.concat('<tr>\n');
         for (var c = 0; c < cols; c++) {
             var styles = styles_default.slice(0);
-            ret = ret.concat('<td ', styles.join(' '), '>&nbsp;</td>\n');
+            ret = ret.concat('<td ',
+                    exportOps.styleString_(styles),
+                    '>&nbsp;</td>\n'
+                );
         }
         ret = ret.concat('</tr>\n');
 
@@ -1263,7 +1296,10 @@ var exportOps = {
                 /* Signal name column. */
                 styles.push('text-align: right;');
                 styles.push('font-size:'.concat(FONTSIZE_SIGNAME, ';'));
-                ret = ret.concat('<td ', styles.join(' '), '>');
+                ret = ret.concat('<td ',
+                        exportOps.styleString_(styles),
+                        '>'
+                    );
                 ret = ret.concat(signalNames[sigIndex]);
                 ret = ret.concat('</td>\n');
 
@@ -1290,7 +1326,10 @@ var exportOps = {
                         );
                 }
 
-                ret = ret.concat('<td ', styles.join(' '), '>&nbsp;</td>\n');
+                ret = ret.concat('<td ',
+                        exportOps.styleString_(styles),
+                        '>&nbsp;</td>\n'
+                    );
             }
         }
         ret = ret.concat('</tr>\n');
