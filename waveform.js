@@ -374,6 +374,13 @@ var cellOps = {
                 cell.style.textAlign = 'center';
             }
 
+            /* Set minimum column widths. */
+            if (colIndex == 0) {
+                cell.style.minWidth = MINWIDTH_SIGNAME;
+            } else {
+                cell.style.minWidth = MINWIDTH_DATACOL;
+            }
+
         } else if (((rowIndex - 1) % 2) == 1) {
             /* Signal row. */
 
@@ -381,13 +388,6 @@ var cellOps = {
                 /* Signal name. */
                 cell.style.textAlign = 'right';
                 cell.style.fontSize = FONTSIZE_SIGNAME;
-            }
-
-            /* Set minimum column widths. */
-            if (colIndex == 0) {
-                cell.style.minWidth = MINWIDTH_SIGNAME;
-            } else {
-                cell.style.minWidth = MINWIDTH_DATACOL;
             }
         }
     },
