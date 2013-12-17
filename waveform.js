@@ -1396,7 +1396,7 @@ var eventOps = {
         cell.ondblclick = eventOps.cell_dblclick;
         uiOps.enableMainEdit_(true);
 
-        var rowIndex = tableOps.rowToRowIndex_(cell.parent);
+        var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
         var sigIndex = indexOps.rowToSig_(rowIndex);
 
         signalNames[sigIndex] = cell.innerHTML;
