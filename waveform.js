@@ -104,7 +104,7 @@ var dataOps = {
 
         if (cellIndex < 1) {
             throw new Error('cellIndex too low');
-        } else if (cellIndex > (cols + 1)) {
+        } else if (cellIndex > cols) {
             throw new Error('cellIndex too high');
         }
 
@@ -164,7 +164,7 @@ var dataOps = {
     {
         if (colIndex < 1) {
             throw new Error('colIndex too low');
-        } else if (colIndex > (cols + 1)) {
+        } else if (colIndex > cols) {
             throw new Error('colIndex too high');
         }
 
@@ -221,7 +221,7 @@ var dataOps = {
         }
 
         if ((mode == '0') || (mode == '1') || (mode == 'x')) {
-            for (var i = 0; i < (cols + 1); i++) {
+            for (var i = 0; i < cols; i++) {
                 values.push(mode);
             }
 
@@ -1306,21 +1306,21 @@ var exportOps = {
             } else {
                 /* Data column. */
                 var prev = data[sigIndex][c-1];
-                var val = data[sigIndex][c];
+                var cur = data[sigIndex][c];
 
-                if (val == '0') {
+                if (cur == '0') {
                     styles.push(
                             'border-bottom: '.concat(BORDER_SIGNAL, ';')
                         );
-                } else if (val == '1') {
+                } else if (cur == '1') {
                     styles.push(
                             'border-top: '.concat(BORDER_SIGNAL, ';')
                         );
                 }
 
                 /* Render rising or falling edge. */
-                var pv = prev.concat(val);
-                if ((pv == '01') || (pv == '10')) {
+                var pc = prev.concat(cur);
+                if ((pc == '01') || (pc == '10')) {
                     styles.push(
                             'border-left: '.concat(BORDER_SIGNAL, ';')
                         );
@@ -1333,6 +1333,32 @@ var exportOps = {
             }
         }
         ret = ret.concat('</tr>\n');
+
+        return ret;
+    },
+
+
+    /**
+     * @private
+     * Return internal data in comment format for import/export.
+     * @return {string} HTML comment containing internal data
+     */
+    data_: function()
+    {
+        var ret = '<!--DATA_EXPORT--\n';
+
+        for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
+            /* Skip first column (always don't-care). */
+
+            ret = ret.concat(
+                    signalNames[sigIndex],
+                    ': ',
+                    data[sigIndex].slice(1).join(','),
+                    ';\n'
+                );
+        }
+
+        ret = ret.concat('--DATA_EXPORT-->\n');
 
         return ret;
     },
@@ -1361,6 +1387,9 @@ var exportOps = {
                 '</table>\n',
                 '</div>\n'
             );
+
+        text = text.concat('\n', exportOps.data_());
+
         io.value = text;
     },
 }
