@@ -1293,7 +1293,7 @@ var exportOps = {
             if (c == 0) {
                 /* Signal name column. */
                 styles.push('text-align: right;');
-                styles.push('font-size:'.concat(FONTSIZE_SIGNAME, ';'));
+                styles.push('font-size: '.concat(FONTSIZE_SIGNAME, ';'));
                 ret = ret.concat('<td ',
                         exportOps.styleString_(styles),
                         '>'
