@@ -1179,6 +1179,127 @@ var uiOps = {
 
 var exportOps = {
     /**
+     * @private
+     * Return the HTML to represent the header row.
+     * @return {string} HTML of header row
+     */
+    header_: function()
+    {
+        var ret = '';
+
+        var styles = [
+            'border-right: thin dotted black;',
+            'text-align: center;',
+        ];
+
+        ret = ret.concat('<tr>\n');
+
+        for (var c = 0; c < cols; c++) {
+            ret = ret.concat('<td ', styles.join(' '), '>');
+
+            if (c == 0) {
+                ret = ret.concat('&nbsp;');
+            } else {
+                ret = ret.concat(c.toString());
+            }
+
+            ret = ret.concat('</td>\n');
+        }
+
+        ret = ret.concat('</tr>\n');
+
+        return ret;
+    },
+
+
+    /**
+     * @private
+     * Return the HTML to represent one signal's data.
+     * @param {number} sigIndex Zero-based signal index
+     * @return {string} HTML of signal data
+     */
+    signal_: function(sigIndex)
+    {
+        ret = '';
+
+        if (sigIndex < 0) {
+            throw new Error('sigIndex too low');
+        } else if (sigIndex >= signals) {
+            throw new Error('sigIndex too high');
+        }
+
+        var styles_default = [
+            'border-right: thin dotted black;',
+        ];
+
+        /* Spacer row. */
+        ret = ret.concat('<tr>\n');
+        for (var c = 0; c < cols; c++) {
+            var styles = styles_default.slice(0);
+            ret = ret.concat('<td ', styles.join(' '), '>&nbsp;</td>\n');
+        }
+        ret = ret.concat('</tr>\n');
+
+        /* Data row. */
+        ret = ret.concat('<tr>\n');
+        for (var c = 0; c < cols; c++) {
+            var styles = styles_default.slice(0);
+
+            var minWidth = null;
+
+            if (sigIndex == 0) {
+                if (c == 0) {
+                    minWidth = MINWIDTH_SIGNAME;
+                } else {
+                    minWidth = MINWIDTH_DATACOL;
+                }
+            }
+
+            if (minWidth != null) {
+                styles.push('min-width: '.concat(minWidth, ';'));
+            }
+
+            if (c == 0) {
+                /* Signal name column. */
+                styles.push('text-align: right;');
+                styles.push('font-size:'.concat(FONTSIZE_SIGNAME, ';'));
+                ret = ret.concat('<td ', styles.join(' '), '>');
+                ret = ret.concat(signalNames[sigIndex]);
+                ret = ret.concat('</td>\n');
+
+            } else {
+                /* Data column. */
+                var prev = data[sigIndex][c-1];
+                var val = data[sigIndex][c];
+
+                if (val == '0') {
+                    styles.push(
+                            'border-bottom: '.concat(BORDER_SIGNAL, ';')
+                        );
+                } else if (val == '1') {
+                    styles.push(
+                            'border-top: '.concat(BORDER_SIGNAL, ';')
+                        );
+                }
+
+                /* Render rising or falling edge. */
+                var pv = prev.concat(val);
+                if ((pv == '01') || (pv == '10')) {
+                    styles.push(
+                            'border-left: '.concat(BORDER_SIGNAL, ';')
+                        );
+                }
+
+                ret = ret.concat('<td ', styles.join(' '), '>&nbsp;</td>\n');
+            }
+        }
+        ret = ret.concat('</tr>\n');
+
+        return ret;
+    },
+
+
+    /**
      * Copy the table's HTML into the I/O textarea so the user can copy/paste.
      */
     showHTML: function()
@@ -1188,11 +1309,19 @@ var exportOps = {
         var io = document.getElementById('io');
         var text = '<div style="overflow: auto">\n'.concat(
                 '<table cellspacing="0"',
-                ' style="border: none; border-collapse: collapse;">\n',
-                table.innerHTML.trim().replace(/\n+/g, '\n'),
-                '\n</table>',
-                '\n</div>'
-                );
+                ' style="border: none; border-collapse: collapse;">\n'
+            );
+
+        text = text.concat(exportOps.header_());
+
+        for (sigIndex = 0; sigIndex < signals; sigIndex++) {
+            text = text.concat(exportOps.signal_(sigIndex));
+        }
+
+        text = text.concat(
+                '</table>\n',
+                '</div>\n'
+            );
         io.value = text;
     },
 }
