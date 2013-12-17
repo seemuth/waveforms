@@ -43,6 +43,7 @@ var cols = 1;   /* Always have zeroth column (don't-care) */
 var table;
 
 var data = [];
+var signalNames = [];
 
 var selected = [];
 
@@ -229,6 +230,7 @@ var dataOps = {
         }
 
         data.splice(sigIndex, 0, values);
+        signalNames.splice(sigIndex, 0, 'SIG');
 
         signals++;
     },
@@ -248,6 +250,7 @@ var dataOps = {
         }
 
         data.splice(sigIndex, 1);
+        signalNames.splice(sigIndex, 1);
 
         signals--;
     },
@@ -691,6 +694,20 @@ var tableOps = {
 
 
     /**
+     * @private
+     * Set cell's contents.
+     * @param {number} rowIndex Zero-based row index.
+     * @param {number} colIndex Zero-based column index.
+     * @param {string} val Set contents to this value.
+     */
+    setCellContents_: function(rowIndex, colIndex, val)
+    {
+        var cell = tableOps.coordsToCell_(rowIndex, colIndex);
+        cell.innerHTML = val;
+    },
+
+
+    /**
      * Update table header row with column indices.
      */
     updateHeader: function()
@@ -899,6 +916,27 @@ var selOps = {
 var uiOps = {
     /**
      * @private
+     * Enable/show or disable/hide main editing buttons.
+     * @param {bool} enable True to enable, false to disable.
+     */
+    enableMainEdit_: function(enable)
+    {
+        var mainEdit = document.getElementById('mainEdit');
+
+        for (var i = 0; i < mainEdit.childNodes.length; i++) {
+            var n = mainEdit.childNodes[i];
+
+            if (n.nodeName.toLowerCase() == 'button') {
+                n.disabled = ! enable;
+            }
+        }
+
+        mainEdit.style.visibility = (enable) ? 'visible' : 'hidden';
+    },
+
+
+    /**
+     * @private
      * Enable/show or disable/hide signal editing buttons.
      * @param {bool} enable True to enable, false to disable.
      */
@@ -1061,11 +1099,21 @@ var uiOps = {
         if ((sigMax < 0) || (sigMax >= signals)) {
             sigMax = signals - 1;
         }
-        if (colMin < 1) {
-            colMin = 1;
+        if (colMin < 0) {
+            colMin = 0;
         }
         if ((colMax < 0) || (colMax >= cols)) {
             colMax = cols - 1;
+        }
+
+        /* First update signal names if requested. */
+        if (colMin < 1) {
+            for (var sigIndex = sigMin; sigIndex <= sigMax; sigIndex++) {
+                var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
+                tableOps.setCellContents_(rowIndex, 0, signalNames[sigIndex]);
+            }
+
+            colMin = 1;
         }
 
         for (var sigIndex = sigMin; sigIndex <= sigMax; sigIndex++) {
@@ -1131,6 +1179,166 @@ var uiOps = {
 
 var exportOps = {
     /**
+     * @private
+     * Return the style attribute for an HTML tag.
+     * @param {array} of {string} styles CSS styles
+     * @return {string} HTML tag attribute string
+     */
+    styleString_: function(styles)
+    {
+        var ret = '';
+
+        var filteredStyles = [];
+        for (var s in styles) {
+            s = styles[s].trim();
+            if (s.charAt(s.length - 1) != ';') {
+                s = s.concat(';');
+            }
+            filteredStyles.push(s);
+        }
+
+        if (filteredStyles.length > 0) {
+            ret = 'style="'.concat(filteredStyles.join(' '), '"');
+        }
+
+        return ret;
+    },
+
+
+    /**
+     * @private
+     * Return the HTML to represent the header row.
+     * @return {string} HTML of header row
+     */
+    header_: function()
+    {
+        var ret = '';
+
+        var styles = [
+            'border-right: thin dotted black;',
+            'text-align: center;',
+        ];
+
+        ret = ret.concat('<tr>\n');
+
+        for (var c = 0; c < cols; c++) {
+            ret = ret.concat('<td ',
+                    exportOps.styleString_(styles),
+                    '>'
+                );
+
+            if (c == 0) {
+                ret = ret.concat('&nbsp;');
+            } else {
+                ret = ret.concat(c.toString());
+            }
+
+            ret = ret.concat('</td>\n');
+        }
+
+        ret = ret.concat('</tr>\n');
+
+        return ret;
+    },
+
+
+    /**
+     * @private
+     * Return the HTML to represent one signal's data.
+     * @param {number} sigIndex Zero-based signal index
+     * @return {string} HTML of signal data
+     */
+    signal_: function(sigIndex)
+    {
+        ret = '';
+
+        if (sigIndex < 0) {
+            throw new Error('sigIndex too low');
+        } else if (sigIndex >= signals) {
+            throw new Error('sigIndex too high');
+        }
+
+        var styles_default = [
+            'border-right: thin dotted black;',
+        ];
+
+        /* Spacer row. */
+        ret = ret.concat('<tr>\n');
+        for (var c = 0; c < cols; c++) {
+            var styles = styles_default.slice(0);
+            ret = ret.concat('<td ',
+                    exportOps.styleString_(styles),
+                    '>&nbsp;</td>\n'
+                );
+        }
+        ret = ret.concat('</tr>\n');
+
+        /* Data row. */
+        ret = ret.concat('<tr>\n');
+        for (var c = 0; c < cols; c++) {
+            var styles = styles_default.slice(0);
+
+            var minWidth = null;
+
+            if (sigIndex == 0) {
+                if (c == 0) {
+                    minWidth = MINWIDTH_SIGNAME;
+                } else {
+                    minWidth = MINWIDTH_DATACOL;
+                }
+            }
+
+            if (minWidth != null) {
+                styles.push('min-width: '.concat(minWidth, ';'));
+            }
+
+            if (c == 0) {
+                /* Signal name column. */
+                styles.push('text-align: right;');
+                styles.push('font-size:'.concat(FONTSIZE_SIGNAME, ';'));
+                ret = ret.concat('<td ',
+                        exportOps.styleString_(styles),
+                        '>'
+                    );
+                ret = ret.concat(signalNames[sigIndex]);
+                ret = ret.concat('</td>\n');
+
+            } else {
+                /* Data column. */
+                var prev = data[sigIndex][c-1];
+                var val = data[sigIndex][c];
+
+                if (val == '0') {
+                    styles.push(
+                            'border-bottom: '.concat(BORDER_SIGNAL, ';')
+                        );
+                } else if (val == '1') {
+                    styles.push(
+                            'border-top: '.concat(BORDER_SIGNAL, ';')
+                        );
+                }
+
+                /* Render rising or falling edge. */
+                var pv = prev.concat(val);
+                if ((pv == '01') || (pv == '10')) {
+                    styles.push(
+                            'border-left: '.concat(BORDER_SIGNAL, ';')
+                        );
+                }
+
+                ret = ret.concat('<td ',
+                        exportOps.styleString_(styles),
+                        '>&nbsp;</td>\n'
+                    );
+            }
+        }
+        ret = ret.concat('</tr>\n');
+
+        return ret;
+    },
+
+
+    /**
      * Copy the table's HTML into the I/O textarea so the user can copy/paste.
      */
     showHTML: function()
@@ -1140,11 +1348,19 @@ var exportOps = {
         var io = document.getElementById('io');
         var text = '<div style="overflow: auto">\n'.concat(
                 '<table cellspacing="0"',
-                ' style="border: none; border-collapse: collapse;">\n',
-                table.innerHTML.trim().replace(/\n+/g, '\n'),
-                '\n</table>',
-                '\n</div>'
-                );
+                ' style="border: none; border-collapse: collapse;">\n'
+            );
+
+        text = text.concat(exportOps.header_());
+
+        for (sigIndex = 0; sigIndex < signals; sigIndex++) {
+            text = text.concat(exportOps.signal_(sigIndex));
+        }
+
+        text = text.concat(
+                '</table>\n',
+                '</div>\n'
+            );
         io.value = text;
     },
 }
@@ -1319,6 +1535,9 @@ var eventOps = {
                 input.onblur = eventOps.newName_onblur;
 
                 cell.ondblclick = null;
+
+                uiOps.enableMainEdit_(false);
+                selOps.clearSelection();
             }
         }
     },
@@ -1343,6 +1562,12 @@ var eventOps = {
     {
         cell.innerHTML = escape(newName.trim()).replace(/%20/g, ' ');
         cell.ondblclick = eventOps.cell_dblclick;
+        uiOps.enableMainEdit_(true);
+
+        var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
+        var sigIndex = indexOps.rowToSig_(rowIndex);
+
+        signalNames[sigIndex] = cell.innerHTML;
     },
 
 
