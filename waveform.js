@@ -1339,6 +1339,32 @@ var exportOps = {
 
 
     /**
+     * @private
+     * Return internal data in comment format for import/export.
+     * @return {string} HTML comment containing internal data
+     */
+    data_: function()
+    {
+        var ret = '<!--DATA_EXPORT--\n';
+
+        for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
+            /* Skip first column (always don't-care). */
+
+            ret = ret.concat(
+                    signalNames[sigIndex],
+                    ': ',
+                    data[sigIndex].slice(1).join(','),
+                    ';\n'
+                );
+        }
+
+        ret = ret.concat('--DATA_EXPORT-->\n');
+
+        return ret;
+    },
+
+
+    /**
      * Copy the table's HTML into the I/O textarea so the user can copy/paste.
      */
     showHTML: function()
@@ -1361,6 +1387,9 @@ var exportOps = {
                 '</table>\n',
                 '</div>\n'
             );
+
+        text = text.concat('\n', exportOps.data_());
+
         io.value = text;
     },
 }
