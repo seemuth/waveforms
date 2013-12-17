@@ -383,13 +383,11 @@ var cellOps = {
                 cell.style.fontSize = FONTSIZE_SIGNAME;
             }
 
-            if (indexOps.rowToSig_(rowIndex) == 0) {
-                /* First signal: set minimum column widths. */
-                if (colIndex == 0) {
-                    cell.style.minWidth = MINWIDTH_SIGNAME;
-                } else {
-                    cell.style.minWidth = MINWIDTH_DATACOL;
-                }
+            /* Set minimum column widths. */
+            if (colIndex == 0) {
+                cell.style.minWidth = MINWIDTH_SIGNAME;
+            } else {
+                cell.style.minWidth = MINWIDTH_DATACOL;
             }
         }
     },
