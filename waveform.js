@@ -1399,6 +1399,115 @@ var exportOps = {
 }
 
 
+var importOps = {
+    /**
+     * @private
+     * Search for the given string and cut it out.
+     * @param {string} haystack Search within this string
+     * @param {string} needle Search for this string
+     * @return {null|string} Remaining string after needle; null if not found
+     */
+    cutString_: function(haystack, needle)
+    {
+        var match = haystack.indexOf(needle);
+        if (match < 0) {
+            return null;
+        }
+        return haystack.substr(match + needle.length);
+    },
+
+
+    /**
+     * @private
+     * Overwrite waveform with data from string representation.
+     *
+     * String format: START SIGNAL* STOP
+     *      SIGNAL := SIGNAME NAMEDATADELIM DATA SIGDELIM
+     *      SIGNAME := \w+
+     *      DATA := VAL (VALDELIM VAL)*
+     *      VAL := [01x]
+     *      START := <defined as EXPORT_START>
+     *      NAMEDATADELIM := <defined as EXPORT_NAMEDATADELIM>
+     *      SIGDELIM := <defined as EXPORT_SIGDELIM>
+     *      VALDELIM := <defined as EXPORT_VALDELIM>
+     *      STOP := <defined as EXPORT_STOP>
+     *
+     * @param {string} importData Use signal data in this string.
+     * @return {array} containing [newNames, newData]
+     */
+    HTML2data_: function(importData)
+    {
+        var START = EXPORT_START.trim();
+        var NAMEDATADELIM = EXPORT_NAMEDATADELIM.trim();
+        var SIGDELIM = EXPORT_SIGDELIM.trim();
+        var VALDELIM = EXPORT_VALDELIM.trim();
+        var STOP = EXPORT_STOP.trim();
+
+        var newNames = [];
+        var newData = [];
+
+        var remain = importData.trim();
+
+        /* Keep only content between START and STOP. */
+        remain = importOps.cutString_(remain, START);
+        if (remain === null) {
+            throw new Error('string not found: ' + START);
+        }
+
+        var match = remain.indexOf(STOP);
+        if (match < 0) {
+            throw new Error('string not found: ' + STOP);
+        }
+        remain = remain.substr(0, match);
+
+        remain = remain.trim();
+
+        /* Now parse actual data. */
+        while (remain.length > 0) {
+            match = remain.indexOf(NAMEDATADELIM);
+            if (match < 0) {
+                throw new Error('string not found: ' + NAMEDATADELIM);
+            }
+            newNames.push(remain.substr(0, match).trim());
+            remain = importOps.cutString_(remain, NAMEDATADELIM).trim();
+
+            match = remain.indexOf(SIGDELIM);
+            if (match < 0) {
+                throw new Error('string not found: ' + SIGDELIM);
+            }
+            var valueStr = remain.substr(0, match).trim();
+            remain = importOps.cutString_(remain, SIGDELIM).trim();
+
+            var valueWords = valueStr.split(VALDELIM);
+            var values = [];
+            for (var i in valueWords) {
+                var v = valueWords[i].trim();
+                if ('01x'.indexOf(v) < 0) {
+                    throw new Error('invalid value: ' + v);
+                }
+                values.push(v);
+            }
+
+            newData.push(values);
+        }
+
+        /* Make sure all dimensions match. */
+        if (newNames.length != newData.length) {
+            throw new Error('name/data lengths do not match!');
+        }
+
+        /* Check size of each signal (if any exist). */
+        for (var i in newData) {
+            if (newData[i].length != newData[0].length) {
+                throw new Error('signal data sizes do not match!');
+            }
+        }
+
+        return [newNames, newData];
+    },
+}
+
+
 
 
 var eventOps = {
