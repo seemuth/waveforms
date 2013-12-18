@@ -1419,7 +1419,7 @@ var importOps = {
 
     /**
      * @private
-     * Overwrite waveform with data from string representation.
+     * Convert string representation to signal names and data.
      *
      * String format: START SIGNAL* STOP
      *      SIGNAL := SIGNAME NAMEDATADELIM DATA SIGDELIM
