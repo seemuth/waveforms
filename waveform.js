@@ -1055,7 +1055,7 @@ var uiOps = {
 
     /**
      * Delete the column at the given index.
-     * @param {number} index Delete column at this index (<0 means last).
+     * @param {number} index Delete column at this index (<1 means last).
      */
     delCol: function(index)
     {
@@ -1064,6 +1064,10 @@ var uiOps = {
         if (cols <= 1) {
             /* No non-name columns to delete! */
             return;
+        }
+
+        if (index < 1) {
+            index = cols - 1;
         }
 
         if (index >= cols) {
