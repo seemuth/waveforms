@@ -38,6 +38,12 @@ var MINWIDTH_SIGNAME = '100px';
 var MINWIDTH_DATACOL = '20px';
 var FONTSIZE_SIGNAME = 'medium';
 
+var EXPORT_START = '<!--DATA_EXPORT--\n';
+var EXPORT_STOP = '--DATA_EXPORT-->\n';
+var EXPORT_NAMEDATADELIM = ': ';
+var EXPORT_VALDELIM = ',';
+var EXPORT_SIGDELIM = ';\n';
+
 var signals = 0;
 var cols = 1;   /* Always have zeroth column (don't-care) */
 var table;
@@ -1343,20 +1349,20 @@ var exportOps = {
      */
     data_: function()
     {
-        var ret = '<!--DATA_EXPORT--\n';
+        var ret = EXPORT_START;
 
         for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
             /* Skip first column (always don't-care). */
 
             ret = ret.concat(
                     signalNames[sigIndex],
-                    ': ',
-                    data[sigIndex].slice(1).join(','),
-                    ';\n'
+                    EXPORT_NAMEDATADELIM,
+                    data[sigIndex].slice(1).join(EXPORT_VALDELIM),
+                    EXPORT_SIGDELIM
                 );
         }
 
-        ret = ret.concat('--DATA_EXPORT-->\n');
+        ret = ret.concat(EXPORT_STOP);
 
         return ret;
     },
