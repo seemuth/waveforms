@@ -1697,6 +1697,15 @@ var eventOps = {
 
 
     /**
+     * Handle single-click event on a cell while in RENAME state.
+     */
+    cell_click_RENAME: function(event)
+    {
+        /* Do nothing! */
+    },
+
+
+    /**
      * Handle single-click event on a cell.
      */
     cell_click: function(event)
@@ -1709,6 +1718,9 @@ var eventOps = {
 
         } else if ((state == 'ADDSIG') || (state == 'DELSIG')) {
             eventOps.cell_click_SIG(event);
+
+        } else if (state == 'RENAME') {
+            eventOps.cell_click_RENAME(event);
 
         } else {
             uiOps.setMsg('ERROR: Unknown state: '.concat(state))
@@ -1728,6 +1740,8 @@ var eventOps = {
         if (colIndex == 0) {
             if (rowIndex > 0) {
                 /* Rename signal. */
+                state = 'RENAME';
+
                 var oldName = cell.innerHTML;
 
                 cell.innerHTML = '<input type="text" id="newName"'.concat(
@@ -1767,6 +1781,7 @@ var eventOps = {
     {
         cell.innerHTML = escape(newName.trim()).replace(/%20/g, ' ');
         cell.ondblclick = eventOps.cell_dblclick;
+        uiOps.stateMain();
         uiOps.enableMainEdit_(true);
 
         var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
