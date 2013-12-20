@@ -1884,4 +1884,14 @@ var eventOps = {
 
         state = nextState;
     },
+
+
+    /**
+     * Handle request to import data from I/O textbox.
+     */
+    importHTML: function()
+    {
+        var io = document.getElementById('io');
+        importOps.importHTML(io.value);
+    },
 }
