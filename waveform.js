@@ -1758,6 +1758,8 @@ var eventOps = {
 
                 uiOps.enableMainEdit_(false);
                 selOps.clearSelection();
+
+                uiOps.setMsg('Press TAB to finish editing the signal name.');
             }
         }
     },
