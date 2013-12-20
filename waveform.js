@@ -1779,7 +1779,11 @@ var eventOps = {
      */
     newName_finish_: function(newName, cell)
     {
-        cell.innerHTML = escape(newName.trim()).replace(/%20/g, ' ');
+        cell.innerHTML = encodeURIComponent(
+                newName.trim()
+            ).replace(
+                /%20/g, ' '
+            );
         cell.ondblclick = eventOps.cell_dblclick;
         uiOps.stateMain();
         uiOps.enableMainEdit_(true);
