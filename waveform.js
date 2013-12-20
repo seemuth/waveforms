@@ -38,6 +38,12 @@ var MINWIDTH_SIGNAME = '100px';
 var MINWIDTH_DATACOL = '20px';
 var FONTSIZE_SIGNAME = 'medium';
 
+var EXPORT_START = '<!--DATA_EXPORT--\n';
+var EXPORT_STOP = '--DATA_EXPORT-->\n';
+var EXPORT_NAMEDATADELIM = ': ';
+var EXPORT_VALDELIM = ',';
+var EXPORT_SIGDELIM = ';\n';
+
 var signals = 0;
 var cols = 1;   /* Always have zeroth column (don't-care) */
 var table;
@@ -1049,7 +1055,7 @@ var uiOps = {
 
     /**
      * Delete the column at the given index.
-     * @param {number} index Delete column at this index (<0 means last).
+     * @param {number} index Delete column at this index (<1 means last).
      */
     delCol: function(index)
     {
@@ -1058,6 +1064,10 @@ var uiOps = {
         if (cols <= 1) {
             /* No non-name columns to delete! */
             return;
+        }
+
+        if (index < 1) {
+            index = cols - 1;
         }
 
         if (index >= cols) {
@@ -1343,20 +1353,20 @@ var exportOps = {
      */
     data_: function()
     {
-        var ret = '<!--DATA_EXPORT--\n';
+        var ret = EXPORT_START;
 
         for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
             /* Skip first column (always don't-care). */
 
             ret = ret.concat(
                     signalNames[sigIndex],
-                    ': ',
-                    data[sigIndex].slice(1).join(','),
-                    ';\n'
+                    EXPORT_NAMEDATADELIM,
+                    data[sigIndex].slice(1).join(EXPORT_VALDELIM),
+                    EXPORT_SIGDELIM
                 );
         }
 
-        ret = ret.concat('--DATA_EXPORT-->\n');
+        ret = ret.concat(EXPORT_STOP);
 
         return ret;
     },
@@ -1389,6 +1399,174 @@ var exportOps = {
         text = text.concat('\n', exportOps.data_());
 
         io.value = text;
+    },
+}
+
+
+var importOps = {
+    /**
+     * @private
+     * Search for the given string and cut it out.
+     * @param {string} haystack Search within this string
+     * @param {string} needle Search for this string
+     * @return {null|string} Remaining string after needle; null if not found
+     */
+    cutString_: function(haystack, needle)
+    {
+        var match = haystack.indexOf(needle);
+        if (match < 0) {
+            return null;
+        }
+        return haystack.substr(match + needle.length);
+    },
+
+
+    /**
+     * @private
+     * Convert string representation to signal names and data.
+     *
+     * String format: START SIGNAL* STOP
+     *      SIGNAL := SIGNAME NAMEDATADELIM DATA SIGDELIM
+     *      SIGNAME := \w+
+     *      DATA := VAL (VALDELIM VAL)*
+     *      VAL := [01x]
+     *      START := <defined as EXPORT_START>
+     *      NAMEDATADELIM := <defined as EXPORT_NAMEDATADELIM>
+     *      SIGDELIM := <defined as EXPORT_SIGDELIM>
+     *      VALDELIM := <defined as EXPORT_VALDELIM>
+     *      STOP := <defined as EXPORT_STOP>
+     *
+     * @param {string} importData Use signal data in this string.
+     * @return {array} containing [newNames, newData]
+     */
+    HTML2data_: function(importData)
+    {
+        var START = EXPORT_START.trim();
+        var NAMEDATADELIM = EXPORT_NAMEDATADELIM.trim();
+        var SIGDELIM = EXPORT_SIGDELIM.trim();
+        var VALDELIM = EXPORT_VALDELIM.trim();
+        var STOP = EXPORT_STOP.trim();
+
+        var newNames = [];
+        var newData = [];
+
+        var remain = importData.trim();
+
+        /* Keep only content between START and STOP. */
+        remain = importOps.cutString_(remain, START);
+        if (remain === null) {
+            throw new Error('START not found');
+        }
+
+        var match = remain.indexOf(STOP);
+        if (match < 0) {
+            throw new Error('STOP not found');
+        }
+        remain = remain.substr(0, match);
+
+        remain = remain.trim();
+
+        /* Now parse actual data. */
+        while (remain.length > 0) {
+            match = remain.indexOf(NAMEDATADELIM);
+            if (match < 0) {
+                throw new Error('NAMEDATADELIM not found');
+            }
+            newNames.push(remain.substr(0, match).trim());
+            remain = importOps.cutString_(remain, NAMEDATADELIM).trim();
+
+            match = remain.indexOf(SIGDELIM);
+            if (match < 0) {
+                throw new Error('SIGDELIM not found');
+            }
+            var valueStr = remain.substr(0, match).trim();
+            remain = importOps.cutString_(remain, SIGDELIM).trim();
+
+            var valueWords = valueStr.split(VALDELIM);
+            var values = [];
+            for (var i in valueWords) {
+                var v = valueWords[i].trim();
+                if ('01x'.indexOf(v) < 0) {
+                    throw new Error('invalid value: ' + encodeURL(v));
+                }
+                values.push(v);
+            }
+
+            newData.push(values);
+        }
+
+        /* Make sure all dimensions match. */
+        if (newNames.length != newData.length) {
+            throw new Error('name/data lengths do not match!');
+        }
+
+        /* Check size of each signal (if any exist). */
+        for (var i in newData) {
+            if (newData[i].length != newData[0].length) {
+                throw new Error('signal data sizes do not match!');
+            }
+        }
+
+        return [newNames, newData];
+    },
+
+
+    /**
+     * Overwrite waveform with data from string representation.
+     * @param {string} importData Use signal data in this string.
+     */
+    importHTML: function(importData)
+    {
+        try {
+            var d = importOps.HTML2data_(importData);
+
+            var newNames = d[0];
+            var newData = d[1];
+
+            /* Delete old data. */
+            while (signals > 0) {
+                uiOps.delSignal(-1);
+            }
+            while (cols > 1) {
+                uiOps.delCol(-1);
+            }
+
+            /* Add columns for new data. */
+            var addCols = 0;
+            if (newData.length > 0) {
+                addCols = newData[0].length;
+            }
+            for (; addCols > 0; addCols--) {
+                uiOps.addCol(-1);
+            }
+
+            /* Add signals and overwrite with new data. */
+            for (var i in newNames) {
+                uiOps.addSignal(i);
+                signalNames[i] = newNames[i];
+
+                var newRow = newData[i];
+
+                for (var c in newRow) {
+                    c = new Number(c);
+
+                    /* First column is not exported or imported. */
+                    data[i][c + 1] = newRow[c];
+                }
+            }
+
+            uiOps.updateDisplayedData();
+
+            uiOps.setMsg('Import successful!');
+
+        } catch (err) {
+            uiOps.setMsg(
+                    'Error [' +
+                    err.lineNumber +
+                    '] importing data: ' +
+                    err.message
+                );
+        }
     },
 }
 
@@ -1705,5 +1883,15 @@ var eventOps = {
         }
 
         state = nextState;
+    },
+
+
+    /**
+     * Handle request to import data from I/O textbox.
+     */
+    importHTML: function()
+    {
+        var io = document.getElementById('io');
+        importOps.importHTML(io.value);
     },
 }
