@@ -1752,6 +1752,7 @@ var eventOps = {
 
                 var input = document.getElementById('newName');
                 input.onblur = eventOps.newName_onblur;
+                input.select();
 
                 cell.ondblclick = null;
 
