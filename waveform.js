@@ -1487,7 +1487,7 @@ var importOps = {
             for (var i in valueWords) {
                 var v = valueWords[i].trim();
                 if ('01x'.indexOf(v) < 0) {
-                    throw new Error('invalid value: ' + encodeURL(v));
+                    throw new Error('invalid value: ' + encodeURI(v));
                 }
                 values.push(v);
             }
