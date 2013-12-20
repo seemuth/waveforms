@@ -959,6 +959,27 @@ var uiOps = {
 
 
     /**
+     * @private
+     * Enable/show or disable/hide signal editing buttons.
+     * @param {bool} enable True to enable, false to disable.
+     */
+    enableImportExport_: function(enable)
+    {
+        var importExport = document.getElementById('importExport');
+
+        for (var i = 0; i < importExport.childNodes.length; i++) {
+            var n = importExport.childNodes[i];
+
+            if (n.nodeName.toLowerCase() == 'button') {
+                n.disabled = ! enable;
+            }
+        }
+
+        importExport.style.visibility = (enable) ? 'visible' : 'hidden';
+    },
+
+
+    /**
      * Overwrite message box.
      * @param {string} msg Set message box contents to this.
      */
@@ -1600,6 +1621,11 @@ var eventOps = {
         for (var i = 0; i < START_SIGNALS; i++) {
             uiOps.addSignal(-1);
         }
+
+
+        uiOps.enableMainEdit_(true);
+        uiOps.enableSigEdit_(false);
+        uiOps.enableImportExport_(true);
     },
 
 
@@ -1755,6 +1781,7 @@ var eventOps = {
                 cell.ondblclick = null;
 
                 uiOps.enableMainEdit_(false);
+                uiOps.enableImportExport_(false);
                 selOps.clearSelection();
 
                 uiOps.setMsg('Press TAB to finish editing the signal name.');
@@ -1788,6 +1815,7 @@ var eventOps = {
         cell.ondblclick = eventOps.cell_dblclick;
         uiOps.stateMain();
         uiOps.enableMainEdit_(true);
+        uiOps.enableImportExport_(true);
 
         var rowIndex = tableOps.rowToRowIndex_(cell.parentNode);
         var sigIndex = indexOps.rowToSig_(rowIndex);
@@ -1812,6 +1840,7 @@ var eventOps = {
     reqAddDelColDone: function()
     {
         uiOps.stateMain();
+        uiOps.enableImportExport_(true);
     },
 
 
@@ -1853,6 +1882,7 @@ var eventOps = {
 
         } else {
             state = nextState;
+            uiOps.enableImportExport_(false);
         }
     },
 
@@ -1863,6 +1893,7 @@ var eventOps = {
     reqAddDelSigDone: function()
     {
         uiOps.stateMain();
+        uiOps.enableImportExport_(true);
     },
 
 
@@ -1904,6 +1935,7 @@ var eventOps = {
 
         } else {
             state = nextState;
+            uiOps.enableImportExport_(false);
         }
     },
 
