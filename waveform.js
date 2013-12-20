@@ -298,108 +298,6 @@ var dataOps = {
 }
 
 
-var cellOps = {
-    /**
-     * @private
-     * Generate the default contents for a new cell.
-     * @param {number} rowIndex Zero-based table row index of the cell.
-     * @param {number} colIndex Zero-based table col index of the cell.
-     * @return {string} Text contents for the cell.
-     */
-    cellContents_: function(rowIndex, colIndex)
-    {
-        if (rowIndex == 0) {
-            /* Header row: show column index except for name column. */
-            if (colIndex == 0) {
-                return '&nbsp;';
-            } else {
-                return colIndex.toString();
-            }
-
-        } else if ((rowIndex % 2) == 1) {
-            /* Separator row: blank cells. */
-            return '&nbsp;';
-
-        } else if (colIndex == 0) {
-            /* Signal name column. */
-            return 'SIG';
-
-        }
-
-        /* Signal data cell. */
-        return '&nbsp;';
-    },
-
-
-    /**
-     * @private
-     * Set the event callbacks for a new cell.
-     * @param {cell} cell Set callbacks for this cell.
-     * @param {number} rowIndex Zero-based table row index of the cell.
-     * @param {number} colIndex Zero-based table col index of the cell.
-     */
-    setCellEventCallbacks_: function(cell, rowIndex, colIndex)
-    {
-        if (rowIndex == 0) {
-            /* Header row. */
-
-            cell.onclick = eventOps.cell_click;
-            cell.ondblclick = eventOps.cell_dblclick;
-
-        } else if (((rowIndex - 1) % 2) == 1) {
-            /* Signal row. */
-            cell.onclick = eventOps.cell_click;
-            cell.ondblclick = eventOps.cell_dblclick;
-
-        } else {
-            /* Spacing row. */
-            cell.onclick = eventOps.spacingCell_click;
-        }
-    },
-
-
-    /**
-     * @private
-     * Set up a new cell (contents, callbacks, style, etc.).
-     * @param {cell} cell Set callbacks for this cell.
-     * @param {number} rowIndex Zero-based table row index of the cell.
-     * @param {number} colIndex Zero-based table col index of the cell.
-     */
-    setUpCell_: function(cell, rowIndex, colIndex)
-    {
-        cell.innerHTML = cellOps.cellContents_(rowIndex, colIndex);
-
-        cellOps.setCellEventCallbacks_(cell, rowIndex, colIndex);
-
-        cell.style.borderRight = 'thin dotted black';
-
-        if (rowIndex == 0) {
-            /* Header row: center time indices. */
-
-            if (colIndex > 0) {
-                cell.style.textAlign = 'center';
-            }
-
-            /* Set minimum column widths. */
-            if (colIndex == 0) {
-                cell.style.minWidth = MINWIDTH_SIGNAME;
-            } else {
-                cell.style.minWidth = MINWIDTH_DATACOL;
-            }
-
-        } else if (((rowIndex - 1) % 2) == 1) {
-            /* Signal row. */
-
-            if (colIndex == 0) {
-                /* Signal name. */
-                cell.style.textAlign = 'right';
-                cell.style.fontSize = FONTSIZE_SIGNAME;
-            }
-        }
-    },
-}
-
-
 var tableOps = {
     /**
      * @private
@@ -474,6 +372,106 @@ var tableOps = {
 
     /**
      * @private
+     * Generate the default contents for a new cell.
+     * @param {number} rowIndex Zero-based table row index of the cell.
+     * @param {number} colIndex Zero-based table col index of the cell.
+     * @return {string} Text contents for the cell.
+     */
+    cellContents_: function(rowIndex, colIndex)
+    {
+        if (rowIndex == 0) {
+            /* Header row: show column index except for name column. */
+            if (colIndex == 0) {
+                return '&nbsp;';
+            } else {
+                return colIndex.toString();
+            }
+
+        } else if ((rowIndex % 2) == 1) {
+            /* Separator row: blank cells. */
+            return '&nbsp;';
+
+        } else if (colIndex == 0) {
+            /* Signal name column. */
+            return 'SIG';
+
+        }
+
+        /* Signal data cell. */
+        return '&nbsp;';
+    },
+
+
+    /**
+     * @private
+     * Set the event callbacks for a new cell.
+     * @param {cell} cell Set callbacks for this cell.
+     * @param {number} rowIndex Zero-based table row index of the cell.
+     * @param {number} colIndex Zero-based table col index of the cell.
+     */
+    setCellEventCallbacks_: function(cell, rowIndex, colIndex)
+    {
+        if (rowIndex == 0) {
+            /* Header row. */
+
+            cell.onclick = eventOps.cell_click;
+            cell.ondblclick = eventOps.cell_dblclick;
+
+        } else if (((rowIndex - 1) % 2) == 1) {
+            /* Signal row. */
+            cell.onclick = eventOps.cell_click;
+            cell.ondblclick = eventOps.cell_dblclick;
+
+        } else {
+            /* Spacing row. */
+            cell.onclick = eventOps.spacingCell_click;
+        }
+    },
+
+
+    /**
+     * @private
+     * Set up a new cell (contents, callbacks, style, etc.).
+     * @param {cell} cell Set callbacks for this cell.
+     * @param {number} rowIndex Zero-based table row index of the cell.
+     * @param {number} colIndex Zero-based table col index of the cell.
+     */
+    setUpCell_: function(cell, rowIndex, colIndex)
+    {
+        cell.innerHTML = tableOps.cellContents_(rowIndex, colIndex);
+
+        tableOps.setCellEventCallbacks_(cell, rowIndex, colIndex);
+
+        cell.style.borderRight = 'thin dotted black';
+
+        if (rowIndex == 0) {
+            /* Header row: center time indices. */
+
+            if (colIndex > 0) {
+                cell.style.textAlign = 'center';
+            }
+
+            /* Set minimum column widths. */
+            if (colIndex == 0) {
+                cell.style.minWidth = MINWIDTH_SIGNAME;
+            } else {
+                cell.style.minWidth = MINWIDTH_DATACOL;
+            }
+
+        } else if (((rowIndex - 1) % 2) == 1) {
+            /* Signal row. */
+
+            if (colIndex == 0) {
+                /* Signal name. */
+                cell.style.textAlign = 'right';
+                cell.style.fontSize = FONTSIZE_SIGNAME;
+            }
+        }
+    },
+
+
+    /**
+     * @private
      * Add table cell at the given row and column indices.
      * @param {number} rowIndex Add cell in this row
      *      (0 <= rowIndex < # rows).
@@ -494,7 +492,7 @@ var tableOps = {
         var row = table.rows[rowIndex];
         var cell = row.insertCell(colIndex);
 
-        cellOps.setUpCell_(cell, rowIndex, colIndex);
+        tableOps.setUpCell_(cell, rowIndex, colIndex);
 
         row.appendChild(helper.text_('\n'));
 
@@ -719,7 +717,7 @@ var tableOps = {
         var row = table.rows[0];
 
         for (var c = 1; c < cols; c++) {
-            row.cells[c].innerHTML = cellOps.cellContents_(0, c);
+            row.cells[c].innerHTML = tableOps.cellContents_(0, c);
         }
     },
 }
