@@ -1455,12 +1455,12 @@ var importOps = {
         /* Keep only content between START and STOP. */
         remain = importOps.cutString_(remain, START);
         if (remain === null) {
-            throw new Error('string not found: ' + START);
+            throw new Error('START not found');
         }
 
         var match = remain.indexOf(STOP);
         if (match < 0) {
-            throw new Error('string not found: ' + STOP);
+            throw new Error('STOP not found');
         }
         remain = remain.substr(0, match);
 
@@ -1470,14 +1470,14 @@ var importOps = {
         while (remain.length > 0) {
             match = remain.indexOf(NAMEDATADELIM);
             if (match < 0) {
-                throw new Error('string not found: ' + NAMEDATADELIM);
+                throw new Error('NAMEDATADELIM not found');
             }
             newNames.push(remain.substr(0, match).trim());
             remain = importOps.cutString_(remain, NAMEDATADELIM).trim();
 
             match = remain.indexOf(SIGDELIM);
             if (match < 0) {
-                throw new Error('string not found: ' + SIGDELIM);
+                throw new Error('SIGDELIM not found');
             }
             var valueStr = remain.substr(0, match).trim();
             remain = importOps.cutString_(remain, SIGDELIM).trim();
@@ -1487,7 +1487,7 @@ var importOps = {
             for (var i in valueWords) {
                 var v = valueWords[i].trim();
                 if ('01x'.indexOf(v) < 0) {
-                    throw new Error('invalid value: ' + v);
+                    throw new Error('invalid value: ' + encodeURL(v));
                 }
                 values.push(v);
             }
