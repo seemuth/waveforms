@@ -1509,6 +1509,65 @@ var importOps = {
 
         return [newNames, newData];
     },
+
+
+    /**
+     * Overwrite waveform with data from string representation.
+     * @param {string} importData Use signal data in this string.
+     */
+    importHTML: function(importData)
+    {
+        try {
+            var d = importOps.HTML2data_(importData);
+
+            var newNames = d[0];
+            var newData = d[1];
+
+            /* Delete old data. */
+            while (signals > 0) {
+                uiOps.delSignal(-1);
+            }
+            while (cols > 1) {
+                uiOps.delCol(-1);
+            }
+
+            /* Add columns for new data. */
+            var addCols = 0;
+            if (newData.length > 0) {
+                addCols = newData[0].length;
+            }
+            for (; addCols > 0; addCols--) {
+                uiOps.addCol(-1);
+            }
+
+            /* Add signals and overwrite with new data. */
+            for (var i in newNames) {
+                uiOps.addSignal(i);
+                signalNames[i] = newNames[i];
+
+                var newRow = newData[i];
+
+                for (var c in newRow) {
+                    c = new Number(c);
+
+                    /* First column is not exported or imported. */
+                    data[i][c + 1] = newRow[c];
+                }
+            }
+
+            uiOps.updateDisplayedData();
+
+            uiOps.setMsg('Import successful!');
+
+        } catch (err) {
+            uiOps.setMsg(
+                    'Error [' +
+                    err.lineNumber +
+                    '] importing data: ' +
+                    err.message
+                );
+        }
+    },
 }
 
 
