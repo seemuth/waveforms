@@ -1844,10 +1844,11 @@ var eventOps = {
 
         if (state == nextState) {
             /* Finished with operation. */
-            uiOps.stateMain();
-        }
+            eventOps.reqAddDelColDone();
 
-        state = nextState;
+        } else {
+            state = nextState;
+        }
     },
 
 
@@ -1894,10 +1895,11 @@ var eventOps = {
 
         if (state == nextState) {
             /* Finished with operation. */
-            uiOps.stateMain();
-        }
+            eventOps.reqAddDelSigDone();
 
-        state = nextState;
+        } else {
+            state = nextState;
+        }
     },
 
 
