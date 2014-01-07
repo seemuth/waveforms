@@ -295,6 +295,33 @@ var dataOps = {
             throw new Error('invalid mode');
         }
     },
+
+
+    /**
+     * @private
+     * Convert data value to mode for calls to setCellValue_.
+     * @param {string} dataVal 0|1|x
+     * @return {string} mode set|clear|dontcare
+     */
+    valToMode_: function(dataVal)
+    {
+        var ret = null;
+
+        if ((dataVal == '0') || (dataVal == 0)) {
+            ret = 'clear';
+
+        } else if ((dataVal == '1') || (dataVal == 1)) {
+            ret = 'set';
+
+        } else if (dataVal == 'x') {
+            ret = 'x';
+
+        } else {
+            throw new Error('invalid data: ' + dataVal.toString());
+        }
+
+        return ret;
+    },
 }
 
 
@@ -1146,30 +1173,11 @@ var uiOps = {
         for (var sigIndex = sigMin; sigIndex <= sigMax; sigIndex++) {
             for (var colIndex = colMin; colIndex <= colMax; colIndex++) {
                 var dataVal = data[sigIndex][colIndex];
-                var tableMode = null;
-
-                if ((dataVal == '0') || (dataVal == 0)) {
-                    tableMode = 'clear';
-
-                } else if ((dataVal == '1') || (dataVal == 1)) {
-                    tableMode = 'set';
-
-                } else if (dataVal == 'x') {
-                    tableMode = 'x';
-
-                } else {
-                    throw new Error('invalid data ' +
-                            sigIndex.toString() +
-                            ', ' +
-                            colIndex.toString() +
-                            ': ' +
-                            dataVal.toString()
-                          );
-                }
+                var mode = dataOps.valToMode_(dataVal);
 
                 /* Add 1 to rowIndex to get to the signal row (not spacer). */
                 var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
-                tableOps.setCellValue_(rowIndex, colIndex, tableMode);
+                tableOps.setCellValue_(rowIndex, colIndex, mode);
             }
         }
     },
