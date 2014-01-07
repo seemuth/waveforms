@@ -939,6 +939,95 @@ var selOps = {
 
         return ret;
     },
+
+
+    /**
+     * @private
+     * Return selected cells by column.
+     * @return {array} of {array} of {number} colIndex: [sigIndices]
+     */
+    selectedCellsByCol_: function()
+    {
+        var colToSig = [];
+
+        /* Prepare colToSig to store selected cells by column. */
+        for (var i = 0; i < cols; i++) {
+            colToSig[i] = [];
+        }
+
+        for (var i = 0; i < selected.length; i++) {
+            var parts = selected[i].split('x');
+            var rowIndex = parseInt(parts[0]);
+            var colIndex = parseInt(parts[1]);
+            var sigIndex = indexOps.rowToSig_(rowIndex);
+
+            colToSig[colIndex].push(sigIndex);
+        }
+
+        return colToSig;
+    },
+
+
+    /**
+     * Shift selected cells left.
+     */
+    shiftLeft: function()
+    {
+        var colToSig = selOps.selectedCellsByCol_();
+
+        /* Process columns left to right. */
+        for (var colIndex = 2; colIndex < cols; colIndex++) {
+            for (var i in colToSig[colIndex]) {
+                var sigIndex = colToSig[colIndex][i];
+                /* Add 1 to rowIndex to get to the signal row (not spacer). */
+                var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
+
+                var dataVal = data[sigIndex][colIndex];
+                var mode = dataOps.valToMode_(dataVal);
+
+                /* Shift left: copy data to (colIndex - 1). */
+                dataOps.setCellValue_(sigIndex, colIndex - 1, mode);
+                tableOps.setCellValue_(rowIndex, colIndex - 1, mode);
+
+                /* Move selection to copied cell. */
+                selOps.setCellSelection_(rowIndex, colIndex, 'toggle');
+                if (colIndex > 2) {
+                    selOps.setCellSelection_(rowIndex, colIndex - 1, 'toggle');
+                }
+            }
+        }
+    },
+
+
+    /**
+     * Shift selected cells right.
+     */
+    shiftRight: function()
+    {
+        var colToSig = selOps.selectedCellsByCol_();
+
+        /* Process columns right to left. */
+        for (var colIndex = cols - 2; colIndex > 0; colIndex--) {
+            for (var i in colToSig[colIndex]) {
+                var sigIndex = colToSig[colIndex][i];
+                /* Add 1 to rowIndex to get to the signal row (not spacer). */
+                var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
+
+                var dataVal = data[sigIndex][colIndex];
+                var mode = dataOps.valToMode_(dataVal);
+
+                /* Shift right: copy data to (colIndex + 1). */
+                dataOps.setCellValue_(sigIndex, colIndex + 1, mode);
+                tableOps.setCellValue_(rowIndex, colIndex + 1, mode);
+
+                /* Move selection to copied cell. */
+                selOps.setCellSelection_(rowIndex, colIndex, 'toggle');
+                if (colIndex < (cols - 2)) {
+                    selOps.setCellSelection_(rowIndex, colIndex + 1, 'toggle');
+                }
+            }
+        }
+    },
 }
 
 
