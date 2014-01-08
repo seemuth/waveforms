@@ -2,7 +2,7 @@
  * @fileoverview Functions for facilitating the creation of waveforms using
  * the accompanying waveform.html file.
  *
- * Copyright (c) 2013 Daniel P. Seemuth
+ * Copyright (c) 2013-2014 Daniel P. Seemuth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -23,11 +23,11 @@
  * DEALINGS IN THE SOFTWARE.
  *
  * @author Daniel P. Seemuth
- * @version 0.9.2
+ * @version 0.10.0
  **/
 
 var PROJ_NAME = 'Waveform Editor';
-var VERSION = 'v0.9.2';
+var VERSION = 'v0.10.0';
 
 var START_SIGNALS = 4;
 var START_COLS = 8;
