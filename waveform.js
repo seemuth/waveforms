@@ -1836,8 +1836,6 @@ var importOps = {
             var newData = d[1];
             var newDataIsQuestion = d[2];
 
-            console.table(newDataIsQuestion);
-
             /* Delete old data. */
             while (signals > 0) {
                 uiOps.delSignal(-1);
