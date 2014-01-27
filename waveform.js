@@ -38,6 +38,11 @@ var MINWIDTH_SIGNAME = '100px';
 var MINWIDTH_DATACOL = '20px';
 var FONTSIZE_SIGNAME = 'medium';
 
+/* All Cloze parameters must be strings. */
+var CLOZE_POINTS = '1';
+var CLOZE_QUESTIONTYPE = 'MC';
+var CLOZE_ANSWERS = ['0', '1', 'X'];
+
 var EXPORT_START = '<!--DATA_EXPORT--\n';
 var EXPORT_STOP = '--DATA_EXPORT-->\n';
 var EXPORT_NAMEDATADELIM = ': ';
@@ -49,6 +54,7 @@ var cols = 1;   /* Always have zeroth column (don't-care) */
 var table;
 
 var data = [];
+var dataIsQuestion = [];
 var signalNames = [];
 
 var selected = [];
@@ -101,6 +107,7 @@ var dataOps = {
     {
         var mode;
         var value;
+        var isQuestion = '0';
 
         if (sigIndex < 0) {
             throw new Error('sigIndex too low');
@@ -126,12 +133,14 @@ var dataOps = {
 
         } else if ((mode == 'c') || (mode == 'p')) {
             value = data[sigIndex][cellIndex - 1];
+            isQuestion = dataIsQuestion[sigIndex][cellIndex - 1];
 
         } else {
             throw new Error('Invalid value');
         }
 
         data[sigIndex].splice(cellIndex, 0, value);
+        dataIsQuestion[sigIndex].splice(cellIndex, 0, isQuestion);
     },
 
 
@@ -156,6 +165,7 @@ var dataOps = {
         }
 
         data[sigIndex].splice(cellIndex, 1);
+        dataIsQuestion[sigIndex].splice(cellIndex, 1);
     },
 
 
@@ -213,6 +223,7 @@ var dataOps = {
     {
         var mode;
         var values = [];
+        var isQuestionValues = [];
 
         if (sigIndex < 0) {
             throw new Error('sigIndex too low');
@@ -229,6 +240,7 @@ var dataOps = {
         if ((mode == '0') || (mode == '1') || (mode == 'x')) {
             for (var i = 0; i < cols; i++) {
                 values.push(mode);
+                isQuestionValues.push('0');
             }
 
         } else {
@@ -236,6 +248,7 @@ var dataOps = {
         }
 
         data.splice(sigIndex, 0, values);
+        dataIsQuestion.splice(sigIndex, 0, isQuestionValues);
         signalNames.splice(sigIndex, 0, 'SIG');
 
         signals++;
@@ -256,6 +269,7 @@ var dataOps = {
         }
 
         data.splice(sigIndex, 1);
+        dataIsQuestion.splice(sigIndex, 1);
         signalNames.splice(sigIndex, 1);
 
         signals--;
@@ -293,6 +307,29 @@ var dataOps = {
 
         } else {
             throw new Error('invalid mode');
+        }
+    },
+
+
+    /**
+     * @private
+     * Set signal cell to be given data or a question to be answered.
+     * @param {number} sigIndex Zero-based signal index.
+     * @param {number} colIndex Zero-based column index.
+     * @param {string} isQuestion Question ('1'|'q') or data ('0'|'d')
+     */
+    setCellQuestion_: function(sigIndex, colIndex, isQuestion)
+    {
+        isQuestion = isQuestion.trim().charAt(0).toLowerCase();
+
+        if ((isQuestion == '0') || (isQuestion == 'd')) {
+            dataIsQuestion[sigIndex][colIndex] = '0';
+
+        } else if ((isQuestion == '1') || (isQuestion == 'q')) {
+            dataIsQuestion[sigIndex][colIndex] = '1';
+
+        } else {
+            throw new Error('invalid isQuestion');
         }
     },
 
@@ -724,6 +761,31 @@ var tableOps = {
 
     /**
      * @private
+     * Set signal cell to be given data or a question to be answered.
+     * @param {number} rowIndex Zero-based row index.
+     * @param {number} colIndex Zero-based column index.
+     * @param {string} isQuestion Question ('1'|'q') or data ('0'|'d')
+     */
+    setCellQuestion_: function(rowIndex, colIndex, isQuestion)
+    {
+        var cell = tableOps.coordsToCell_(rowIndex, colIndex);
+
+        isQuestion = isQuestion.trim().charAt(0).toLowerCase();
+
+        if ((isQuestion == '0') || (isQuestion == 'd')) {
+            cell.innerHTML = '&nbsp;';
+
+        } else if ((isQuestion == '1') || (isQuestion == 'q')) {
+            cell.innerHTML = 'Q';
+
+        } else {
+            throw new Error('invalid isQuestion');
+        }
+    },
+
+
+    /**
+     * @private
      * Set cell's contents.
      * @param {number} rowIndex Zero-based row index.
      * @param {number} colIndex Zero-based column index.
@@ -881,6 +943,25 @@ var selOps = {
 
 
     /**
+     * Set selected cells to be given data or questions to be answered.
+     * @param {string} isQuestion Question ('1'|'q') or data ('0'|'d')
+     */
+    setSelectedCellQuestions: function(isQuestion)
+    {
+        for (var i = 0; i < selected.length; i++) {
+            var parts = selected[i].split('x');
+            var rowIndex = parseInt(parts[0]);
+            var colIndex = parseInt(parts[1]);
+
+            var sigIndex = indexOps.rowToSig_(rowIndex);
+
+            dataOps.setCellQuestion_(sigIndex, colIndex, isQuestion);
+            tableOps.setCellQuestion_(rowIndex, colIndex, isQuestion);
+        }
+    },
+
+
+    /**
      * Set selected cells to 0.
      */
     sig0: function()
@@ -913,6 +994,24 @@ var selOps = {
     sigX: function()
     {
         selOps.setSelectedCellValues('dontcare');
+    },
+
+
+    /**
+     * Set selected cells as given data.
+     */
+    setGivenData: function()
+    {
+        selOps.setSelectedCellQuestions('data');
+    },
+
+
+    /**
+     * Set selected cells as questions to be answered.
+     */
+    setQuestions: function()
+    {
+        selOps.setSelectedCellQuestions('question');
     },
 
 
@@ -983,11 +1082,14 @@ var selOps = {
                 var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
 
                 var dataVal = data[sigIndex][colIndex];
+                var isQuestion = dataIsQUestion[sigIndex][colIndex];
                 var mode = dataOps.valToMode_(dataVal);
 
                 /* Shift left: copy data to (colIndex - 1). */
                 dataOps.setCellValue_(sigIndex, colIndex - 1, mode);
                 tableOps.setCellValue_(rowIndex, colIndex - 1, mode);
+                dataOps.setCellQuestion_(sigIndex, colIndex - 1, isQuestion);
+                tableOps.setCellQuestion_(rowIndex, colIndex - 1, isQuestion);
 
                 /* Move selection to copied cell. */
                 selOps.setCellSelection_(rowIndex, colIndex, 'toggle');
@@ -1014,11 +1116,14 @@ var selOps = {
                 var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
 
                 var dataVal = data[sigIndex][colIndex];
+                var isQuestion = dataIsQUestion[sigIndex][colIndex];
                 var mode = dataOps.valToMode_(dataVal);
 
                 /* Shift right: copy data to (colIndex + 1). */
                 dataOps.setCellValue_(sigIndex, colIndex + 1, mode);
                 tableOps.setCellValue_(rowIndex, colIndex + 1, mode);
+                dataOps.setCellQuestion_(sigIndex, colIndex + 1, isQuestion);
+                tableOps.setCellQuestion_(rowIndex, colIndex + 1, isQuestion);
 
                 /* Move selection to copied cell. */
                 selOps.setCellSelection_(rowIndex, colIndex, 'toggle');
@@ -1262,11 +1367,13 @@ var uiOps = {
         for (var sigIndex = sigMin; sigIndex <= sigMax; sigIndex++) {
             for (var colIndex = colMin; colIndex <= colMax; colIndex++) {
                 var dataVal = data[sigIndex][colIndex];
+                var isQuestion = dataIsQuestion[sigIndex][colIndex];
                 var mode = dataOps.valToMode_(dataVal);
 
                 /* Add 1 to rowIndex to get to the signal row (not spacer). */
                 var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
                 tableOps.setCellValue_(rowIndex, colIndex, mode);
+                tableOps.setCellQuestion_(rowIndex, colIndex, isQuestion);
             }
         }
     },
@@ -1326,6 +1433,46 @@ var exportOps = {
         }
 
         return ret;
+    },
+
+
+    /**
+     * @private
+     * Return the text to represent a Cloze question.
+     * @param {string} points Number of points question is worth, as string
+     * @param {string} questionType Cloze question type (MC, MCH, etc.)
+     * @param {array} of {string} answers Answer options
+     * @param {string} correctAnswer Correct answer (must be in answers)
+     * @return {string} Cloze-formatted question
+     */
+    clozeQuestion_: function(points, questionType, answers, correctAnswer)
+    {
+        var formattedAnswers = [];
+        var foundCorrectAnswer = false;
+
+        for (var i in answers) {
+            var a = answers[i];
+
+            if (a == correctAnswer) {
+                foundCorrectAnswer = true;
+                a = '='.concat(a);
+            }
+
+            formattedAnswers.push(a);
+        }
+
+        if (! foundCorrectAnswer) {
+            throw new Error('correctAnswer not in answers');
+        }
+
+        return '{'.concat(
+            points,
+            ':',
+            questionType,
+            ':',
+            formattedAnswers.join('~'),
+            '}'
+        );
     },
 
 
@@ -1431,28 +1578,45 @@ var exportOps = {
                 /* Data column. */
                 var prev = data[sigIndex][c-1];
                 var cur = data[sigIndex][c];
+                var isQuestion = dataIsQuestion[sigIndex][c];
 
-                if (cur == '0') {
-                    styles.push(
-                            'border-bottom: '.concat(BORDER_SIGNAL, ';')
-                        );
-                } else if (cur == '1') {
-                    styles.push(
-                            'border-top: '.concat(BORDER_SIGNAL, ';')
-                        );
-                }
+                var content;
 
-                /* Render rising or falling edge. */
-                var pc = prev.concat(cur);
-                if ((pc == '01') || (pc == '10')) {
-                    styles.push(
-                            'border-left: '.concat(BORDER_SIGNAL, ';')
+                if (isQuestion == '1') {
+                    content = exportOps.clozeQuestion_(
+                            CLOZE_POINTS,
+                            CLOZE_QUESTIONTYPE,
+                            CLOZE_ANSWERS,
+                            cur.toString().toUpperCase()
                         );
+
+                } else {
+                    content = '&nbsp;';
+
+                    if (cur == '0') {
+                        styles.push(
+                                'border-bottom: '.concat(BORDER_SIGNAL, ';')
+                            );
+                    } else if (cur == '1') {
+                        styles.push(
+                                'border-top: '.concat(BORDER_SIGNAL, ';')
+                            );
+                    }
+
+                    /* Render rising or falling edge. */
+                    var pc = prev.concat(cur);
+                    if ((pc == '01') || (pc == '10')) {
+                        styles.push(
+                                'border-left: '.concat(BORDER_SIGNAL, ';')
+                            );
+                    }
                 }
 
                 ret = ret.concat('<td ',
                         exportOps.styleString_(styles),
-                        '>&nbsp;</td>\n'
+                        '>',
+                        content,
+                        '</td>\n'
                     );
             }
         }
@@ -1474,10 +1638,31 @@ var exportOps = {
         for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
             /* Skip first column (always don't-care). */
 
+            var sigDataCols = [];
+
+            for (var i in data[sigIndex]) {
+                if (i < 1) {
+                    /* Skip hidden first column. */
+                    continue;
+                }
+
+                var value = data[sigIndex][i];
+                var isQuestion = dataIsQuestion[sigIndex][i];
+                var exportVal = 'd';
+
+                if (isQuestion == '1') {
+                    exportVal = 'q';
+                }
+
+                exportVal = exportVal.concat(value);
+
+                sigDataCols.push(exportVal);
+            }
+
             ret = ret.concat(
                     signalNames[sigIndex],
                     EXPORT_NAMEDATADELIM,
-                    data[sigIndex].slice(1).join(EXPORT_VALDELIM),
+                    sigDataCols.join(EXPORT_VALDELIM),
                     EXPORT_SIGDELIM
                 );
         }
@@ -1544,8 +1729,10 @@ var importOps = {
      * String format: START SIGNAL* STOP
      *      SIGNAL := SIGNAME NAMEDATADELIM DATA SIGDELIM
      *      SIGNAME := \w+
-     *      DATA := VAL (VALDELIM VAL)*
-     *      VAL := [01x]
+     *      DATA := DATAVAL (VALDELIM DATAVAL)*
+     *      DATAVAL := QUESTION_OR_DATA VALUE
+     *      QUESTION_OR_DATA := [qd]
+     *      VALUE := [01x]
      *      START := <defined as EXPORT_START>
      *      NAMEDATADELIM := <defined as EXPORT_NAMEDATADELIM>
      *      SIGDELIM := <defined as EXPORT_SIGDELIM>
@@ -1565,6 +1752,7 @@ var importOps = {
 
         var newNames = [];
         var newData = [];
+        var newDataIsQuestion = [];
 
         var remain = importData.trim();
 
@@ -1595,20 +1783,28 @@ var importOps = {
             if (match < 0) {
                 throw new Error('SIGDELIM not found');
             }
-            var valueStr = remain.substr(0, match).trim();
+            var dataValueStr = remain.substr(0, match).trim();
             remain = importOps.cutString_(remain, SIGDELIM).trim();
 
-            var valueWords = valueStr.split(VALDELIM);
+            var dataValueWords = dataValueStr.split(VALDELIM);
             var values = [];
-            for (var i in valueWords) {
-                var v = valueWords[i].trim();
+            var isQuestion = [];
+            for (var i in dataValueWords) {
+                var valueWord = dataValueWords[i].trim();
+                var qd = valueWord[0];
+                var v = valueWord[1];
+                if ('qd'.indexOf(qd) < 0) {
+                    throw new Error('invalid q/d: ' + encodeURI(qd));
+                }
                 if ('01x'.indexOf(v) < 0) {
                     throw new Error('invalid value: ' + encodeURI(v));
                 }
                 values.push(v);
+                isQuestion.push(qd);
             }
 
             newData.push(values);
+            newDataIsQuestion.push(isQuestion);
         }
 
         /* Make sure all dimensions match. */
@@ -1623,7 +1819,7 @@ var importOps = {
             }
         }
 
-        return [newNames, newData];
+        return [newNames, newData, newDataIsQuestion];
     },
 
 
@@ -1638,6 +1834,9 @@ var importOps = {
 
             var newNames = d[0];
             var newData = d[1];
+            var newDataIsQuestion = d[2];
+
+            console.table(newDataIsQuestion);
 
             /* Delete old data. */
             while (signals > 0) {
@@ -1668,6 +1867,24 @@ var importOps = {
 
                     /* First column is not exported or imported. */
                     data[i][c + 1] = newRow[c];
+                }
+
+
+                var newRow = newDataIsQuestion[i];
+
+                for (var c in newRow) {
+                    c = new Number(c);
+
+                    var isQuestion = newRow[c];
+                    if (isQuestion == 'd') {
+                        isQuestion = '0';
+
+                    } else if (isQuestion == 'q') {
+                        isQuestion = '1';
+                    }
+
+                    /* First column is not exported or imported. */
+                    dataIsQuestion[i][c + 1] = isQuestion;
                 }
             }
 
