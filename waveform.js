@@ -1082,7 +1082,7 @@ var selOps = {
                 var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
 
                 var dataVal = data[sigIndex][colIndex];
-                var isQuestion = dataIsQUestion[sigIndex][colIndex];
+                var isQuestion = dataIsQuestion[sigIndex][colIndex];
                 var mode = dataOps.valToMode_(dataVal);
 
                 /* Shift left: copy data to (colIndex - 1). */
@@ -1116,7 +1116,7 @@ var selOps = {
                 var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
 
                 var dataVal = data[sigIndex][colIndex];
-                var isQuestion = dataIsQUestion[sigIndex][colIndex];
+                var isQuestion = dataIsQuestion[sigIndex][colIndex];
                 var mode = dataOps.valToMode_(dataVal);
 
                 /* Shift right: copy data to (colIndex + 1). */
