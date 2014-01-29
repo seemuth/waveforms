@@ -70,11 +70,15 @@
 	</div>
 
 	<p id="importExport">
-	<button type="button" onclick="exportOps.showHTML()">Export</button>
-	<button type="button" onclick="eventOps.importHTML()">Import</button>
+	<button type="button" onclick="eventOps.exportWaveform()">Export</button>
+	<button type="button" onclick="eventOps.importWaveform()">Import</button>
 	</p>
 
-	<p><textarea id="io" rows="30" cols="60"></textarea></p>
+        <p>Exported waveform:<br />
+        <textarea id="io_waveform" rows="30" cols="60"></textarea></p>
+
+        <p>Import/export data:<br />
+        <textarea id="io_data" rows="10" cols="60"></textarea></p>
 
 	<p id="version"></p>
     </body>

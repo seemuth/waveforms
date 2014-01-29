@@ -1676,11 +1676,11 @@ var exportOps = {
     /**
      * Copy the table's HTML into the I/O textarea so the user can copy/paste.
      */
-    showHTML: function()
+    showWaveform: function()
     {
         selOps.clearSelection();
 
-        var io = document.getElementById('io');
+        var io = document.getElementById('io_waveform');
         var text = '<div style="overflow: auto">\n'.concat(
                 '<table cellspacing="0"',
                 ' style="border: none; border-collapse: collapse;">\n'
@@ -1697,7 +1697,19 @@ var exportOps = {
                 '</div>\n'
             );
 
-        text = text.concat('\n', exportOps.data_());
+        io.value = text;
+    },
+
+
+    /**
+     * Write data to the data textarea so the user can copy/paste.
+     */
+    showData: function()
+    {
+        var io = document.getElementById('io_data');
+        var text = '';
+
+        text = text.concat(exportOps.data_());
 
         io.value = text;
     },
@@ -2253,11 +2265,21 @@ var eventOps = {
 
 
     /**
-     * Handle request to import data from I/O textbox.
+     * Handle request to export waveform to I/O textboxes.
      */
-    importHTML: function()
+    exportWaveform: function()
     {
-        var io = document.getElementById('io');
+        exportOps.showWaveform();
+        exportOps.showData();
+    },
+
+
+    /**
+     * Handle request to import data from data textbox.
+     */
+    importWaveform: function()
+    {
+        var io = document.getElementById('io_data');
         importOps.importHTML(io.value);
     },
 }
