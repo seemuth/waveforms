@@ -47,7 +47,7 @@ var EXPORT_DATA_START = '<!--DATA--\n';
 var EXPORT_DATA_STOP = '--DATA-->\n';
 var EXPORT_NAMEDATADELIM = ': ';
 var EXPORT_VALDELIM = ',';
-var EXPORT_SIGDELIM = ';\n';
+var EXPORT_LINEDELIM = ';\n';
 
 var signals = 0;
 var cols = 1;   /* Always have zeroth column (don't-care) */
@@ -1663,7 +1663,7 @@ var exportOps = {
                     signalNames[sigIndex],
                     EXPORT_NAMEDATADELIM,
                     sigDataCols.join(EXPORT_VALDELIM),
-                    EXPORT_SIGDELIM
+                    EXPORT_LINEDELIM
                 );
         }
 
@@ -1747,7 +1747,7 @@ var importOps = {
      *      VALUE := [01x]
      *      START := <defined as EXPORT_DATA_START>
      *      NAMEDATADELIM := <defined as EXPORT_NAMEDATADELIM>
-     *      SIGDELIM := <defined as EXPORT_SIGDELIM>
+     *      SIGDELIM := <defined as EXPORT_LINEDELIM>
      *      VALDELIM := <defined as EXPORT_VALDELIM>
      *      STOP := <defined as EXPORT_DATA_STOP>
      *
@@ -1758,7 +1758,7 @@ var importOps = {
     {
         var START = EXPORT_DATA_START.trim();
         var NAMEDATADELIM = EXPORT_NAMEDATADELIM.trim();
-        var SIGDELIM = EXPORT_SIGDELIM.trim();
+        var SIGDELIM = EXPORT_LINEDELIM.trim();
         var VALDELIM = EXPORT_VALDELIM.trim();
         var STOP = EXPORT_DATA_STOP.trim();
 
