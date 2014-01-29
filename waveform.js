@@ -43,8 +43,8 @@ var CLOZE_POINTS = '1';
 var CLOZE_QUESTIONTYPE = 'MC';
 var CLOZE_ANSWERS = ['0', '1', 'X'];
 
-var EXPORT_START = '<!--DATA_EXPORT--\n';
-var EXPORT_STOP = '--DATA_EXPORT-->\n';
+var EXPORT_DATA_START = '<!--DATA--\n';
+var EXPORT_DATA_STOP = '--DATA-->\n';
 var EXPORT_NAMEDATADELIM = ': ';
 var EXPORT_VALDELIM = ',';
 var EXPORT_SIGDELIM = ';\n';
@@ -1633,7 +1633,7 @@ var exportOps = {
      */
     data_: function()
     {
-        var ret = EXPORT_START;
+        var ret = EXPORT_DATA_START;
 
         for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
             /* Skip first column (always don't-care). */
@@ -1667,7 +1667,7 @@ var exportOps = {
                 );
         }
 
-        ret = ret.concat(EXPORT_STOP);
+        ret = ret.concat(EXPORT_DATA_STOP);
 
         return ret;
     },
@@ -1745,22 +1745,22 @@ var importOps = {
      *      DATAVAL := QUESTION_OR_DATA VALUE
      *      QUESTION_OR_DATA := [qd]
      *      VALUE := [01x]
-     *      START := <defined as EXPORT_START>
+     *      START := <defined as EXPORT_DATA_START>
      *      NAMEDATADELIM := <defined as EXPORT_NAMEDATADELIM>
      *      SIGDELIM := <defined as EXPORT_SIGDELIM>
      *      VALDELIM := <defined as EXPORT_VALDELIM>
-     *      STOP := <defined as EXPORT_STOP>
+     *      STOP := <defined as EXPORT_DATA_STOP>
      *
      * @param {string} importData Use signal data in this string.
      * @return {array} containing [newNames, newData]
      */
     HTML2data_: function(importData)
     {
-        var START = EXPORT_START.trim();
+        var START = EXPORT_DATA_START.trim();
         var NAMEDATADELIM = EXPORT_NAMEDATADELIM.trim();
         var SIGDELIM = EXPORT_SIGDELIM.trim();
         var VALDELIM = EXPORT_VALDELIM.trim();
-        var STOP = EXPORT_STOP.trim();
+        var STOP = EXPORT_DATA_STOP.trim();
 
         var newNames = [];
         var newData = [];
