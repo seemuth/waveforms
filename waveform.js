@@ -32,6 +32,13 @@ var VERSION = 'v0.11.2';
 var START_SIGNALS = 4;
 var START_COLS = 8;
 
+var SETTINGS_DEFAULT = {};
+var SETTINGS_VALIDCHARS = ''.concat(
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+        '0123456789',
+        '_, '
+    );
+
 var COLOR_SELECT = 'cyan';
 var BORDER_SIGNAL = 'thick solid blue';
 var MINWIDTH_SIGNAME = '100px';
@@ -45,6 +52,8 @@ var CLOZE_ANSWERS = ['0', '1', 'X'];
 
 var EXPORT_DATA_START = '<!--DATA--\n';
 var EXPORT_DATA_STOP = '--DATA-->\n';
+var EXPORT_SETTINGS_START = '<!--SETTINGS--\n';
+var EXPORT_SETTINGS_STOP = '--SETTINGS-->\n';
 var EXPORT_NAMEDATADELIM = ': ';
 var EXPORT_VALDELIM = ',';
 var EXPORT_LINEDELIM = ';\n';
@@ -56,6 +65,7 @@ var table;
 var data = [];
 var dataIsQuestion = [];
 var signalNames = [];
+var settings = {};
 
 var selected = [];
 
@@ -1674,6 +1684,33 @@ var exportOps = {
 
 
     /**
+     * @private
+     * Return settings in comment format for import/export.
+     * @return {string} HTML comment containing settings
+     */
+    settings_: function()
+    {
+        var ret = EXPORT_SETTINGS_START;
+
+        for (var i in SETTINGS_DEFAULT) {
+            var key = encodeURIComponent(i);
+            var value = encodeURIComponent(settings[i]);
+
+            ret = ret.concat(
+                    key,
+                    EXPORT_NAMEDATADELIM,
+                    value,
+                    EXPORT_LINEDELIM
+                );
+        }
+
+        ret = ret.concat(EXPORT_SETTINGS_STOP);
+
+        return ret;
+    },
+
+
+    /**
      * Copy the table's HTML into the I/O textarea so the user can copy/paste.
      */
     showWaveform: function()
@@ -1702,14 +1739,15 @@ var exportOps = {
 
 
     /**
-     * Write data to the data textarea so the user can copy/paste.
+     * Write data/settings to the data textarea so the user can copy/paste.
      */
-    showData: function()
+    showDataSettings: function()
     {
         var io = document.getElementById('io_data');
         var text = '';
 
         text = text.concat(exportOps.data_());
+        text = text.concat(exportOps.settings_());
 
         io.value = text;
     },
@@ -1836,12 +1874,92 @@ var importOps = {
 
 
     /**
+     * @private
+     * Convert string representation to settings: keys and values.
+     *
+     * String format: START SETTING* STOP
+     *      SETTING := URIENCODED NAMEDATADELIM URIENCODED SIGDELIM
+     *      URIENCODED := [a-zA-Z0-9_%-]+
+     *      START := <defined as EXPORT_SETTINGS_START>
+     *      NAMEDATADELIM := <defined as EXPORT_NAMEDATADELIM>
+     *      LINEDELIM := <defined as EXPORT_LINEDELIM>
+     *      STOP := <defined as EXPORT_SETTINGS_STOP>
+     *
+     * @param {string} importData Use settings in this string.
+     * @return {array} new settings
+     */
+    HTML2settings_: function(importData)
+    {
+        var START = EXPORT_SETTINGS_START.trim();
+        var NAMEDATADELIM = EXPORT_NAMEDATADELIM.trim();
+        var LINEDELIM = EXPORT_LINEDELIM.trim();
+        var STOP = EXPORT_SETTINGS_STOP.trim();
+
+        var newSettings = {};
+
+        var remain = importData.trim();
+
+        /* Keep only content between START and STOP. */
+        remain = importOps.cutString_(remain, START);
+        if (remain === null) {
+            throw new Error('START not found');
+        }
+
+        var match = remain.indexOf(STOP);
+        if (match < 0) {
+            throw new Error('STOP not found');
+        }
+        remain = remain.substr(0, match);
+
+        remain = remain.trim();
+
+        /* Now parse actual data. */
+        while (remain.length > 0) {
+            match = remain.indexOf(NAMEDATADELIM);
+            if (match < 0) {
+                throw new Error('NAMEDATADELIM not found');
+            }
+            var key = decodeURIComponent(remain.substr(0, match).trim());
+            remain = importOps.cutString_(remain, NAMEDATADELIM).trim();
+
+            match = remain.indexOf(LINEDELIM);
+            if (match < 0) {
+                throw new Error('LINEDELIM not found');
+            }
+            var value = decodeURIComponent(remain.substr(0, match).trim());
+            remain = importOps.cutString_(remain, LINEDELIM).trim();
+
+            for (var i in key) {
+                var c = key[i];
+                if (SETTINGS_VALIDCHARS.indexOf(c) < 0) {
+                    throw new Error('invalid char: ' + encodeURI(c));
+                }
+            }
+
+            for (var i in value) {
+                var c = value[i];
+                if (SETTINGS_VALIDCHARS.indexOf(c) < 0) {
+                    throw new Error('invalid char: ' + encodeURI(c));
+                }
+            }
+
+            newSettings[key] = value;
+        }
+
+        return newSettings;
+    },
+
+
+    /**
      * Overwrite waveform with data from string representation.
      * @param {string} importData Use signal data in this string.
      */
     importHTML: function(importData)
     {
+        var success = true;
+
         try {
+            /* Import signal data. */
             var d = importOps.HTML2data_(importData);
 
             var newNames = d[0];
@@ -1900,13 +2018,33 @@ var importOps = {
 
             uiOps.updateDisplayedData();
 
+
+            /* Import settings. */
+            var s = importOps.HTML2settings_(importData);
+
+            for (var k in s) {
+                if (! (k in SETTINGS_DEFAULT)) {
+                    throw new Error('Unknown setting: ' + k);
+                }
+            }
+
+            for (var k in SETTINGS_DEFAULT) {
+                settings[k] = SETTINGS_DEFAULT[k];
+            }
+
+            for (var k in s) {
+                settings[k] = s[k];
+            }
+
+
             uiOps.setMsg('Import successful!');
+
 
         } catch (err) {
             uiOps.setMsg(
                     'Error [' +
                     err.lineNumber +
-                    '] importing data: ' +
+                    '] importing: ' +
                     err.message
                 );
         }
@@ -2270,7 +2408,7 @@ var eventOps = {
     exportWaveform: function()
     {
         exportOps.showWaveform();
-        exportOps.showData();
+        exportOps.showDataSettings();
     },
 
 
