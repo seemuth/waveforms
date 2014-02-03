@@ -1526,7 +1526,7 @@ var exportOps = {
         }
 
         if (! foundCorrectAnswer) {
-            throw new Error('correctAnswer not in answers');
+            throw new Error('correctAnswer not in answers: ' + correctAnswer);
         }
 
         return '{'.concat(
@@ -1776,6 +1776,15 @@ var exportOps = {
 
 
     /**
+     * Clear the waveform I/O textarea.
+     */
+    clearWaveform: function()
+    {
+        document.getElementById('io_waveform').value = '';
+    },
+
+
+    /**
      * Copy the table's HTML into the I/O textarea so the user can copy/paste.
      */
     showWaveform: function()
@@ -1806,6 +1815,39 @@ var exportOps = {
     },
 
 
+
+    /**
+     * @private
+     * Validate settings and data before exporting.
+     * Update UI with message if invalid.
+     * Highlight errant cell if invalid.
+     * @return {bool} valid True if everything is valid, or False otherwise.
+     */
+    validate_: function()
+    {
+        /* Make sure all question data is within cloze_answers. */
+        var cloze_answers = settings['cloze_answers'].toUpperCase().split(',');
+
+        for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
+            for (var colIndex = 1; colIndex < cols; colIndex++) {
+                var value = data[sigIndex][colIndex].toUpperCase();
+                var isQuestion = dataIsQuestion[sigIndex][colIndex];
+
+                if (isQuestion) {
+                    if (helper.indexOf(cloze_answers, value) < 0) {
+                        uiOps.setMsg('Value ' + value + ' not in cloze_answers: ' + sigIndex + ',' + colIndex);
+                        var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
+                        selOps.setCellSelection_(rowIndex, colIndex, 's');
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    },
+
+
     /**
      * Write data/settings to the data textarea so the user can copy/paste.
      */
@@ -1818,6 +1860,8 @@ var exportOps = {
         text = text.concat(exportOps.settings_());
 
         io.value = text;
+
+        uiOps.setMsg('Export successful!');
     },
 }
 
@@ -2510,6 +2554,13 @@ var eventOps = {
     exportWaveform: function()
     {
         uiOps.UIToSettings();
+
+        exportOps.clearWaveform();
+
+        if (! exportOps.validate_()) {
+            return;
+        }
+
         exportOps.showWaveform();
         exportOps.showDataSettings();
     },
