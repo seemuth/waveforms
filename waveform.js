@@ -1037,6 +1037,31 @@ var selOps = {
 
     /**
      * @private
+     * Return rows containing selected cells.
+     * @return {array} of {number}
+     */
+    rowsWithSelectedCells_: function()
+    {
+        var selectedRows = [];
+
+        for (var i = 0; i < selected.length; i++) {
+            var parts = selected[i].split('x');
+            var rowIndex = parseInt(parts[0]);
+
+            selectedRows[rowIndex] = true;
+        }
+
+        var ret = [];
+        for (var i in selectedRows) {
+            ret.push(parseInt(i));
+        }
+
+        return ret;
+    },
+
+
+    /**
+     * @private
      * Return columns containing selected cells.
      * @return {array} of {number}
      */
@@ -1152,6 +1177,40 @@ var selOps = {
                 }
             }
         }
+    },
+
+
+    /**
+     * Generate clock signals in selected rows.
+     * @param {number} period Clock period
+     * @param {bool} startHigh Clock should start with HIGH
+     */
+    genClocks: function(period, startHigh)
+    {
+        var rowIndices = selOps.rowsWithSelectedCells_();
+        for (var i in rowIndices) {
+            var rowIndex = rowIndices[i];
+            var sigIndex = indexOps.rowToSig_(rowIndex);
+
+            var curVal = startHigh;
+            var pulse = period >> 1;
+
+            var pulseLeft = pulse;
+            for (var ci = 1; ci < cols; ci++) {
+                var mode = (curVal) ? 's' : 'c';
+
+                dataOps.setCellValue_(sigIndex, ci, mode);
+
+                pulseLeft--;
+                if (pulseLeft <= 0) {
+                    curVal = ! curVal;
+                    pulseLeft = pulse;
+                }
+            }
+
+        }
+
+        uiOps.updateDisplayedData();
     },
 }
 
@@ -2338,6 +2397,15 @@ var eventOps = {
 
 
     /**
+     * Handle single-click event on a cell while in GENCLOCK state.
+     */
+    cell_click_GENCLOCK: function(event)
+    {
+        /* Do nothing! */
+    },
+
+
+    /**
      * Handle single-click event on a cell.
      */
     cell_click: function(event)
@@ -2353,6 +2421,9 @@ var eventOps = {
 
         } else if (state == 'RENAME') {
             eventOps.cell_click_RENAME(event);
+
+        } else if (state == 'GENCLOCK') {
+            eventOps.cell_click_GENCLOCK(event);
 
         } else {
             uiOps.setMsg('ERROR: Unknown state: '.concat(state))
@@ -2545,6 +2616,117 @@ var eventOps = {
             state = nextState;
             uiOps.enableImportExport_(false);
         }
+    },
+
+
+    /**
+     * Confirm parameters for generated clock.
+     */
+    reqGenClockConfirm: function()
+    {
+        var inputClockPeriod = document.getElementById('clockGen_period');
+        var clockPeriod = parseInt(inputClockPeriod.value);
+        var startHigh = document.getElementById('clockGen_startHigh').checked;
+
+        /* Validate clock period. */
+        if (((clockPeriod % 2) != 0) || (clockPeriod < 2)) {
+            inputClockPeriod.style.backgroundColor = 'red';
+            inputClockPeriod.select();
+            return;
+        }
+
+        selOps.genClocks(clockPeriod, startHigh);
+
+        eventOps.reqGenClockCleanup_();
+    },
+
+
+    /**
+     * Cancel generating clock.
+     */
+    reqGenClockCancel: function()
+    {
+        eventOps.reqGenClockCleanup_();
+    },
+
+
+    /**
+     * @private
+     * Cleanup after clock gen (or cancel).
+     */
+    reqGenClockCleanup_: function()
+    {
+        uiOps.stateMain();
+        uiOps.enableImportExport_(true);
+        uiOps.enableMainEdit_(true);
+        uiOps.enableSigEdit_(true);
+    },
+
+
+    /**
+     * Handle request to generate clock.
+     */
+    reqGenClock: function()
+    {
+        var rowIndices = selOps.rowsWithSelectedCells_();
+
+        /* Expand selection to full rows. */
+        for (var i = 0; i < rowIndices.length; i++) {
+            var rowIndex = rowIndices[i];
+
+            for (var ci = 1; ci < cols; ci++) {
+                selOps.setCellSelection_(rowIndex, ci, 's');
+            }
+        }
+
+        uiOps.setMsg('Specify parameters for generating clock...');
+
+        var clockSettings = document.createElement('UL');
+
+        var clockPeriod = document.createElement('LI');
+        var labelClockPeriod = document.createElement('LABEL');
+        var inputClockPeriod = document.createElement('INPUT');
+        inputClockPeriod.id = 'clockGen_period';
+        inputClockPeriod.type = 'text';
+        inputClockPeriod.value = '2';
+        inputClockPeriod.size = 4;
+        labelClockPeriod.appendChild(helper.text_('Clock period: '));
+        labelClockPeriod.appendChild(inputClockPeriod);
+        clockPeriod.appendChild(labelClockPeriod);
+
+        clockSettings.appendChild(clockPeriod);
+
+        var startHigh = document.createElement('LI');
+        var labelStartHigh = document.createElement('LABEL');
+        var inputStartHigh = document.createElement('INPUT');
+        inputStartHigh.id = 'clockGen_startHigh';
+        inputStartHigh.type = 'checkbox';
+        labelStartHigh.appendChild(helper.text_('Clock starts HIGH '));
+        labelStartHigh.appendChild(inputStartHigh);
+        startHigh.appendChild(labelStartHigh);
+
+        clockSettings.appendChild(startHigh);
+
+        uiOps.addMsgElements([clockSettings]);
+
+        var confirmButton = document.createElement('BUTTON');
+        confirmButton.appendChild(helper.text_('Generate'));
+        confirmButton.onclick = eventOps.reqGenClockConfirm;
+
+        var cancelButton = document.createElement('BUTTON');
+        cancelButton.appendChild(helper.text_('Cancel'));
+        cancelButton.onclick = eventOps.reqGenClockCancel;
+
+        uiOps.addMsgElements([confirmButton, cancelButton]);
+
+
+        /* Focus and select all text in clock period input. */
+        inputClockPeriod.select();
+
+        state = 'GENCLOCK';
+        uiOps.enableImportExport_(false);
+        uiOps.enableMainEdit_(false);
+        uiOps.enableSigEdit_(false);
     },
 
 
