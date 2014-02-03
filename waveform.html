@@ -71,7 +71,12 @@
 
 	<p id="importExport">
 	<button type="button" onclick="eventOps.importWaveform()">Import</button>
-	<button type="button" onclick="eventOps.exportWaveform()">Export</button>
+        <button type="button" onclick="eventOps.exportWaveform()">Export</button>
+        </p>
+
+        <p id="exportSettings">
+        Export settings:<br />
+        <label><input type="checkbox" id="include_colNums" /> Include column numbers</label>
 	</p>
 
         <p>Exported waveform:<br />
