@@ -32,7 +32,12 @@ var VERSION = 'v0.12.0';
 var START_SIGNALS = 4;
 var START_COLS = 8;
 
-var SETTINGS_DEFAULT = {};
+var SETTINGS_DEFAULT = {
+    includeColNums: false,
+};
+var SETTINGS_TYPE = {
+    includeColNums: 'bool',
+};
 var SETTINGS_VALIDCHARS = ''.concat(
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
         '0123456789',
@@ -1415,6 +1420,16 @@ var uiOps = {
             uiOps.addCol(selCols[i] + 1, 'c');
         }
     },
+
+
+    /**
+     * Update GUI to reflect current settings.
+     */
+    updateFromSettings: function()
+    {
+        document.getElementById('include_colNums').checked =
+            settings['includeColNums'];
+    },
 }
 
 
@@ -1527,9 +1542,10 @@ var exportOps = {
      * @private
      * Return the HTML to represent one signal's data.
      * @param {number} sigIndex Zero-based signal index
+     * @param {bool} [opt_includeSpacer=true] Include spacer row
      * @return {string} HTML of signal data
      */
-    signal_: function(sigIndex)
+    signal_: function(sigIndex, opt_includeSpacer)
     {
         ret = '';
 
@@ -1543,16 +1559,23 @@ var exportOps = {
             'border-right: thin dotted black;',
         ];
 
-        /* Spacer row. */
-        ret = ret.concat('<tr>\n');
-        for (var c = 0; c < cols; c++) {
-            var styles = styles_default.slice(0);
-            ret = ret.concat('<td ',
-                    exportOps.styleString_(styles),
-                    '>&nbsp;</td>\n'
-                );
+
+        if (opt_includeSpacer === undefined) {
+            opt_includeSpacer = true;
         }
-        ret = ret.concat('</tr>\n');
+
+        if (opt_includeSpacer) {
+            /* Spacer row. */
+            ret = ret.concat('<tr>\n');
+            for (var c = 0; c < cols; c++) {
+                var styles = styles_default.slice(0);
+                ret = ret.concat('<td ',
+                        exportOps.styleString_(styles),
+                        '>&nbsp;</td>\n'
+                        );
+            }
+            ret = ret.concat('</tr>\n');
+        }
 
         /* Data row. */
         ret = ret.concat('<tr>\n');
@@ -1723,10 +1746,17 @@ var exportOps = {
                 ' style="border: none; border-collapse: collapse;">\n'
             );
 
-        text = text.concat(exportOps.header_());
+        var includeColNums = document.getElementById('include_colNums');
+        includeColNums = includeColNums.checked;
+        settings['includeColNums'] = includeColNums;
+
+        if (includeColNums) {
+            text = text.concat(exportOps.header_());
+        }
 
         for (sigIndex = 0; sigIndex < signals; sigIndex++) {
-            text = text.concat(exportOps.signal_(sigIndex));
+            var includeSpacer = (includeColNums) || (sigIndex > 0);
+            text = text.concat(exportOps.signal_(sigIndex, includeSpacer));
         }
 
         text = text.concat(
@@ -1943,6 +1973,20 @@ var importOps = {
                 }
             }
 
+            var settingType = SETTINGS_TYPE[key];
+
+            if (settingType == 'bool') {
+                value = value.trim().toLowerCase();
+                if (value == 'false') {
+                    value = false;
+                } else if (value == 'true') {
+                    value = true;
+                } else {
+                    throw new Error('invalid ' + settingType + ': ' +
+                            encodeURI(value));
+                }
+            }
+
             newSettings[key] = value;
         }
 
@@ -2037,6 +2081,7 @@ var importOps = {
             }
 
 
+            uiOps.updateFromSettings();
             uiOps.setMsg('Import successful!');
 
 
@@ -2083,6 +2128,16 @@ var eventOps = {
         for (var i = 0; i < START_SIGNALS; i++) {
             uiOps.addSignal(-1);
         }
+
+
+        /* Set settings to defaults. */
+        for (var k in SETTINGS_DEFAULT) {
+            settings[k] = SETTINGS_DEFAULT[k];
+        }
+
+
+        /* Update GUI to reflect settings. */
+        uiOps.updateFromSettings();
 
 
         uiOps.enableMainEdit_(true);
