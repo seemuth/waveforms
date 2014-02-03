@@ -2122,7 +2122,8 @@ var importOps = {
         /* Keep only content between START and STOP. */
         remain = importOps.cutString_(remain, START);
         if (remain === null) {
-            throw new Error('START not found');
+            /* Settings block is optional. */
+            return newSettings;
         }
 
         var match = remain.indexOf(STOP);
