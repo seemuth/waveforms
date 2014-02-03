@@ -34,9 +34,11 @@ var START_COLS = 8;
 
 var SETTINGS_DEFAULT = {
     includeColNums: false,
+    cloze_answers: '0,1',
 };
 var SETTINGS_TYPE = {
     includeColNums: 'bool',
+    cloze_answers: 'str',
 };
 var SETTINGS_VALIDCHARS = ''.concat(
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -53,7 +55,10 @@ var FONTSIZE_SIGNAME = 'medium';
 /* All Cloze parameters must be strings. */
 var CLOZE_POINTS = '1';
 var CLOZE_QUESTIONTYPE = 'MC';
-var CLOZE_ANSWERS = ['0', '1', 'X'];
+var CLOZE_ANSWER_OPTIONS = [
+    '0,1',
+    '0,1,X',
+];
 
 var EXPORT_DATA_START = '<!--DATA--\n';
 var EXPORT_DATA_STOP = '--DATA-->\n';
@@ -1425,10 +1430,44 @@ var uiOps = {
     /**
      * Update GUI to reflect current settings.
      */
-    updateFromSettings: function()
+    settingsToUI: function()
     {
+        var value;
+        var index;
+
         document.getElementById('include_colNums').checked =
             settings['includeColNums'];
+
+
+        var cloze_answers = document.getElementById('cloze_answers');
+        value = settings['cloze_answers'];
+        index = -1;
+        for (var i = 0; i < cloze_answers.options.length; i++) {
+            if (cloze_answers.options[i].text == value) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) {
+            throw new Error('invalid cloze_answers: ', encodeURI(value));
+        }
+        cloze_answers.selectedIndex = index;
+
+    },
+
+
+    /**
+     * Update settings from GUI.
+     */
+    UIToSettings: function()
+    {
+        var includeColNums = document.getElementById('include_colNums');
+        settings['includeColNums'] = includeColNums.checked;
+
+
+        var cloze_answers = document.getElementById('cloze_answers');
+        settings['cloze_answers'] =
+            cloze_answers.options[cloze_answers.selectedIndex].text;
     },
 }
 
@@ -1616,10 +1655,13 @@ var exportOps = {
                 var content;
 
                 if (isQuestion == '1') {
+                    var answers = settings['cloze_answers'];
+                    answers = answers.toUpperCase().split(',');
+
                     content = exportOps.clozeQuestion_(
                             CLOZE_POINTS,
                             CLOZE_QUESTIONTYPE,
-                            CLOZE_ANSWERS,
+                            answers,
                             cur.toString().toUpperCase()
                         );
 
@@ -1746,16 +1788,12 @@ var exportOps = {
                 ' style="border: none; border-collapse: collapse;">\n'
             );
 
-        var includeColNums = document.getElementById('include_colNums');
-        includeColNums = includeColNums.checked;
-        settings['includeColNums'] = includeColNums;
-
-        if (includeColNums) {
+        if (settings['includeColNums']) {
             text = text.concat(exportOps.header_());
         }
 
         for (sigIndex = 0; sigIndex < signals; sigIndex++) {
-            var includeSpacer = (includeColNums) || (sigIndex > 0);
+            var includeSpacer = (settings['includeColNums']) || (sigIndex > 0);
             text = text.concat(exportOps.signal_(sigIndex, includeSpacer));
         }
 
@@ -2081,7 +2119,7 @@ var importOps = {
             }
 
 
-            uiOps.updateFromSettings();
+            uiOps.settingsToUI();
             uiOps.setMsg('Import successful!');
 
 
@@ -2136,8 +2174,17 @@ var eventOps = {
         }
 
 
+        /* Add export settings options. */
+        var cloze_answers = document.getElementById('cloze_answers');
+        for (var i in CLOZE_ANSWER_OPTIONS) {
+            var v = CLOZE_ANSWER_OPTIONS[i];
+
+            cloze_answers.options.add(new Option(v, v));
+        }
+
+
         /* Update GUI to reflect settings. */
-        uiOps.updateFromSettings();
+        uiOps.settingsToUI();
 
 
         uiOps.enableMainEdit_(true);
@@ -2462,6 +2509,7 @@ var eventOps = {
      */
     exportWaveform: function()
     {
+        uiOps.UIToSettings();
         exportOps.showWaveform();
         exportOps.showDataSettings();
     },
