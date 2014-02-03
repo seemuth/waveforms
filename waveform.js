@@ -34,11 +34,11 @@ var START_COLS = 8;
 
 var SETTINGS_DEFAULT = {
     includeColNums: false,
-    cloze_answers: '0,1',
+    clozeAnswers: '0,1',
 };
 var SETTINGS_TYPE = {
     includeColNums: 'bool',
-    cloze_answers: 'str',
+    clozeAnswers: 'str',
 };
 var SETTINGS_VALIDCHARS = ''.concat(
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -1494,23 +1494,23 @@ var uiOps = {
         var value;
         var index;
 
-        document.getElementById('include_colNums').checked =
+        document.getElementById('includeColNums').checked =
             settings['includeColNums'];
 
 
-        var cloze_answers = document.getElementById('cloze_answers');
-        value = settings['cloze_answers'];
+        var clozeAnswers = document.getElementById('clozeAnswers');
+        value = settings['clozeAnswers'];
         index = -1;
-        for (var i = 0; i < cloze_answers.options.length; i++) {
-            if (cloze_answers.options[i].text == value) {
+        for (var i = 0; i < clozeAnswers.options.length; i++) {
+            if (clozeAnswers.options[i].text == value) {
                 index = i;
                 break;
             }
         }
         if (index < 0) {
-            throw new Error('invalid cloze_answers: ', encodeURI(value));
+            throw new Error('invalid clozeAnswers: ', encodeURI(value));
         }
-        cloze_answers.selectedIndex = index;
+        clozeAnswers.selectedIndex = index;
 
     },
 
@@ -1520,13 +1520,13 @@ var uiOps = {
      */
     UIToSettings: function()
     {
-        var includeColNums = document.getElementById('include_colNums');
+        var includeColNums = document.getElementById('includeColNums');
         settings['includeColNums'] = includeColNums.checked;
 
 
-        var cloze_answers = document.getElementById('cloze_answers');
-        settings['cloze_answers'] =
-            cloze_answers.options[cloze_answers.selectedIndex].text;
+        var clozeAnswers = document.getElementById('clozeAnswers');
+        settings['clozeAnswers'] =
+            clozeAnswers.options[clozeAnswers.selectedIndex].text;
     },
 }
 
@@ -1714,7 +1714,7 @@ var exportOps = {
                 var content;
 
                 if (isQuestion == '1') {
-                    var answers = settings['cloze_answers'];
+                    var answers = settings['clozeAnswers'];
                     answers = answers.toUpperCase().split(',');
 
                     content = exportOps.clozeQuestion_(
@@ -1884,8 +1884,8 @@ var exportOps = {
      */
     validate_: function()
     {
-        /* Make sure all question data is within cloze_answers. */
-        var cloze_answers = settings['cloze_answers'].toUpperCase().split(',');
+        /* Make sure all question data is within clozeAnswers. */
+        var clozeAnswers = settings['clozeAnswers'].toUpperCase().split(',');
 
         for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
             for (var colIndex = 1; colIndex < cols; colIndex++) {
@@ -1893,7 +1893,7 @@ var exportOps = {
                 var isQuestion = dataIsQuestion[sigIndex][colIndex];
 
                 if (isQuestion == '1') {
-                    if (helper.indexOf(cloze_answers, value) < 0) {
+                    if (helper.indexOf(clozeAnswers, value) < 0) {
                         uiOps.setMsg('Value ' + value +
                                 ' not in Cloze choices'
                             );
@@ -2280,11 +2280,11 @@ var eventOps = {
 
 
         /* Add export settings options. */
-        var cloze_answers = document.getElementById('cloze_answers');
+        var clozeAnswers = document.getElementById('clozeAnswers');
         for (var i in CLOZE_ANSWER_OPTIONS) {
             var v = CLOZE_ANSWER_OPTIONS[i];
 
-            cloze_answers.options.add(new Option(v, v));
+            clozeAnswers.options.add(new Option(v, v));
         }
 
 
