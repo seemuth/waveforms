@@ -1892,9 +1892,11 @@ var exportOps = {
                 var value = data[sigIndex][colIndex].toUpperCase();
                 var isQuestion = dataIsQuestion[sigIndex][colIndex];
 
-                if (isQuestion) {
+                if (isQuestion == '1') {
                     if (helper.indexOf(cloze_answers, value) < 0) {
-                        uiOps.setMsg('Value ' + value + ' not in cloze_answers: ' + sigIndex + ',' + colIndex);
+                        uiOps.setMsg('Value ' + value +
+                                ' not in Cloze choices'
+                            );
                         var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
                         selOps.setCellSelection_(rowIndex, colIndex, 's');
                         return false;
