@@ -37,6 +37,9 @@
 	    td {
 		border: thin dotted lightgrey;
 	    }
+            ul {
+                list-style-type: none;
+            }
 	</style>
     </head>
 
@@ -75,8 +78,11 @@
         </p>
 
         <p id="exportSettings">
-        Export settings:<br />
-        <label><input type="checkbox" id="include_colNums" /> Include column numbers</label>
+        Export settings:
+        <ul>
+            <li><label><input type="checkbox" id="include_colNums" /> Include column numbers</label></li>
+            <li>Cloze subquestion choices: <select id="cloze_answers"></select></li>
+        </ul>
 	</p>
 
         <p>Exported waveform:<br />

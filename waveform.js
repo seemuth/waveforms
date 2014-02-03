@@ -34,9 +34,11 @@ var START_COLS = 8;
 
 var SETTINGS_DEFAULT = {
     includeColNums: false,
+    cloze_answers: '0,1',
 };
 var SETTINGS_TYPE = {
     includeColNums: 'bool',
+    cloze_answers: 'str',
 };
 var SETTINGS_VALIDCHARS = ''.concat(
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -53,7 +55,10 @@ var FONTSIZE_SIGNAME = 'medium';
 /* All Cloze parameters must be strings. */
 var CLOZE_POINTS = '1';
 var CLOZE_QUESTIONTYPE = 'MC';
-var CLOZE_ANSWERS = ['0', '1', 'X'];
+var CLOZE_ANSWER_OPTIONS = [
+    '0,1',
+    '0,1,X',
+];
 
 var EXPORT_DATA_START = '<!--DATA--\n';
 var EXPORT_DATA_STOP = '--DATA-->\n';
@@ -1425,10 +1430,44 @@ var uiOps = {
     /**
      * Update GUI to reflect current settings.
      */
-    updateFromSettings: function()
+    settingsToUI: function()
     {
+        var value;
+        var index;
+
         document.getElementById('include_colNums').checked =
             settings['includeColNums'];
+
+
+        var cloze_answers = document.getElementById('cloze_answers');
+        value = settings['cloze_answers'];
+        index = -1;
+        for (var i = 0; i < cloze_answers.options.length; i++) {
+            if (cloze_answers.options[i].text == value) {
+                index = i;
+                break;
+            }
+        }
+        if (index < 0) {
+            throw new Error('invalid cloze_answers: ', encodeURI(value));
+        }
+        cloze_answers.selectedIndex = index;
+
+    },
+
+
+    /**
+     * Update settings from GUI.
+     */
+    UIToSettings: function()
+    {
+        var includeColNums = document.getElementById('include_colNums');
+        settings['includeColNums'] = includeColNums.checked;
+
+
+        var cloze_answers = document.getElementById('cloze_answers');
+        settings['cloze_answers'] =
+            cloze_answers.options[cloze_answers.selectedIndex].text;
     },
 }
 
@@ -1487,7 +1526,7 @@ var exportOps = {
         }
 
         if (! foundCorrectAnswer) {
-            throw new Error('correctAnswer not in answers');
+            throw new Error('correctAnswer not in answers: ' + correctAnswer);
         }
 
         return '{'.concat(
@@ -1616,10 +1655,13 @@ var exportOps = {
                 var content;
 
                 if (isQuestion == '1') {
+                    var answers = settings['cloze_answers'];
+                    answers = answers.toUpperCase().split(',');
+
                     content = exportOps.clozeQuestion_(
                             CLOZE_POINTS,
                             CLOZE_QUESTIONTYPE,
-                            CLOZE_ANSWERS,
+                            answers,
                             cur.toString().toUpperCase()
                         );
 
@@ -1734,6 +1776,15 @@ var exportOps = {
 
 
     /**
+     * Clear the waveform I/O textarea.
+     */
+    clearWaveform: function()
+    {
+        document.getElementById('io_waveform').value = '';
+    },
+
+
+    /**
      * Copy the table's HTML into the I/O textarea so the user can copy/paste.
      */
     showWaveform: function()
@@ -1746,16 +1797,12 @@ var exportOps = {
                 ' style="border: none; border-collapse: collapse;">\n'
             );
 
-        var includeColNums = document.getElementById('include_colNums');
-        includeColNums = includeColNums.checked;
-        settings['includeColNums'] = includeColNums;
-
-        if (includeColNums) {
+        if (settings['includeColNums']) {
             text = text.concat(exportOps.header_());
         }
 
         for (sigIndex = 0; sigIndex < signals; sigIndex++) {
-            var includeSpacer = (includeColNums) || (sigIndex > 0);
+            var includeSpacer = (settings['includeColNums']) || (sigIndex > 0);
             text = text.concat(exportOps.signal_(sigIndex, includeSpacer));
         }
 
@@ -1765,6 +1812,39 @@ var exportOps = {
             );
 
         io.value = text;
+    },
+
+
+
+    /**
+     * @private
+     * Validate settings and data before exporting.
+     * Update UI with message if invalid.
+     * Highlight errant cell if invalid.
+     * @return {bool} valid True if everything is valid, or False otherwise.
+     */
+    validate_: function()
+    {
+        /* Make sure all question data is within cloze_answers. */
+        var cloze_answers = settings['cloze_answers'].toUpperCase().split(',');
+
+        for (var sigIndex = 0; sigIndex < signals; sigIndex++) {
+            for (var colIndex = 1; colIndex < cols; colIndex++) {
+                var value = data[sigIndex][colIndex].toUpperCase();
+                var isQuestion = dataIsQuestion[sigIndex][colIndex];
+
+                if (isQuestion) {
+                    if (helper.indexOf(cloze_answers, value) < 0) {
+                        uiOps.setMsg('Value ' + value + ' not in cloze_answers: ' + sigIndex + ',' + colIndex);
+                        var rowIndex = indexOps.sigToRow_(sigIndex) + 1;
+                        selOps.setCellSelection_(rowIndex, colIndex, 's');
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     },
 
 
@@ -1780,6 +1860,8 @@ var exportOps = {
         text = text.concat(exportOps.settings_());
 
         io.value = text;
+
+        uiOps.setMsg('Export successful!');
     },
 }
 
@@ -2081,7 +2163,7 @@ var importOps = {
             }
 
 
-            uiOps.updateFromSettings();
+            uiOps.settingsToUI();
             uiOps.setMsg('Import successful!');
 
 
@@ -2136,8 +2218,17 @@ var eventOps = {
         }
 
 
+        /* Add export settings options. */
+        var cloze_answers = document.getElementById('cloze_answers');
+        for (var i in CLOZE_ANSWER_OPTIONS) {
+            var v = CLOZE_ANSWER_OPTIONS[i];
+
+            cloze_answers.options.add(new Option(v, v));
+        }
+
+
         /* Update GUI to reflect settings. */
-        uiOps.updateFromSettings();
+        uiOps.settingsToUI();
 
 
         uiOps.enableMainEdit_(true);
@@ -2462,6 +2553,14 @@ var eventOps = {
      */
     exportWaveform: function()
     {
+        uiOps.UIToSettings();
+
+        exportOps.clearWaveform();
+
+        if (! exportOps.validate_()) {
+            return;
+        }
+
         exportOps.showWaveform();
         exportOps.showDataSettings();
     },
