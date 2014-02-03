@@ -35,10 +35,12 @@ var START_COLS = 8;
 var SETTINGS_DEFAULT = {
     includeColNums: false,
     clozeAnswers: '0,1',
+    colGroupSize: 4,
 };
 var SETTINGS_TYPE = {
     includeColNums: 'bool',
     clozeAnswers: 'str',
+    colGroupSize: 'int',
 };
 var SETTINGS_VALIDCHARS = ''.concat(
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -48,6 +50,8 @@ var SETTINGS_VALIDCHARS = ''.concat(
 
 var COLOR_SELECT = 'cyan';
 var BORDER_SIGNAL = 'thick solid blue';
+var BORDER_GRID = 'thin dotted black';
+var BORDER_GROUP = 'medium dotted black';
 var MINWIDTH_SIGNAME = '100px';
 var MINWIDTH_DATACOL = '20px';
 var FONTSIZE_SIGNAME = 'medium';
@@ -1512,6 +1516,9 @@ var uiOps = {
         }
         clozeAnswers.selectedIndex = index;
 
+
+        document.getElementById('colGroupSize').value =
+            settings['colGroupSize'];
     },
 
 
@@ -1520,6 +1527,9 @@ var uiOps = {
      */
     UIToSettings: function()
     {
+        var value;
+
+
         var includeColNums = document.getElementById('includeColNums');
         settings['includeColNums'] = includeColNums.checked;
 
@@ -1527,6 +1537,16 @@ var uiOps = {
         var clozeAnswers = document.getElementById('clozeAnswers');
         settings['clozeAnswers'] =
             clozeAnswers.options[clozeAnswers.selectedIndex].text;
+
+
+        var colGroupSize = document.getElementById('colGroupSize');
+        value = parseInt(colGroupSize.value.trim());
+        if ((value > 0) && (value != NaN)) {
+            colGroupSize.style.backgroundColor = '';
+            settings['colGroupSize'] = value;
+        } else {
+            colGroupSize.style.backgroundColor = 'red';
+        }
     },
 }
 
@@ -1601,6 +1621,26 @@ var exportOps = {
 
     /**
      * @private
+     * Return the CSS style for the vertical column border.
+     * @param {number} colIndex Zero-based column index
+     */
+    colBorder_: function(colIndex)
+    {
+        var ret = 'border-right: '.concat(BORDER_GRID);
+
+        /* No grouping for first or last columns. */
+        if ((colIndex > 0) && (colIndex < (cols - 1))) {
+            if ((colIndex % settings['colGroupSize']) == 0) {
+                ret = 'border-right: '.concat(BORDER_GROUP);
+            }
+        }
+
+        return ret;
+    },
+
+
+    /**
+     * @private
      * Return the HTML to represent the header row.
      * @return {string} HTML of header row
      */
@@ -1608,14 +1648,17 @@ var exportOps = {
     {
         var ret = '';
 
-        var styles = [
-            'border-right: thin dotted black;',
+        var styles_default = [
             'text-align: center;',
         ];
 
         ret = ret.concat('<tr>\n');
 
         for (var c = 0; c < cols; c++) {
+            var styles = styles_default.slice(0);
+
+            styles.push(exportOps.colBorder_(c));
+
             ret = ret.concat('<td ',
                     exportOps.styleString_(styles),
                     '>'
@@ -1654,7 +1697,6 @@ var exportOps = {
         }
 
         var styles_default = [
-            'border-right: thin dotted black;',
         ];
 
 
@@ -1667,6 +1709,9 @@ var exportOps = {
             ret = ret.concat('<tr>\n');
             for (var c = 0; c < cols; c++) {
                 var styles = styles_default.slice(0);
+
+                styles.push(exportOps.colBorder_(c));
+
                 ret = ret.concat('<td ',
                         exportOps.styleString_(styles),
                         '>&nbsp;</td>\n'
@@ -1679,6 +1724,8 @@ var exportOps = {
         ret = ret.concat('<tr>\n');
         for (var c = 0; c < cols; c++) {
             var styles = styles_default.slice(0);
+
+            styles.push(exportOps.colBorder_(c));
 
             var minWidth = null;
 
@@ -2128,6 +2175,15 @@ var importOps = {
                     throw new Error('invalid ' + settingType + ': ' +
                             encodeURI(value));
                 }
+
+            } else if (settingType == 'int') {
+                var parsed = parseInt(value);
+                if (parsed === NaN) {
+                    throw new Error('invalid ' + settingType + ': ' +
+                            encodeURI(value));
+                }
+
+                value = parsed;
             }
 
             newSettings[key] = value;
